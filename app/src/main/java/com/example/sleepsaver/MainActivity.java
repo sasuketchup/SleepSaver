@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
                                         db.insert("GetUpTable", null, contentValues);
 
-                                        overridePendingTransition(0, 0);
+
                                         finish();
                                         overridePendingTransition(0, 0);
                                         startActivity(getIntent());
