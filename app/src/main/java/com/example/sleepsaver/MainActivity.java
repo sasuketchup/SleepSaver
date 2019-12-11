@@ -3,6 +3,7 @@ package com.example.sleepsaver;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -126,6 +127,22 @@ public class MainActivity extends AppCompatActivity {
                                 }
                         );
                         builder.show();
+                    }
+                }
+        );
+
+        findViewById(R.id.GTBbtn).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        Intent intent = new Intent(MainActivity.this, PopUpActivity.class);
+                        PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, intent, 0);
+                        try {
+                            pendingIntent.send();
+                        } catch (PendingIntent.CanceledException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
         );

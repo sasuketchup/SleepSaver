@@ -3,6 +3,7 @@ package com.example.sleepsaver;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,25 +16,33 @@ public class BatteryReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        intent = context.registerReceiver(null, intentFilter);
-
-        int battery_charge = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
-        String charge_state = "";
-
-        if(battery_charge == 0){
-            charge_state = "起床時刻";
-        }else if(battery_charge == 1 || battery_charge == 2 || battery_charge == 4){
-            charge_state = "就寝時刻";
+        intent = new Intent(context, PopUpActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+        try {
+            pendingIntent.send();
+        } catch (PendingIntent.CanceledException e) {
+            e.printStackTrace();
         }
 
-        Notification.Builder builder = new Notification.Builder(context);
-        NotificationManager manager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        builder.setSmallIcon(android.R.drawable.sym_def_app_icon);
-        builder.setContentTitle("SleepSaver");
-        builder.setContentText(charge_state);
-
-        manager.notify(1, builder.build());
+//        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+//        intent = context.registerReceiver(null, intentFilter);
+//
+//        int battery_charge = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+//        String charge_state = "";
+//
+//        if(battery_charge == 0){
+//            charge_state = "起床時刻";
+//        }else if(battery_charge == 1 || battery_charge == 2 || battery_charge == 4){
+//            charge_state = "就寝時刻";
+//        }
+//
+//        Notification.Builder builder = new Notification.Builder(context);
+//        NotificationManager manager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+//
+//        builder.setSmallIcon(android.R.drawable.sym_def_app_icon);
+//        builder.setContentTitle("SleepSaver");
+//        builder.setContentText(charge_state);
+//
+//        manager.notify(1, builder.build());
     }
 }
