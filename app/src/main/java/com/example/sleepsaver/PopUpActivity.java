@@ -38,9 +38,9 @@ public class PopUpActivity extends AppCompatActivity {
         final int hour = calendar.get(Calendar.HOUR_OF_DAY);
         final int minute = calendar.get(Calendar.MINUTE);
 
+        // 時刻の表示形式を整理
         String hourSt;
         String minuteSt;
-
         if(hour<10){
             hourSt = "0" + hour;
         }else {
@@ -67,6 +67,28 @@ public class PopUpActivity extends AppCompatActivity {
         varTextGUorGTB.setText(year + "年" + month + "月" + date + "日の" + charge_state);
         varTextTime.setText(hourSt + ":" + minuteSt);
 
+        // 記録ボタン
+        findViewById(R.id.btnRecord).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                    }
+                }
+        );
+
+        // アプリを開くボタン
+        findViewById(R.id.btnOpen).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(PopUpActivity.this, MainActivity.class);
+                        startActivity(intent);
+                    }
+                }
+        );
+
+        // 閉じるボタン
         findViewById(R.id.btnClose).setOnClickListener(
                 new View.OnClickListener() {
                     @Override
