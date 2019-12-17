@@ -18,7 +18,7 @@
 
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="100"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:text="起床時刻"
         android:textSize="24sp"
@@ -28,7 +28,7 @@
 
     <TextView
         android:id="@+id/textView3"
-        android:layout_width="100"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:text="就寝時刻"
         android:textSize="24sp"
@@ -38,7 +38,7 @@
 
     <TextView
         android:id="@+id/textView4"
-        android:layout_width="100"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:text="睡眠時間"
         android:textSize="24sp"
@@ -61,13 +61,13 @@
 
             <LinearLayout
                 android:id="@+id/DateLayout"
-                android:layout_width="80"
+                android:layout_width="80dp"
                 android:layout_height="match_parent"
                 android:orientation="vertical"></LinearLayout>
 
             <LinearLayout
                 android:id="@+id/GULayout"
-                android:layout_width="100"
+                android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
@@ -75,13 +75,13 @@
 
             <LinearLayout
                 android:id="@+id/GTBLayout"
-                android:layout_width="100"
+                android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:orientation="vertical"></LinearLayout>
 
             <LinearLayout
                 android:id="@+id/STLayout"
-                android:layout_width="100"
+                android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:orientation="vertical"></LinearLayout>
 

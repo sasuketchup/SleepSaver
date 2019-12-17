@@ -24,6 +24,7 @@ import java.util.Calendar;
 public class MainActivity extends AppCompatActivity {
 
     Calendar calendar;
+    LinearLayout varDateLay;
     LinearLayout varGULay;
 
     @Override
@@ -39,24 +40,44 @@ public class MainActivity extends AppCompatActivity {
         MyOpenHelper helper = new MyOpenHelper(this);
         final SQLiteDatabase db = helper.getWritableDatabase();
 
+        varDateLay = (LinearLayout) findViewById(R.id.DateLayout);
         varGULay = (LinearLayout) findViewById(R.id.GULayout);
 
         Cursor cursor = db.query("GetUpTable", new String[] {"id", "year", "month", "date", "hour", "minute"}, null, null, null, null, null);
 
         long idCount = DatabaseUtils.queryNumEntries(db, "GetUpTable");
 
+        TextView[] textDate = new TextView[(int) idCount];
         TextView[] textGU = new TextView[(int) idCount];
 
+        // 記録を表示
         cursor.moveToFirst();
         for(int i=0;i<idCount;i++){
+            textDate[i] = new TextView(this);
             textGU[i] = new TextView(this);
             int yearGU = cursor.getInt(1);
             int monthGU = cursor.getInt(2);
             int dateGU = cursor.getInt(3);
             int hourGU = cursor.getInt(4);
             int minuteGU = cursor.getInt(5);
-            textGU[i].setText(yearGU + "年" + monthGU + "月" + dateGU + "日" + hourGU + "時" + minuteGU + "分");
+
+            String hourGUSt;
+            String minuteGUSt;
+            if(hourGU<10){
+                hourGUSt = "0" + hourGU;
+            }else {
+                hourGUSt = String.valueOf(hourGU);
+            }
+            if(minuteGU<10){
+                minuteGUSt = "0" + minuteGU;
+            }else {
+                minuteGUSt = String.valueOf(minuteGU);
+            }
+
+            textDate[i].setText(yearGU + "年" + monthGU + "月" + dateGU + "日");
+            textGU[i].setText(hourGUSt + ":" + minuteGUSt);
             cursor.moveToNext();
+            varDateLay.addView(textDate[i], 0);
             varGULay.addView(textGU[i], 0);
         }
         cursor.close();
@@ -81,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
 
                         String hourSt;
                         String minuteSt;
-
                         if(hour<10){
                             hourSt = "0" + hour;
                         }else {
