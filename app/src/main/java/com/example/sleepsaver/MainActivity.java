@@ -32,11 +32,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        Intent battery_intent = this.registerReceiver(null, intentFilter);
-
-        final int battery_charge = battery_intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
-
         MyOpenHelper helper = new MyOpenHelper(this);
         final SQLiteDatabase db = helper.getWritableDatabase();
 
@@ -120,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                         tvTime.setGravity(Gravity.CENTER_HORIZONTAL);
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                        builder.setTitle(year + "年" + month + "月" + date + "日の起床時刻" + battery_charge);
+                        builder.setTitle(year + "年" + month + "月" + date + "日の起床時刻");
                         builder.setView(tvTime);
                         builder.setPositiveButton(
                                 "記録",
