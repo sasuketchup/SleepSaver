@@ -38,23 +38,25 @@ public class MainActivity extends AppCompatActivity {
         varDateLay = (LinearLayout) findViewById(R.id.DateLayout);
         varGULay = (LinearLayout) findViewById(R.id.GULayout);
 
-        Cursor cursor = db.query("GetUpTable", new String[] {"id", "year", "month", "date", "hour", "minute"}, null, null, null, null, null);
+        Cursor cursor = db.query("DateTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
+        Cursor cursor1 = db.query("GetUpTable", new String[] {"id", "hour", "minute"}, null, null, null, null, null);
 
-        long idCount = DatabaseUtils.queryNumEntries(db, "GetUpTable");
+        long idCount = DatabaseUtils.queryNumEntries(db, "DateTable");
 
         TextView[] textDate = new TextView[(int) idCount];
         TextView[] textGU = new TextView[(int) idCount];
 
         // 記録を表示
         cursor.moveToFirst();
+        cursor1.moveToFirst();
         for(int i=0;i<idCount;i++){
             textDate[i] = new TextView(this);
             textGU[i] = new TextView(this);
             int yearGU = cursor.getInt(1);
             int monthGU = cursor.getInt(2);
             int dateGU = cursor.getInt(3);
-            int hourGU = cursor.getInt(4);
-            int minuteGU = cursor.getInt(5);
+            int hourGU = cursor1.getInt(1);
+            int minuteGU = cursor1.getInt(2);
 
             String hourGUSt;
             String minuteGUSt;
@@ -72,12 +74,15 @@ public class MainActivity extends AppCompatActivity {
             textDate[i].setText(yearGU + "年" + monthGU + "月" + dateGU + "日");
             textGU[i].setText(hourGUSt + ":" + minuteGUSt);
             cursor.moveToNext();
+            cursor1.moveToNext();
             varDateLay.addView(textDate[i], 0);
             varGULay.addView(textGU[i], 0);
         }
         cursor.close();
+        cursor1.close();
 
         final ContentValues contentValues = new ContentValues();
+        final ContentValues contentValues1 = new ContentValues();
 
         // 起床時刻ボタンの処理
         findViewById(R.id.GUbtn).setOnClickListener(
@@ -85,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
 
-                        final long idNumber = DatabaseUtils.queryNumEntries(db, "GetUpTable");
+                        final long idNumber = DatabaseUtils.queryNumEntries(db, "DateTable");
 
                         calendar = Calendar.getInstance();
 
@@ -126,10 +131,13 @@ public class MainActivity extends AppCompatActivity {
                                         contentValues.put("year", year);
                                         contentValues.put("month", month);
                                         contentValues.put("date", date);
-                                        contentValues.put("hour", hour);
-                                        contentValues.put("minute", minute);
 
-                                        db.insert("GetUpTable", null, contentValues);
+                                        contentValues1.put("id", idNumber);
+                                        contentValues1.put("hour", hour);
+                                        contentValues1.put("minute", minute);
+
+                                        db.insert("DateTable", null, contentValues);
+                                        db.insert("GetUpTable", null, contentValues1);
 
 
                                         finish();

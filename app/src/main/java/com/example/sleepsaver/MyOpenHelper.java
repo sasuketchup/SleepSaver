@@ -12,8 +12,9 @@ public class MyOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table GetUpTable(id integer primary key, year integer, month integer, date integer, hour integer, minute integer);");
-        db.execSQL("create table GoToBedTable(id integer primary key, year integer, month integer, date integer, hour integer, minute integer);");
+        db.execSQL("create table DateTable(id integer primary key, year integer, month integer, date integer);");
+        db.execSQL("create table GetUpTable(id integer primary key, hour integer, minute integer);");
+        db.execSQL("create table GoToBedTable(id integer primary key, hour integer, minute integer);");
     }
 
     @Override
