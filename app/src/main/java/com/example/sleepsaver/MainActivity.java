@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
         Cursor cursor2 = db.query("GoToBedTable", new String[] {"id", "hour", "minute"}, null, null, null, null, null);
 
         long idCount = DatabaseUtils.queryNumEntries(db, "DateTable");
+        long idGU = DatabaseUtils.queryNumEntries(db, "GetUpTable");
+        long idGTB = DatabaseUtils.queryNumEntries(db, "GoToBedTable");
 
         TextView[] textDate = new TextView[(int) idCount];
         TextView[] textGU = new TextView[(int) idCount];
@@ -61,35 +63,43 @@ public class MainActivity extends AppCompatActivity {
             int year = cursor.getInt(1);
             int month = cursor.getInt(2);
             int date = cursor.getInt(3);
-            int hourGU = cursor1.getInt(1);
-            int minuteGU = cursor1.getInt(2);
-            int hourGTB = cursor2.getInt(1);
-            int minuteGTB = cursor2.getInt(2);
 
-            String hourGUSt;
-            String minuteGUSt;
-            if(hourGU<10){
-                hourGUSt = "0" + hourGU;
-            }else {
-                hourGUSt = String.valueOf(hourGU);
-            }
-            if(minuteGU<10){
-                minuteGUSt = "0" + minuteGU;
-            }else {
-                minuteGUSt = String.valueOf(minuteGU);
+            String hourGUSt = "--";
+            String minuteGUSt = "--";
+
+            String hourGTBSt = "--";
+            String minuteGTBSt = "--";
+
+            if(i < idGU){
+                int hourGU = cursor1.getInt(1);
+                int minuteGU = cursor1.getInt(2);
+
+                if(hourGU<10){
+                    hourGUSt = "0" + hourGU;
+                }else {
+                    hourGUSt = String.valueOf(hourGU);
+                }
+                if(minuteGU<10){
+                    minuteGUSt = "0" + minuteGU;
+                }else {
+                    minuteGUSt = String.valueOf(minuteGU);
+                }
             }
 
-            String hourGTBSt;
-            String minuteGTBSt;
-            if(hourGTB<10){
-                hourGTBSt = "0" + hourGTB;
-            }else {
-                hourGTBSt = String.valueOf(hourGTB);
-            }
-            if(minuteGTB<10){
-                minuteGTBSt = "0" + minuteGTB;
-            }else {
-                minuteGTBSt = String.valueOf(minuteGTB);
+            if(i < idGTB) {
+                int hourGTB = cursor2.getInt(1);
+                int minuteGTB = cursor2.getInt(2);
+
+                if (hourGTB < 10) {
+                    hourGTBSt = "0" + hourGTB;
+                } else {
+                    hourGTBSt = String.valueOf(hourGTB);
+                }
+                if (minuteGTB < 10) {
+                    minuteGTBSt = "0" + minuteGTB;
+                } else {
+                    minuteGTBSt = String.valueOf(minuteGTB);
+                }
             }
 
             textDate[i].setText(year + "年" + month + "月" + date + "日");
