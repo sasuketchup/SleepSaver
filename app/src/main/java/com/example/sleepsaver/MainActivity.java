@@ -105,6 +105,8 @@ public class MainActivity extends AppCompatActivity {
             textDate[i].setText(year + "年" + month + "月" + date + "日");
             textGU[i].setText(hourGUSt + ":" + minuteGUSt);
             textGTB[i].setText(hourGTBSt + ":" + minuteGTBSt);
+            textGU[i].setTextSize(24);
+            textGTB[i].setTextSize(24);
             cursor.moveToNext();
             cursor1.moveToNext();
             cursor2.moveToNext();
@@ -162,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        contentValues.put("id", idNumber);
+                                        contentValues.put("id", idNumber); // このままだと日付が同じときでもidをインクリメントしてしまう！
                                         contentValues.put("year", year);
                                         contentValues.put("month", month);
                                         contentValues.put("date", date);
@@ -232,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        contentValues.put("id", idNumber);
+                                        contentValues.put("id", idNumber); // ここも！！
                                         contentValues.put("year", year);
                                         contentValues.put("month", month);
                                         contentValues.put("date", date);

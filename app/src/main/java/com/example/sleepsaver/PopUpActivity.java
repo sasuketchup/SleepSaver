@@ -34,6 +34,7 @@ public class PopUpActivity extends AppCompatActivity {
         final SQLiteDatabase db = helper.getWritableDatabase();
 
         final ContentValues contentValues = new ContentValues();
+        final ContentValues contentValues1 = new ContentValues();
 
         varTextGUorGTB = findViewById(R.id.textGUorGTB);
         varTextTime = findViewById(R.id.textTime);
@@ -63,7 +64,7 @@ public class PopUpActivity extends AppCompatActivity {
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent battery_intent = this.registerReceiver(null, intentFilter);
 
-        int battery_charge = battery_intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        final int battery_charge = battery_intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
         String charge_state = "";
 
         if(battery_charge == 0){
@@ -81,16 +82,23 @@ public class PopUpActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
 
-                        long idNumber = DatabaseUtils.queryNumEntries(db, "GetUpTable"); // あとで条件分岐すること！
+                        long idNumber = DatabaseUtils.queryNumEntries(db, "DateTable"); // 日付によるインクリメント問題！
 
                         contentValues.put("id", idNumber);
                         contentValues.put("year", year);
                         contentValues.put("month", month);
                         contentValues.put("date", date);
-                        contentValues.put("hour", hour);
-                        contentValues.put("minute", minute);
 
-                        db.insert("GetUpTable", null, contentValues); // ここも！
+                        contentValues1.put("hour", hour);
+                        contentValues1.put("minute", minute);
+
+                        db.insert("DateTable", null, contentValues);
+                        
+                        if(battery_charge == 0) {
+                            db.insert("GetUpTable", null, contentValues1);
+                        }else if(battery_charge == 1 || battery_charge == 2 || battery_charge == 4){
+                            db.insert("GoToBedTable", null, contentValues1);
+                        }
 
                         finish();
                     }
