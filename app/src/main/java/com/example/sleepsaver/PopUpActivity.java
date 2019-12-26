@@ -17,6 +17,7 @@ import java.util.Calendar;
 
 public class PopUpActivity extends AppCompatActivity {
 
+    TextView varTextState;
     TextView varTextGUorGTB;
     TextView varTextTime;
 
@@ -36,6 +37,7 @@ public class PopUpActivity extends AppCompatActivity {
         final ContentValues contentValues = new ContentValues();
         final ContentValues contentValues1 = new ContentValues();
 
+        varTextState = findViewById(R.id.textState);
         varTextGUorGTB = findViewById(R.id.textGUorGTB);
         varTextTime = findViewById(R.id.textTime);
 
@@ -68,8 +70,10 @@ public class PopUpActivity extends AppCompatActivity {
         String charge_state = "";
 
         if(battery_charge == 0){
+            varTextState.setText("電源から切断しました。");
             charge_state = "起床時刻";
         }else if(battery_charge == 1 || battery_charge == 2 || battery_charge == 4){
+            varTextState.setText("電源に接続しました。");
             charge_state = "就寝時刻";
         }
 
@@ -93,7 +97,7 @@ public class PopUpActivity extends AppCompatActivity {
                         contentValues1.put("minute", minute);
 
                         db.insert("DateTable", null, contentValues);
-                        
+
                         if(battery_charge == 0) {
                             db.insert("GetUpTable", null, contentValues1);
                         }else if(battery_charge == 1 || battery_charge == 2 || battery_charge == 4){
