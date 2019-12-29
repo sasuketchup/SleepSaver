@@ -28,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout varGULay;
     LinearLayout varGTBLay;
 
+    TimeHandler timeHandler = new TimeHandler();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
