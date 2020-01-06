@@ -23,6 +23,8 @@ public class PopUpActivity extends AppCompatActivity {
 
     Calendar calendar;
 
+    TimeHandler timeHandler = new TimeHandler();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,18 +52,7 @@ public class PopUpActivity extends AppCompatActivity {
         final int minute = calendar.get(Calendar.MINUTE);
 
         // 時刻の表示形式を整理
-        String hourSt;
-        String minuteSt;
-        if(hour<10){
-            hourSt = "0" + hour;
-        }else {
-            hourSt = String.valueOf(hour);
-        }
-        if(minute<10){
-            minuteSt = "0" + minute;
-        }else {
-            minuteSt = String.valueOf(minute);
-        }
+        String[] timeSt = timeHandler.timeString(hour, minute);
 
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent battery_intent = this.registerReceiver(null, intentFilter);
@@ -78,7 +69,7 @@ public class PopUpActivity extends AppCompatActivity {
         }
 
         varTextGUorGTB.setText(year + "年" + month + "月" + date + "日の" + charge_state);
-        varTextTime.setText(hourSt + ":" + minuteSt);
+        varTextTime.setText(timeSt[0] + ":" + timeSt[1]);
 
         // 記録ボタン
         findViewById(R.id.btnRecord).setOnClickListener(
