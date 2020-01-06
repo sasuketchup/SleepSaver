@@ -66,47 +66,26 @@ public class MainActivity extends AppCompatActivity {
             int month = cursor.getInt(2);
             int date = cursor.getInt(3);
 
-            String hourGUSt = "--";
-            String minuteGUSt = "--";
-
-            String hourGTBSt = "--";
-            String minuteGTBSt = "--";
+            String[] timeGUSt = {"--", "--"};
+            String[] timeGTBSt = {"--", "--"};
 
             if(i < idGU){
                 int hourGU = cursor1.getInt(1);
                 int minuteGU = cursor1.getInt(2);
 
-                if(hourGU<10){
-                    hourGUSt = "0" + hourGU;
-                }else {
-                    hourGUSt = String.valueOf(hourGU);
-                }
-                if(minuteGU<10){
-                    minuteGUSt = "0" + minuteGU;
-                }else {
-                    minuteGUSt = String.valueOf(minuteGU);
-                }
+                timeGUSt = timeHandler.timeString(hourGU, minuteGU);
             }
 
             if(i < idGTB) {
                 int hourGTB = cursor2.getInt(1);
                 int minuteGTB = cursor2.getInt(2);
 
-                if (hourGTB < 10) {
-                    hourGTBSt = "0" + hourGTB;
-                } else {
-                    hourGTBSt = String.valueOf(hourGTB);
-                }
-                if (minuteGTB < 10) {
-                    minuteGTBSt = "0" + minuteGTB;
-                } else {
-                    minuteGTBSt = String.valueOf(minuteGTB);
-                }
+                timeGTBSt = timeHandler.timeString(hourGTB, minuteGTB);
             }
 
             textDate[i].setText(year + "年" + month + "月" + date + "日");
-            textGU[i].setText(hourGUSt + ":" + minuteGUSt);
-            textGTB[i].setText(hourGTBSt + ":" + minuteGTBSt);
+            textGU[i].setText(timeGUSt[0] + ":" + timeGUSt[1]);
+            textGTB[i].setText(timeGTBSt[0] + ":" + timeGTBSt[1]);
             textGU[i].setTextSize(24);
             textGTB[i].setTextSize(24);
             cursor.moveToNext();
@@ -139,21 +118,10 @@ public class MainActivity extends AppCompatActivity {
                         final int hour = calendar.get(Calendar.HOUR_OF_DAY);
                         final int minute = calendar.get(Calendar.MINUTE);
 
-                        String hourSt;
-                        String minuteSt;
-                        if(hour<10){
-                            hourSt = "0" + hour;
-                        }else {
-                            hourSt = String.valueOf(hour);
-                        }
-                        if(minute<10){
-                            minuteSt = "0" + minute;
-                        }else {
-                            minuteSt = String.valueOf(minute);
-                        }
+                        String[] timeSt = timeHandler.timeString(hour, minute);
 
                         TextView tvTime = new TextView(getApplicationContext());
-                        tvTime.setText(hourSt + ":" + minuteSt);
+                        tvTime.setText(timeSt[0] + ":" + timeSt[1]);
                         tvTime.setTextColor(Color.BLACK);
                         tvTime.setTextSize(30);
                         tvTime.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -209,21 +177,10 @@ public class MainActivity extends AppCompatActivity {
                         final int hour = calendar.get(Calendar.HOUR_OF_DAY);
                         final int minute = calendar.get(Calendar.MINUTE);
 
-                        String hourSt;
-                        String minuteSt;
-                        if(hour<10){
-                            hourSt = "0" + hour;
-                        }else {
-                            hourSt = String.valueOf(hour);
-                        }
-                        if(minute<10){
-                            minuteSt = "0" + minute;
-                        }else {
-                            minuteSt = String.valueOf(minute);
-                        }
+                        String[] timeSt = timeHandler.timeString(hour, minute);
 
                         TextView tvTime = new TextView(getApplicationContext());
-                        tvTime.setText(hourSt + ":" + minuteSt);
+                        tvTime.setText(timeSt[0] + ":" + timeSt[1]);
                         tvTime.setTextColor(Color.BLACK);
                         tvTime.setTextSize(30);
                         tvTime.setGravity(Gravity.CENTER_HORIZONTAL);

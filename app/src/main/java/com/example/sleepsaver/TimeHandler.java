@@ -3,7 +3,7 @@ package com.example.sleepsaver;
 public class TimeHandler {
 
     // 時分を表示する形式に整理するメソッド
-    private String[] timeString(int hour, int minute) {
+    protected String[] timeString(int hour, int minute) {
         String[] timeSt = {"--", "--"};
 
         if(hour<10 && hour > -1){
