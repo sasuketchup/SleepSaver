@@ -24,6 +24,10 @@ import java.util.Calendar;
 public class MainActivity extends AppCompatActivity {
 
     Calendar calendar;
+    Calendar calendar1;
+    Calendar calendar2;
+
+
     LinearLayout varDateLay;
     LinearLayout varGULay;
     LinearLayout varGTBLay;
@@ -35,8 +39,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        calendar1 = Calendar.getInstance();
+
         MyOpenHelper helper = new MyOpenHelper(this);
         final SQLiteDatabase db = helper.getWritableDatabase();
+
+        Cursor cursor0 = db.query("DateTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
+        cursor0.moveToLast();
+        int latestYear = cursor0.getInt(1);
+        int latestMonth = cursor0.getInt(2);
+        int latestDate = cursor0.getInt(3);
+
+        calendar2 = Calendar.getInstance();
+        calendar2.set(latestYear, latestMonth, latestDate);
 
         varDateLay = (LinearLayout) findViewById(R.id.DateLayout);
         varGULay = (LinearLayout) findViewById(R.id.GULayout);
