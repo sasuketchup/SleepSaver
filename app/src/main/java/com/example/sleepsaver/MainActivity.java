@@ -24,8 +24,8 @@ import java.util.Calendar;
 public class MainActivity extends AppCompatActivity {
 
     Calendar calendar;
-    Calendar calendar1;
-    Calendar calendar2;
+    Calendar cal_now;
+    Calendar cal_latest;
 
 
     LinearLayout varDateLay;
@@ -39,19 +39,36 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        calendar1 = Calendar.getInstance();
-
         MyOpenHelper helper = new MyOpenHelper(this);
         final SQLiteDatabase db = helper.getWritableDatabase();
 
         Cursor cursor0 = db.query("DateTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
         cursor0.moveToLast();
         int latestYear = cursor0.getInt(1);
-        int latestMonth = cursor0.getInt(2);
+        int latestMonth = cursor0.getInt(2) - 1; // 月は0からなので-1する！！
         int latestDate = cursor0.getInt(3);
+        cursor0.close();
 
-        calendar2 = Calendar.getInstance();
-        calendar2.set(latestYear, latestMonth, latestDate);
+        cal_now = Calendar.getInstance();
+
+        cal_latest = Calendar.getInstance();
+        cal_latest.set(latestYear, latestMonth, latestDate);
+
+        long cal_diff_Millis = cal_now.getTimeInMillis() - cal_latest.getTimeInMillis();
+        int MILLIS_OF_DAY = 1000 * 60 * 60 * 24;
+        final int cal_diff_Days = (int)(cal_diff_Millis / MILLIS_OF_DAY);
+
+        ContentValues emptyCV = new ContentValues();
+
+        for(int i=0;i<(cal_diff_Days-1);i++){
+            cal_latest.add(Calendar.DAY_OF_MONTH, 1);
+            int emptyYear = cal_latest.get(Calendar.YEAR);
+            int emptyMonth = cal_latest.get(Calendar.MONTH) + 1;
+            int emptyDate = cal_latest.get(Calendar.DATE);
+
+            emptyCV.put("year", emptyYear);
+            
+        }
 
         varDateLay = (LinearLayout) findViewById(R.id.DateLayout);
         varGULay = (LinearLayout) findViewById(R.id.GULayout);
@@ -142,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
                         tvTime.setGravity(Gravity.CENTER_HORIZONTAL);
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                        builder.setTitle(year + "年" + month + "月" + date + "日の起床時刻");
+                        builder.setTitle(year + "年" + month + "月" + date + "日の起床時刻" + cal_diff_Days);
                         builder.setView(tvTime);
                         builder.setPositiveButton(
                                 "記録",
