@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         Cursor cursor0 = db.query("DateTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
         cursor0.moveToLast();
+        int latestID = cursor0.getInt(0);
         int latestYear = cursor0.getInt(1);
         int latestMonth = cursor0.getInt(2) - 1; // 月は0からなので-1する！！
         int latestDate = cursor0.getInt(3);
@@ -59,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
         final int cal_diff_Days = (int)(cal_diff_Millis / MILLIS_OF_DAY);
 
         ContentValues emptyCV = new ContentValues();
+        ContentValues emptyCV1 = new ContentValues();
+        ContentValues emptyCV2 = new ContentValues();
 
         for(int i=0;i<(cal_diff_Days-1);i++){
             cal_latest.add(Calendar.DAY_OF_MONTH, 1);
@@ -66,8 +69,22 @@ public class MainActivity extends AppCompatActivity {
             int emptyMonth = cal_latest.get(Calendar.MONTH) + 1;
             int emptyDate = cal_latest.get(Calendar.DATE);
 
+            emptyCV.put("id", latestID);
             emptyCV.put("year", emptyYear);
-            
+            emptyCV.put("month", emptyMonth);
+            emptyCV.put("date", emptyDate);
+
+            emptyCV1.put("id", latestID);
+            emptyCV1.put("hour", -1);
+            emptyCV1.put("minute", -1);
+
+            emptyCV2.put("id", latestID);
+            emptyCV2.put("hour", -1);
+            emptyCV2.put("minute", -1);
+
+            db.insert("DateTable", null, emptyCV);
+            db.insert("GetUpTable", null, emptyCV1);
+            db.insert("GoToBedTable",null, emptyCV2);
         }
 
         varDateLay = (LinearLayout) findViewById(R.id.DateLayout);
