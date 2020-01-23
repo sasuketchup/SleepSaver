@@ -55,9 +55,10 @@
         tools:layout_editor_absoluteX="2dp">
 
         <LinearLayout
+            android:id="@+id/RecordLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/DateLayout"

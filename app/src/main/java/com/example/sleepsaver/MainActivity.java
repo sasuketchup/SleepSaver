@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     Calendar cal_now;
     Calendar cal_latest;
 
+    LinearLayout varRecordLay;
 
     LinearLayout varDateLay;
     LinearLayout varGULay;
@@ -87,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
             db.insert("GoToBedTable",null, emptyCV2);
         }
 
+        varRecordLay = (LinearLayout) findViewById(R.id.RecordLayout);
+
         varDateLay = (LinearLayout) findViewById(R.id.DateLayout);
         varGULay = (LinearLayout) findViewById(R.id.GULayout);
         varGTBLay = (LinearLayout) findViewById(R.id.GTBLayout);
@@ -99,6 +102,8 @@ public class MainActivity extends AppCompatActivity {
         long idGU = DatabaseUtils.queryNumEntries(db, "GetUpTable");
         long idGTB = DatabaseUtils.queryNumEntries(db, "GoToBedTable");
 
+        LinearLayout[] timeLayout = new LinearLayout[(int) idCount];
+
         TextView[] textDate = new TextView[(int) idCount];
         TextView[] textGU = new TextView[(int) idCount];
         TextView[] textGTB = new TextView[(int) idCount];
@@ -108,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
         cursor1.moveToFirst();
         cursor2.moveToFirst();
         for(int i=0;i<idCount;i++){
+            timeLayout[i] = new LinearLayout(this);
             textDate[i] = new TextView(this);
             textGU[i] = new TextView(this);
             textGTB[i] = new TextView(this);
@@ -140,9 +146,15 @@ public class MainActivity extends AppCompatActivity {
             cursor.moveToNext();
             cursor1.moveToNext();
             cursor2.moveToNext();
-            varDateLay.addView(textDate[i], 0);
-            varGULay.addView(textGU[i], 0);
-            varGTBLay.addView(textGTB[i], 0);
+
+            timeLayout[i].setOrientation(LinearLayout.HORIZONTAL);
+            timeLayout[i].addView(textDate[i]);
+            timeLayout[i].addView(textGU[i]);
+            timeLayout[i].addView(textGTB[i]);
+            varRecordLay.addView(timeLayout[i], 0);
+//            varDateLay.addView(textDate[i], 0);
+//            varGULay.addView(textGU[i], 0);
+//            varGTBLay.addView(textGTB[i], 0);
         }
         cursor.close();
         cursor1.close();
