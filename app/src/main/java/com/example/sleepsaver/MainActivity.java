@@ -141,8 +141,15 @@ public class MainActivity extends AppCompatActivity {
             textDate[i].setText(year + "年" + month + "月" + date + "日");
             textGU[i].setText(timeGUSt[0] + ":" + timeGUSt[1]);
             textGTB[i].setText(timeGTBSt[0] + ":" + timeGTBSt[1]);
-            textGU[i].setTextSize(24);
-            textGTB[i].setTextSize(24);
+            textDate[i].setWidth(convertDp2Px(80));
+            textDate[i].setHeight(100);
+            textGU[i].setWidth(convertDp2Px(100));
+            textGTB[i].setWidth(convertDp2Px(100));
+            textDate[i].setGravity(Gravity.TOP);
+            textGU[i].setGravity(Gravity.RIGHT);
+            textGTB[i].setGravity(Gravity.RIGHT);
+            textGU[i].setTextSize(30);
+            textGTB[i].setTextSize(30);
             cursor.moveToNext();
             cursor1.moveToNext();
             cursor2.moveToNext();
@@ -280,5 +287,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+    }
+
+    // dpをpxに変換するメソッド
+    public int convertDp2Px(int dp) {
+        float scale = getResources().getDisplayMetrics().density;
+        int px = (int) (dp * scale);
+        return px;
     }
 }
