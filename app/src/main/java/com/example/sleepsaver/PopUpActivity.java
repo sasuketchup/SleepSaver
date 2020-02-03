@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,7 +20,7 @@ public class PopUpActivity extends AppCompatActivity {
 
     TextView varTextState;
     TextView varTextGUorGTB;
-    TextView varTextTime;
+    TimePicker varTextTime;
 
     Calendar calendar;
 
@@ -69,7 +70,8 @@ public class PopUpActivity extends AppCompatActivity {
         }
 
         varTextGUorGTB.setText(year + "年" + month + "月" + date + "日の" + charge_state);
-        varTextTime.setText(timeSt[0] + ":" + timeSt[1]);
+        varTextTime.setIs24HourView(true);
+//        varTextTime.setText(timeSt[0] + ":" + timeSt[1]);
 
         // 記録ボタン
         findViewById(R.id.btnRecord).setOnClickListener(
