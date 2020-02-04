@@ -71,6 +71,8 @@ public class PopUpActivity extends AppCompatActivity {
 
         varTextGUorGTB.setText(year + "年" + month + "月" + date + "日の" + charge_state);
         varTextTime.setIs24HourView(true);
+        varTextTime.setCurrentHour(hour);
+        varTextTime.setCurrentMinute(minute);
 //        varTextTime.setText(timeSt[0] + ":" + timeSt[1]);
 
         // 記録ボタン
@@ -86,8 +88,8 @@ public class PopUpActivity extends AppCompatActivity {
                         contentValues.put("month", month);
                         contentValues.put("date", date);
 
-                        contentValues1.put("hour", hour);
-                        contentValues1.put("minute", minute);
+                        contentValues1.put("hour", varTextTime.getCurrentHour());
+                        contentValues1.put("minute", varTextTime.getCurrentMinute());
 
                         db.insert("DateTable", null, contentValues);
 
@@ -97,7 +99,7 @@ public class PopUpActivity extends AppCompatActivity {
                             db.insert("GoToBedTable", null, contentValues1);
                         }
 
-                        finish();
+                        findViewById(R.id.btnRecord).setEnabled(false);
                     }
                 }
         );
