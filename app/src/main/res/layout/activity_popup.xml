@@ -32,14 +32,14 @@
 
         <TimePicker
             android:id="@+id/textTime"
-            android:timePickerMode="spinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
             android:layout_marginLeft="32dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="8dp"
             android:text="00:00"
             android:textSize="36sp"
+            android:timePickerMode="spinner"
             app:layout_constraintStart_toStartOf="@+id/textGUorGTB"
             app:layout_constraintTop_toBottomOf="@+id/textGUorGTB" />
 
@@ -47,10 +47,10 @@
             android:id="@+id/btnRecord"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="8dp"
             android:text="記録する"
             app:layout_constraintStart_toStartOf="@+id/textGUorGTB"
-            app:layout_constraintTop_toBottomOf="@+id/textTime" />
+            app:layout_constraintTop_toBottomOf="@+id/btnCurrent" />
 
         <Button
             android:id="@+id/btnOpen"
@@ -71,5 +71,16 @@
             android:text="閉じる"
             app:layout_constraintStart_toEndOf="@+id/btnOpen"
             app:layout_constraintTop_toTopOf="@+id/btnOpen" />
+
+        <Button
+            android:id="@+id/btnCurrent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="8dp"
+            android:text="現在時刻にセット"
+            app:layout_constraintStart_toStartOf="@+id/textTime"
+            app:layout_constraintTop_toBottomOf="@+id/textTime" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>
