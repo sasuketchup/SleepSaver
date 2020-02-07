@@ -75,6 +75,22 @@ public class PopUpActivity extends AppCompatActivity {
         varTextTime.setCurrentMinute(minute);
 //        varTextTime.setText(timeSt[0] + ":" + timeSt[1]);
 
+        // 現在時刻にセットボタン
+        findViewById(R.id.btnCurrent).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        calendar = Calendar.getInstance();
+                        int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
+                        int currentMinute = calendar.get(Calendar.MINUTE);
+
+                        varTextTime.setCurrentHour(currentHour);
+                        varTextTime.setCurrentMinute(currentMinute);
+                    }
+                }
+        );
+
         // 記録ボタン
         findViewById(R.id.btnRecord).setOnClickListener(
                 new View.OnClickListener() {

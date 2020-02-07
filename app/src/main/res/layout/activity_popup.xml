@@ -47,7 +47,7 @@
             android:id="@+id/btnRecord"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="24dp"
             android:text="記録する"
             app:layout_constraintStart_toStartOf="@+id/textGUorGTB"
             app:layout_constraintTop_toBottomOf="@+id/btnCurrent" />
