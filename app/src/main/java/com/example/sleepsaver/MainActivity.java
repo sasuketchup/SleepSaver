@@ -4,6 +4,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.database.DatabaseUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import java.util.Calendar;
 
@@ -193,6 +195,15 @@ public class MainActivity extends AppCompatActivity {
                         tvTime.setTextColor(Color.BLACK);
                         tvTime.setTextSize(30);
                         tvTime.setGravity(Gravity.CENTER_HORIZONTAL);
+
+                        TimePickerDialog timePickerDialog = new TimePickerDialog(this,
+                                android.R.style.Theme_Holo_Dialog,
+                                new TimePickerDialog.OnTimeSetListener() {
+                                    @Override
+                                    public void onTimeSet(TimePicker timePicker, int i, int i1) {
+
+                                    }
+                                })
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                         builder.setTitle(year + "年" + month + "月" + date + "日の起床時刻" + cal_diff_Days);
