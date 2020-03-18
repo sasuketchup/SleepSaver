@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -25,8 +26,26 @@ import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
 
-    int hour2 = 0;
-    int minute2 = 0;
+    // 年月日時刻を扱う変数
+    int year = 0;
+    int month = 0;
+    int date = 0;
+    int hour = 0;
+    int minute = 0;
+
+    // ピッカーの時刻を変更したときに変数に代入するようにするために、TimePickerDialogを継承したクラス
+    public class CustomTimePickerDialog extends TimePickerDialog {
+
+        public CustomTimePickerDialog(Context context, int themeResId, OnTimeSetListener listener, int hourOfDay, int minute, boolean is24HourView) {
+            super(context, themeResId, listener, hourOfDay, minute, is24HourView);
+        }
+
+        @Override
+        public void onTimeChanged(TimePicker view, int s_hour, int s_minute) {
+            hour = s_hour;
+            minute = s_minute;
+        }
+    }
 
     Calendar calendar;
     Calendar cal_now;
@@ -172,138 +191,12 @@ public class MainActivity extends AppCompatActivity {
         cursor1.close();
         cursor2.close();
 
-        final ContentValues contentValues = new ContentValues();
-        final ContentValues contentValues1 = new ContentValues();
-
         // 起床時刻ボタンの処理
         findViewById(R.id.GUbtn).setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
-                        final long idNumber = DatabaseUtils.queryNumEntries(db, "DateTable");
-
-                        calendar = Calendar.getInstance();
-
-                        final int year = calendar.get(Calendar.YEAR);
-                        final int month = calendar.get(Calendar.MONTH) + 1;
-                        final int date = calendar.get(Calendar.DATE);
-                        final int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                        final int minute = calendar.get(Calendar.MINUTE);
-
-                        String[] timeSt = timeHandler.timeString(hour, minute);
-
-                        TextView tvTime = new TextView(getApplicationContext());
-                        tvTime.setText(timeSt[0] + ":" + timeSt[1]);
-                        tvTime.setTextColor(Color.BLACK);
-                        tvTime.setTextSize(30);
-                        tvTime.setGravity(Gravity.CENTER_HORIZONTAL);
-
-//                        TimePickerDialog timePickerDialog1 = new TimePickerDialog(this,
-//                                android.R.style.Theme_Holo_Dialog,
-//                                new TimePickerDialog.OnTimeSetListener() {
-//                                    @Override
-//                                    public void onTimeSet(TimePicker timePicker, int i, int i1) {
-//
-//                                    }
-//                                });
-
-                        // タイムピッカーを表示
-                        TimePickerDialog timePickerDialog;
-
-                        TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
-                            @Override
-                            public void onTimeSet(TimePicker timePicker, int i, int i1) {
-//                                hour2 = i;
-//                                minute2 = i1;
-                            }
-                        };
-
-                        timePickerDialog = new TimePickerDialog(MainActivity.this, TimePickerDialog.THEME_HOLO_LIGHT, listener, hour, minute, true);
-
-                        timePickerDialog.setTitle(year + "年" + month + "月" + date + "日の起床時刻");
-                        timePickerDialog.setButton(
-                                DialogInterface.BUTTON_POSITIVE,
-                                "記録",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int which) {
-                                        contentValues.put("id", idNumber); // このままだと日付が同じときでもidをインクリメントしてしまう！
-                                        contentValues.put("year", year);
-                                        contentValues.put("month", month);
-                                        contentValues.put("date", date);
-
-                                        contentValues1.put("id", idNumber);
-                                        contentValues1.put("hour", hour);
-                                        contentValues1.put("minute", minute);
-
-                                        db.insert("DateTable", null, contentValues);
-                                        db.insert("GetUpTable", null, contentValues1);
-
-
-                                        finish();
-                                        overridePendingTransition(0, 0);
-                                        startActivity(getIntent());
-                                        overridePendingTransition(0, 0);
-
-                                        dialogInterface.dismiss();
-                                    }
-                                }
-                        );
-
-                        timePickerDialog.setButton(
-                                DialogInterface.BUTTON_NEGATIVE,
-                                "Negative",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // Negative Button がクリックされた時の動作
-                                    }
-                                }
-                        );
-
-                        // Dialog の Neutral Button を設定
-                        timePickerDialog.setButton(
-                                DialogInterface.BUTTON_NEUTRAL,
-                                "Neutral",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // Neutral Button がクリックされた時の動作
-                                    }
-                                }
-                        );
-                        timePickerDialog.show();
-
-//                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-//                        builder.setTitle(year + "年" + month + "月" + date + "日の起床時刻" + cal_diff_Days);
-//                        builder.setView(tvTime);
-//                        builder.setPositiveButton(
-//                                "記録",
-//                                new DialogInterface.OnClickListener() {
-//                                    @Override
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                        contentValues.put("id", idNumber); // このままだと日付が同じときでもidをインクリメントしてしまう！
-//                                        contentValues.put("year", year);
-//                                        contentValues.put("month", month);
-//                                        contentValues.put("date", date);
-//
-//                                        contentValues1.put("id", idNumber);
-//                                        contentValues1.put("hour", hour);
-//                                        contentValues1.put("minute", minute);
-//
-//                                        db.insert("DateTable", null, contentValues);
-//                                        db.insert("GetUpTable", null, contentValues1);
-//
-//
-//                                        finish();
-//                                        overridePendingTransition(0, 0);
-//                                        startActivity(getIntent());
-//                                        overridePendingTransition(0, 0);
-//
-//                                        dialog.dismiss();
-//                                    }
-//                                }
-//                        );
-//                        builder.show();
+                        recordButton(false, db);
                     }
                 }
         );
@@ -313,59 +206,80 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
-                        final long idNumber = DatabaseUtils.queryNumEntries(db, "DateTable");
-
-                        calendar = Calendar.getInstance();
-
-                        final int year = calendar.get(Calendar.YEAR);
-                        final int month = calendar.get(Calendar.MONTH) + 1;
-                        final int date = calendar.get(Calendar.DATE);
-                        final int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                        final int minute = calendar.get(Calendar.MINUTE);
-
-                        String[] timeSt = timeHandler.timeString(hour, minute);
-
-                        TextView tvTime = new TextView(getApplicationContext());
-                        tvTime.setText(timeSt[0] + ":" + timeSt[1]);
-                        tvTime.setTextColor(Color.BLACK);
-                        tvTime.setTextSize(30);
-                        tvTime.setGravity(Gravity.CENTER_HORIZONTAL);
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                        builder.setTitle(year + "年" + month + "月" + date + "日の就寝時刻");
-                        builder.setView(tvTime);
-                        builder.setPositiveButton(
-                                "記録",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        contentValues.put("id", idNumber); // ここも！！
-                                        contentValues.put("year", year);
-                                        contentValues.put("month", month);
-                                        contentValues.put("date", date);
-
-                                        contentValues1.put("id", idNumber);
-                                        contentValues1.put("hour", hour);
-                                        contentValues1.put("minute", minute);
-
-                                        db.insert("DateTable", null, contentValues);
-                                        db.insert("GoToBedTable", null, contentValues1);
-
-
-                                        finish();
-                                        overridePendingTransition(0, 0);
-                                        startActivity(getIntent());
-                                        overridePendingTransition(0, 0);
-
-                                        dialog.dismiss();
-                                    }
-                                }
-                        );
-                        builder.show();
+                        recordButton(true, db);
                     }
                 }
         );
+    }
+
+    // 起床or就寝時刻ボタンを押したときに呼ばれるメソッド
+    public void recordButton(final boolean sleep, final SQLiteDatabase db) {
+        final long idNumber = DatabaseUtils.queryNumEntries(db, "DateTable");
+
+        final ContentValues contentValues = new ContentValues();
+        final ContentValues contentValues1 = new ContentValues();
+
+        calendar = Calendar.getInstance();
+
+        year = calendar.get(Calendar.YEAR);
+        month = calendar.get(Calendar.MONTH) + 1;
+        date = calendar.get(Calendar.DATE);
+        hour = calendar.get(Calendar.HOUR_OF_DAY);
+        minute = calendar.get(Calendar.MINUTE);
+
+        // タイムピッカーを表示
+        final CustomTimePickerDialog timePickerDialog;
+        final CustomTimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int s_hour, int s_minute) {
+
+            }
+        };
+        timePickerDialog = new CustomTimePickerDialog(MainActivity.this, TimePickerDialog.THEME_HOLO_LIGHT, listener, hour, minute, true);
+
+        timePickerDialog.setTitle(year + "年" + month + "月" + date + "日の起床時刻");
+        timePickerDialog.setButton(
+                DialogInterface.BUTTON_POSITIVE,
+                "記録する",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        contentValues.put("id", idNumber); // このままだと日付が同じときでもidをインクリメントしてしまう！
+                        contentValues.put("year", year);
+                        contentValues.put("month", month);
+                        contentValues.put("date", date);
+
+                        contentValues1.put("id", idNumber);
+                        contentValues1.put("hour", hour);
+                        contentValues1.put("minute", minute);
+
+                        db.insert("DateTable", null, contentValues);
+                        if(sleep == false) {
+                            db.insert("GetUpTable", null, contentValues1);
+                        }else{
+                            db.insert("GoToBedTable", null, contentValues1);
+                        }
+
+                        finish();
+                        overridePendingTransition(0, 0);
+                        startActivity(getIntent());
+                        overridePendingTransition(0, 0);
+
+                        dialog.dismiss();
+                    }
+                }
+        );
+        timePickerDialog.setButton(
+                DialogInterface.BUTTON_NEGATIVE,
+                "キャンセル",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Negative Button がクリックされた時の動作
+                        dialog.dismiss();
+                    }
+                }
+        );
+        timePickerDialog.show();
     }
 
     // dpをpxに変換するメソッド
