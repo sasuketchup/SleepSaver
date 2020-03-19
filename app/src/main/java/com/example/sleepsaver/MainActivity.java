@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         long idGU = DatabaseUtils.queryNumEntries(db, "GetUpTable");
         long idGTB = DatabaseUtils.queryNumEntries(db, "GoToBedTable");
 
-        LinearLayout[] timeLayout = new LinearLayout[(int) idCount];
+//        LinearLayout[] timeLayout = new LinearLayout[(int) idCount];
 
         TextView[] textDate = new TextView[(int) idCount];
         TextView[] textGU = new TextView[(int) idCount];
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
         cursor1.moveToFirst();
         cursor2.moveToFirst();
         for(int i=0;i<idCount;i++){
-            timeLayout[i] = new LinearLayout(this);
+//            timeLayout[i] = new LinearLayout(this);
             textDate[i] = new TextView(this);
             textGU[i] = new TextView(this);
             textGTB[i] = new TextView(this);
@@ -165,11 +165,13 @@ public class MainActivity extends AppCompatActivity {
             textDate[i].setText(year + "年" + month + "月" + date + "日");
             textGU[i].setText(timeGUSt[0] + ":" + timeGUSt[1]);
             textGTB[i].setText(timeGTBSt[0] + ":" + timeGTBSt[1]);
-            textDate[i].setWidth(convertDp2Px(80));
+//            textDate[i].setWidth(convertDp2Px(80));
             textDate[i].setHeight(100);
-            textGU[i].setWidth(convertDp2Px(100));
-            textGTB[i].setWidth(convertDp2Px(100));
-            textDate[i].setGravity(Gravity.TOP);
+            textGU[i].setHeight(100);
+            textGTB[i].setHeight(100);
+//            textGU[i].setWidth(convertDp2Px(100));
+//            textGTB[i].setWidth(convertDp2Px(100));
+//            textDate[i].setGravity(Gravity.TOP);
             textGU[i].setGravity(Gravity.RIGHT);
             textGTB[i].setGravity(Gravity.RIGHT);
             textGU[i].setTextSize(30);
@@ -178,14 +180,14 @@ public class MainActivity extends AppCompatActivity {
             cursor1.moveToNext();
             cursor2.moveToNext();
 
-            timeLayout[i].setOrientation(LinearLayout.HORIZONTAL);
-            timeLayout[i].addView(textDate[i]);
-            timeLayout[i].addView(textGU[i]);
-            timeLayout[i].addView(textGTB[i]);
-            varRecordLay.addView(timeLayout[i], 0);
-//            varDateLay.addView(textDate[i], 0);
-//            varGULay.addView(textGU[i], 0);
-//            varGTBLay.addView(textGTB[i], 0);
+//            timeLayout[i].setOrientation(LinearLayout.HORIZONTAL);
+//            timeLayout[i].addView(textDate[i]);
+//            timeLayout[i].addView(textGU[i]);
+//            timeLayout[i].addView(textGTB[i]);
+//            varRecordLay.addView(timeLayout[i], 0);
+            varDateLay.addView(textDate[i], 0);
+            varGULay.addView(textGU[i], 0);
+            varGTBLay.addView(textGTB[i], 0);
         }
         cursor.close();
         cursor1.close();
@@ -196,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        recordButton(false, db);
+                        recordTime(false, db);
                     }
                 }
         );
@@ -206,14 +208,14 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        recordButton(true, db);
+                        recordTime(true, db);
                     }
                 }
         );
     }
 
     // 起床or就寝時刻ボタンを押したときに呼ばれるメソッド
-    public void recordButton(final boolean sleep, final SQLiteDatabase db) {
+    public void recordTime(final boolean sleep, final SQLiteDatabase db) {
         final long idNumber = DatabaseUtils.queryNumEntries(db, "DateTable");
 
         final ContentValues contentValues = new ContentValues();
