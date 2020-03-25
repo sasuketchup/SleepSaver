@@ -67,49 +67,64 @@ public class MainActivity extends AppCompatActivity {
         MyOpenHelper helper = new MyOpenHelper(this);
         final SQLiteDatabase db = helper.getWritableDatabase();
 
-        Cursor cursor0 = db.query("DateTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
-        cursor0.moveToLast();
-        int latestID = cursor0.getInt(0);
-        int latestYear = cursor0.getInt(1);
-        int latestMonth = cursor0.getInt(2) - 1; // 月は0からなので-1する！！
-        int latestDate = cursor0.getInt(3);
-        cursor0.close();
+        // データの行数を取得
+        long idDate = DatabaseUtils.queryNumEntries(db, "DateTable");
 
-        cal_now = Calendar.getInstance();
+        // データが1行以上あるとき実行
+        if(idDate > 0) {
+            Cursor cursor0 = db.query("DateTable", new String[]{"id", "year", "month", "date"}, null, null, null, null, null);
+            // 最新の行に移動
+            cursor0.moveToLast();
+            int latestID = cursor0.getInt(0);
+            int latestYear = cursor0.getInt(1);
+            int latestMonth = cursor0.getInt(2) - 1; // 月は0からなので-1する！！
+            int latestDate = cursor0.getInt(3);
+            cursor0.close();
 
-        cal_latest = Calendar.getInstance();
-        cal_latest.set(latestYear, latestMonth, latestDate);
+            // 現在の日付(と時刻)を取得
+            cal_now = Calendar.getInstance();
 
-        long cal_diff_Millis = cal_now.getTimeInMillis() - cal_latest.getTimeInMillis();
-        int MILLIS_OF_DAY = 1000 * 60 * 60 * 24;
-        final int cal_diff_Days = (int)(cal_diff_Millis / MILLIS_OF_DAY);
+            // 最新の日付をセット
+            cal_latest = Calendar.getInstance();
+            cal_latest.set(latestYear, latestMonth, latestDate);
 
-        ContentValues emptyCV = new ContentValues();
-        ContentValues emptyCV1 = new ContentValues();
-        ContentValues emptyCV2 = new ContentValues();
+            // 最新の日とアプリを開いた日の差分を計算
+            long cal_diff_Millis = cal_now.getTimeInMillis() - cal_latest.getTimeInMillis();
+            int MILLIS_OF_DAY = 1000 * 60 * 60 * 24;
+            final int cal_diff_Days = (int) (cal_diff_Millis / MILLIS_OF_DAY);
 
-        for(int i=0;i<(cal_diff_Days-1);i++){
-            cal_latest.add(Calendar.DAY_OF_MONTH, 1);
-            int emptyYear = cal_latest.get(Calendar.YEAR);
-            int emptyMonth = cal_latest.get(Calendar.MONTH) + 1;
-            int emptyDate = cal_latest.get(Calendar.DATE);
+            // 当日はまだ要らないため、2日以上差があるとき実行
+            if (cal_diff_Days > 1) {
+                ContentValues emptyCV = new ContentValues();
+                ContentValues emptyCV1 = new ContentValues();
+                ContentValues emptyCV2 = new ContentValues();
 
-            emptyCV.put("id", latestID);
-            emptyCV.put("year", emptyYear);
-            emptyCV.put("month", emptyMonth);
-            emptyCV.put("date", emptyDate);
+                // 当日の1日前まで、-1を保存
+                for (int i = 0; i < (cal_diff_Days - 1); i++) {
+                    cal_latest.add(Calendar.DAY_OF_MONTH, 1);
+                    int emptyYear = cal_latest.get(Calendar.YEAR);
+                    int emptyMonth = cal_latest.get(Calendar.MONTH) + 1;
+                    int emptyDate = cal_latest.get(Calendar.DATE);
 
-            emptyCV1.put("id", latestID);
-            emptyCV1.put("hour", -1);
-            emptyCV1.put("minute", -1);
+                    // 最新の値のidに試行回数と1を足し保存
+                    emptyCV.put("id", latestID + i + 1);
+                    emptyCV.put("year", emptyYear);
+                    emptyCV.put("month", emptyMonth);
+                    emptyCV.put("date", emptyDate);
 
-            emptyCV2.put("id", latestID);
-            emptyCV2.put("hour", -1);
-            emptyCV2.put("minute", -1);
+                    emptyCV1.put("id", latestID + i + 1);
+                    emptyCV1.put("hour", -1);
+                    emptyCV1.put("minute", -1);
 
-            db.insert("DateTable", null, emptyCV);
-            db.insert("GetUpTable", null, emptyCV1);
-            db.insert("GoToBedTable",null, emptyCV2);
+                    emptyCV2.put("id", latestID + i + 1);
+                    emptyCV2.put("hour", -1);
+                    emptyCV2.put("minute", -1);
+
+                    db.insert("DateTable", null, emptyCV);
+                    db.insert("GetUpTable", null, emptyCV1);
+                    db.insert("GoToBedTable", null, emptyCV2);
+                }
+            }
         }
 
         varRecordLay = (LinearLayout) findViewById(R.id.RecordLayout);
