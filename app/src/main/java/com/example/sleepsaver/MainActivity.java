@@ -72,59 +72,92 @@ public class MainActivity extends AppCompatActivity {
 
         // データが1行以上あるとき実行
         if(idDate > 0) {
-            Cursor cursor0 = db.query("DateTable", new String[]{"id", "year", "month", "date"}, null, null, null, null, null);
-            // 最新の行に移動
-            cursor0.moveToLast();
-            int latestID = cursor0.getInt(0);
-            int latestYear = cursor0.getInt(1);
-            int latestMonth = cursor0.getInt(2) - 1; // 月は0からなので-1する！！
-            int latestDate = cursor0.getInt(3);
-            cursor0.close();
+            // 記録し忘れがある場合、差分を埋める
+            timeHandler.fillForget(db, cal_now, cal_latest);
 
-            // 現在の日付(と時刻)を取得
-            cal_now = Calendar.getInstance();
+//            Cursor cursor0 = db.query("DateTable", new String[]{"id", "year", "month", "date"}, null, null, null, null, null);
+//            // 最新の行に移動
+//            cursor0.moveToLast();
+//            int latestID = cursor0.getInt(0);
+//            int latestYear = cursor0.getInt(1);
+//            int latestMonth = cursor0.getInt(2) - 1; // 月は0からなので-1する！！
+//            int latestDate = cursor0.getInt(3);
+//            cursor0.close();
+//
+//            // 現在の日付(と時刻)を取得
+//            cal_now = Calendar.getInstance();
+//
+//            // 最新の日付をセット
+//            cal_latest = Calendar.getInstance();
+//            cal_latest.set(latestYear, latestMonth, latestDate);
+//
+//            // 最新の日とアプリを開いた日の差分を計算
+//            long cal_diff_Millis = cal_now.getTimeInMillis() - cal_latest.getTimeInMillis();
+//            int MILLIS_OF_DAY = 1000 * 60 * 60 * 24;
+//            final int cal_diff_Days = (int) (cal_diff_Millis / MILLIS_OF_DAY);
+//
+//            // 当日はまだ要らないため、2日以上差があるとき実行
+//            if (cal_diff_Days > 1) {
+//                ContentValues emptyCV = new ContentValues();
+//                ContentValues emptyCV1 = new ContentValues();
+//                ContentValues emptyCV2 = new ContentValues();
+//
+//                // 当日の1日前まで、-1を保存
+//                for (int i = 0; i < (cal_diff_Days - 1); i++) {
+//                    cal_latest.add(Calendar.DAY_OF_MONTH, 1);
+//                    int emptyYear = cal_latest.get(Calendar.YEAR);
+//                    int emptyMonth = cal_latest.get(Calendar.MONTH) + 1;
+//                    int emptyDate = cal_latest.get(Calendar.DATE);
+//
+//                    // 最新の値のidに試行回数と1を足し保存
+//                    emptyCV.put("id", latestID + i + 1);
+//                    emptyCV.put("year", emptyYear);
+//                    emptyCV.put("month", emptyMonth);
+//                    emptyCV.put("date", emptyDate);
+//
+//                    emptyCV1.put("id", latestID + i + 1);
+//                    emptyCV1.put("hour", -1);
+//                    emptyCV1.put("minute", -1);
+//
+//                    emptyCV2.put("id", latestID + i + 1);
+//                    emptyCV2.put("hour", -1);
+//                    emptyCV2.put("minute", -1);
+//
+//                    db.insert("DateTable", null, emptyCV);
+//                    db.insert("GetUpTable", null, emptyCV1);
+//                    db.insert("GoToBedTable", null, emptyCV2);
+//                }
+//            }
+        }else{
+            // データが空のとき実行
+            calendar = Calendar.getInstance();
 
-            // 最新の日付をセット
-            cal_latest = Calendar.getInstance();
-            cal_latest.set(latestYear, latestMonth, latestDate);
+            year = calendar.get(Calendar.YEAR);
+            month = calendar.get(Calendar.MONTH) + 1;
+            date = calendar.get(Calendar.DATE);
 
-            // 最新の日とアプリを開いた日の差分を計算
-            long cal_diff_Millis = cal_now.getTimeInMillis() - cal_latest.getTimeInMillis();
-            int MILLIS_OF_DAY = 1000 * 60 * 60 * 24;
-            final int cal_diff_Days = (int) (cal_diff_Millis / MILLIS_OF_DAY);
+            timeHandler.insertTime(db, 0, year, month, date, -1, -1, -1, -1);
 
-            // 当日はまだ要らないため、2日以上差があるとき実行
-            if (cal_diff_Days > 1) {
-                ContentValues emptyCV = new ContentValues();
-                ContentValues emptyCV1 = new ContentValues();
-                ContentValues emptyCV2 = new ContentValues();
-
-                // 当日の1日前まで、-1を保存
-                for (int i = 0; i < (cal_diff_Days - 1); i++) {
-                    cal_latest.add(Calendar.DAY_OF_MONTH, 1);
-                    int emptyYear = cal_latest.get(Calendar.YEAR);
-                    int emptyMonth = cal_latest.get(Calendar.MONTH) + 1;
-                    int emptyDate = cal_latest.get(Calendar.DATE);
-
-                    // 最新の値のidに試行回数と1を足し保存
-                    emptyCV.put("id", latestID + i + 1);
-                    emptyCV.put("year", emptyYear);
-                    emptyCV.put("month", emptyMonth);
-                    emptyCV.put("date", emptyDate);
-
-                    emptyCV1.put("id", latestID + i + 1);
-                    emptyCV1.put("hour", -1);
-                    emptyCV1.put("minute", -1);
-
-                    emptyCV2.put("id", latestID + i + 1);
-                    emptyCV2.put("hour", -1);
-                    emptyCV2.put("minute", -1);
-
-                    db.insert("DateTable", null, emptyCV);
-                    db.insert("GetUpTable", null, emptyCV1);
-                    db.insert("GoToBedTable", null, emptyCV2);
-                }
-            }
+//            ContentValues contentValues = new ContentValues();
+//            ContentValues contentValues1 = new ContentValues();
+//            ContentValues contentValues2 = new ContentValues();
+//
+//            contentValues.put("id", 0);
+//            contentValues.put("year", year);
+//            contentValues.put("month", month);
+//            contentValues.put("date", date);
+//
+//            contentValues1.put("id", 0);
+//            contentValues1.put("hour", -1);
+//            contentValues1.put("minute", -1);
+//
+//            contentValues2.put("id", 0);
+//            contentValues2.put("hour", -1);
+//            contentValues2.put("minute", -1);
+//
+//            db.insert("DateTable", null, contentValues);
+//            db.insert("GetUpTable", null, contentValues1);
+//            db.insert("GoToBedTable", null, contentValues2);
         }
 
         varRecordLay = (LinearLayout) findViewById(R.id.RecordLayout);
@@ -261,20 +294,20 @@ public class MainActivity extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        contentValues.put("id", idNumber); // このままだと日付が同じときでもidをインクリメントしてしまう！
+//                        contentValues.put("id", idNumber); // このままだと日付が同じときでもidをインクリメントしてしまう！
                         contentValues.put("year", year);
                         contentValues.put("month", month);
                         contentValues.put("date", date);
 
-                        contentValues1.put("id", idNumber);
+//                        contentValues1.put("id", idNumber);
                         contentValues1.put("hour", hour);
                         contentValues1.put("minute", minute);
 
-                        db.insert("DateTable", null, contentValues);
+                        db.update("DateTable", contentValues, "id=" + (idNumber - 1), null);
                         if(sleep == false) {
-                            db.insert("GetUpTable", null, contentValues1);
+                            db.update("GetUpTable", contentValues1, "id=" + (idNumber - 1), null);
                         }else{
-                            db.insert("GoToBedTable", null, contentValues1);
+                            db.update("GoToBedTable", contentValues1, "id=" + (idNumber - 1), null);
                         }
 
                         finish();

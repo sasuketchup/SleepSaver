@@ -23,6 +23,8 @@ public class PopUpActivity extends AppCompatActivity {
     TimePicker varTextTime;
 
     Calendar calendar;
+    Calendar cal_now;
+    Calendar cal_latest;
 
     TimeHandler timeHandler = new TimeHandler();
 
@@ -97,9 +99,12 @@ public class PopUpActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
 
+                        // 記録し忘れがある場合、差分を埋める
+                        timeHandler.fillForget(db, cal_now, cal_latest);
+
                         long idNumber = DatabaseUtils.queryNumEntries(db, "DateTable"); // 日付によるインクリメント問題！
 
-                        contentValues.put("id", idNumber);
+//                        contentValues.put("id", idNumber);
                         contentValues.put("year", year);
                         contentValues.put("month", month);
                         contentValues.put("date", date);
@@ -107,12 +112,12 @@ public class PopUpActivity extends AppCompatActivity {
                         contentValues1.put("hour", varTextTime.getCurrentHour());
                         contentValues1.put("minute", varTextTime.getCurrentMinute());
 
-                        db.insert("DateTable", null, contentValues);
+                        db.update("DateTable", contentValues, "id=" + (idNumber - 1), null);
 
                         if(battery_charge == 0) {
-                            db.insert("GetUpTable", null, contentValues1);
+                            db.update("GetUpTable", contentValues1, "id=" + (idNumber - 1), null);
                         }else if(battery_charge == 1 || battery_charge == 2 || battery_charge == 4){
-                            db.insert("GoToBedTable", null, contentValues1);
+                            db.update("GoToBedTable", contentValues1, "id=" + (idNumber - 1), null);
                         }
 
                         findViewById(R.id.btnRecord).setEnabled(false);
