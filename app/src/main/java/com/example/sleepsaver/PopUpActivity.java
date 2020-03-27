@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -39,9 +40,6 @@ public class PopUpActivity extends AppCompatActivity {
         MyOpenHelper helper = new MyOpenHelper(this);
         final SQLiteDatabase db = helper.getWritableDatabase();
 
-        final ContentValues contentValues = new ContentValues();
-        final ContentValues contentValues1 = new ContentValues();
-
         varTextState = findViewById(R.id.textState);
         varTextGUorGTB = findViewById(R.id.textGUorGTB);
         varTextTime = findViewById(R.id.textTime);
@@ -53,9 +51,6 @@ public class PopUpActivity extends AppCompatActivity {
         final int date = calendar.get(Calendar.DATE);
         final int hour = calendar.get(Calendar.HOUR_OF_DAY);
         final int minute = calendar.get(Calendar.MINUTE);
-
-        // 時刻の表示形式を整理
-        String[] timeSt = timeHandler.timeString(hour, minute);
 
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent battery_intent = this.registerReceiver(null, intentFilter);
@@ -75,7 +70,6 @@ public class PopUpActivity extends AppCompatActivity {
         varTextTime.setIs24HourView(true);
         varTextTime.setCurrentHour(hour);
         varTextTime.setCurrentMinute(minute);
-//        varTextTime.setText(timeSt[0] + ":" + timeSt[1]);
 
         // 現在時刻にセットボタン
         findViewById(R.id.btnCurrent).setOnClickListener(
@@ -104,21 +98,18 @@ public class PopUpActivity extends AppCompatActivity {
 
                         long idNumber = DatabaseUtils.queryNumEntries(db, "DateTable"); // 日付によるインクリメント問題！
 
-//                        contentValues.put("id", idNumber);
-                        contentValues.put("year", year);
-                        contentValues.put("month", month);
-                        contentValues.put("date", date);
-
-                        contentValues1.put("hour", varTextTime.getCurrentHour());
-                        contentValues1.put("minute", varTextTime.getCurrentMinute());
-
-                        db.update("DateTable", contentValues, "id=" + (idNumber - 1), null);
+                        boolean sleep = true;
 
                         if(battery_charge == 0) {
-                            db.update("GetUpTable", contentValues1, "id=" + (idNumber - 1), null);
+                            sleep = false;
                         }else if(battery_charge == 1 || battery_charge == 2 || battery_charge == 4){
-                            db.update("GoToBedTable", contentValues1, "id=" + (idNumber - 1), null);
+                            sleep = true;
                         }
+
+                        timeHandler.updateTime(sleep, db, (int) idNumber - 1, year, month, date, varTextTime.getCurrentHour(), varTextTime.getCurrentMinute());
+
+                        String timeSt = timeHandler.timeString(varTextTime.getCurrentHour(), varTextTime.getCurrentMinute());
+                        Toast.makeText(PopUpActivity.this, timeSt + " 記録しました。", Toast.LENGTH_LONG).show();
 
                         findViewById(R.id.btnRecord).setEnabled(false);
                     }

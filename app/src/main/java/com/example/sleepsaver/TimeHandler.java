@@ -9,19 +9,22 @@ import java.util.Calendar;
 public class TimeHandler {
 
     // 時分を表示する形式に整理するメソッド
-    protected String[] timeString(int hour, int minute) {
-        String[] timeSt = {"--", "--"};
+    protected String timeString(int hour, int minute) {
+        String hourSt = "--";
+        String minuteSt = "--";
 
         if(hour<10 && hour > -1){
-            timeSt[0] = "0" + hour;
+            hourSt = "0" + hour;
         }else if(hour != -1){
-            timeSt[0] = String.valueOf(hour);
+            hourSt = String.valueOf(hour);
         }
         if(minute<10 && minute > -1){
-            timeSt[1] = "0" + minute;
+            minuteSt = "0" + minute;
         }else if(minute != -1){
-            timeSt[1] = String.valueOf(minute);
+            minuteSt = String.valueOf(minute);
         }
+
+        String timeSt = hourSt + ":" + minuteSt;
 
         return timeSt;
     }
@@ -51,10 +54,6 @@ public class TimeHandler {
 
         // 1日以上差があるとき実行
         if (cal_diff_Days > 0) {
-//            ContentValues emptyCV = new ContentValues();
-//            ContentValues emptyCV1 = new ContentValues();
-//            ContentValues emptyCV2 = new ContentValues();
-
             // 当日まで、-1を保存
             for (int i = 0; i < cal_diff_Days; i++) {
                 cal_latest.add(Calendar.DAY_OF_MONTH, 1);
@@ -64,23 +63,6 @@ public class TimeHandler {
 
                 // 最新の値のidに試行回数と1を足し保存
                 insertTime(db, latestID + i + 1, emptyYear, emptyMonth, emptyDate, -1, -1, -1, -1);
-
-//                emptyCV.put("id", latestID + i + 1);
-//                emptyCV.put("year", emptyYear);
-//                emptyCV.put("month", emptyMonth);
-//                emptyCV.put("date", emptyDate);
-//
-//                emptyCV1.put("id", latestID + i + 1);
-//                emptyCV1.put("hour", -1);
-//                emptyCV1.put("minute", -1);
-//
-//                emptyCV2.put("id", latestID + i + 1);
-//                emptyCV2.put("hour", -1);
-//                emptyCV2.put("minute", -1);
-//
-//                db.insert("DateTable", null, emptyCV);
-//                db.insert("GetUpTable", null, emptyCV1);
-//                db.insert("GoToBedTable", null, emptyCV2);
             }
         }
     }
@@ -107,5 +89,26 @@ public class TimeHandler {
         db.insert("DateTable", null, contentValues);
         db.insert("GetUpTable", null, contentValues1);
         db.insert("GoToBedTable", null, contentValues2);
+    }
+
+    // データベースの年月日時刻を上書きするメソッド
+    public void updateTime(boolean sleep, SQLiteDatabase db, int id, int year, int month, int date, int hour, int minute) {
+        ContentValues contentValues = new ContentValues();
+        ContentValues contentValues1 = new ContentValues();
+
+        contentValues.put("year", year);
+        contentValues.put("month", month);
+        contentValues.put("date", date);
+
+        contentValues1.put("hour", hour);
+        contentValues1.put("minute", minute);
+
+        db.update("DateTable", contentValues, "id=" + id, null);
+
+        if(sleep == false) {
+            db.update("GetUpTable", contentValues1, "id=" + id, null);
+        }else{
+            db.update("GoToBedTable", contentValues1, "id=" + id, null);
+        }
     }
 }

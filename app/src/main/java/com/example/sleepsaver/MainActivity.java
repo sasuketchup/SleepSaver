@@ -68,66 +68,12 @@ public class MainActivity extends AppCompatActivity {
         final SQLiteDatabase db = helper.getWritableDatabase();
 
         // データの行数を取得
-        long idDate = DatabaseUtils.queryNumEntries(db, "DateTable");
+        long idCount = DatabaseUtils.queryNumEntries(db, "DateTable");
 
         // データが1行以上あるとき実行
-        if(idDate > 0) {
+        if(idCount > 0) {
             // 記録し忘れがある場合、差分を埋める
             timeHandler.fillForget(db, cal_now, cal_latest);
-
-//            Cursor cursor0 = db.query("DateTable", new String[]{"id", "year", "month", "date"}, null, null, null, null, null);
-//            // 最新の行に移動
-//            cursor0.moveToLast();
-//            int latestID = cursor0.getInt(0);
-//            int latestYear = cursor0.getInt(1);
-//            int latestMonth = cursor0.getInt(2) - 1; // 月は0からなので-1する！！
-//            int latestDate = cursor0.getInt(3);
-//            cursor0.close();
-//
-//            // 現在の日付(と時刻)を取得
-//            cal_now = Calendar.getInstance();
-//
-//            // 最新の日付をセット
-//            cal_latest = Calendar.getInstance();
-//            cal_latest.set(latestYear, latestMonth, latestDate);
-//
-//            // 最新の日とアプリを開いた日の差分を計算
-//            long cal_diff_Millis = cal_now.getTimeInMillis() - cal_latest.getTimeInMillis();
-//            int MILLIS_OF_DAY = 1000 * 60 * 60 * 24;
-//            final int cal_diff_Days = (int) (cal_diff_Millis / MILLIS_OF_DAY);
-//
-//            // 当日はまだ要らないため、2日以上差があるとき実行
-//            if (cal_diff_Days > 1) {
-//                ContentValues emptyCV = new ContentValues();
-//                ContentValues emptyCV1 = new ContentValues();
-//                ContentValues emptyCV2 = new ContentValues();
-//
-//                // 当日の1日前まで、-1を保存
-//                for (int i = 0; i < (cal_diff_Days - 1); i++) {
-//                    cal_latest.add(Calendar.DAY_OF_MONTH, 1);
-//                    int emptyYear = cal_latest.get(Calendar.YEAR);
-//                    int emptyMonth = cal_latest.get(Calendar.MONTH) + 1;
-//                    int emptyDate = cal_latest.get(Calendar.DATE);
-//
-//                    // 最新の値のidに試行回数と1を足し保存
-//                    emptyCV.put("id", latestID + i + 1);
-//                    emptyCV.put("year", emptyYear);
-//                    emptyCV.put("month", emptyMonth);
-//                    emptyCV.put("date", emptyDate);
-//
-//                    emptyCV1.put("id", latestID + i + 1);
-//                    emptyCV1.put("hour", -1);
-//                    emptyCV1.put("minute", -1);
-//
-//                    emptyCV2.put("id", latestID + i + 1);
-//                    emptyCV2.put("hour", -1);
-//                    emptyCV2.put("minute", -1);
-//
-//                    db.insert("DateTable", null, emptyCV);
-//                    db.insert("GetUpTable", null, emptyCV1);
-//                    db.insert("GoToBedTable", null, emptyCV2);
-//                }
-//            }
         }else{
             // データが空のとき実行
             calendar = Calendar.getInstance();
@@ -137,27 +83,6 @@ public class MainActivity extends AppCompatActivity {
             date = calendar.get(Calendar.DATE);
 
             timeHandler.insertTime(db, 0, year, month, date, -1, -1, -1, -1);
-
-//            ContentValues contentValues = new ContentValues();
-//            ContentValues contentValues1 = new ContentValues();
-//            ContentValues contentValues2 = new ContentValues();
-//
-//            contentValues.put("id", 0);
-//            contentValues.put("year", year);
-//            contentValues.put("month", month);
-//            contentValues.put("date", date);
-//
-//            contentValues1.put("id", 0);
-//            contentValues1.put("hour", -1);
-//            contentValues1.put("minute", -1);
-//
-//            contentValues2.put("id", 0);
-//            contentValues2.put("hour", -1);
-//            contentValues2.put("minute", -1);
-//
-//            db.insert("DateTable", null, contentValues);
-//            db.insert("GetUpTable", null, contentValues1);
-//            db.insert("GoToBedTable", null, contentValues2);
         }
 
         varRecordLay = (LinearLayout) findViewById(R.id.RecordLayout);
@@ -170,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         Cursor cursor1 = db.query("GetUpTable", new String[] {"id", "hour", "minute"}, null, null, null, null, null);
         Cursor cursor2 = db.query("GoToBedTable", new String[] {"id", "hour", "minute"}, null, null, null, null, null);
 
-        long idCount = DatabaseUtils.queryNumEntries(db, "DateTable");
+//        long idCount = DatabaseUtils.queryNumEntries(db, "DateTable");
         long idGU = DatabaseUtils.queryNumEntries(db, "GetUpTable");
         long idGTB = DatabaseUtils.queryNumEntries(db, "GoToBedTable");
 
@@ -193,8 +118,8 @@ public class MainActivity extends AppCompatActivity {
             int month = cursor.getInt(2);
             int date = cursor.getInt(3);
 
-            String[] timeGUSt = {"--", "--"};
-            String[] timeGTBSt = {"--", "--"};
+            String timeGUSt = "--:--";
+            String timeGTBSt = "--:--";
 
             if(i < idGU){
                 int hourGU = cursor1.getInt(1);
@@ -211,8 +136,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             textDate[i].setText(year + "年" + month + "月" + date + "日");
-            textGU[i].setText(timeGUSt[0] + ":" + timeGUSt[1]);
-            textGTB[i].setText(timeGTBSt[0] + ":" + timeGTBSt[1]);
+            textGU[i].setText(timeGUSt);
+            textGTB[i].setText(timeGTBSt);
 //            textDate[i].setWidth(convertDp2Px(80));
             textDate[i].setHeight(100);
             textGU[i].setHeight(100);
@@ -246,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        recordTime(false, db);
+                        recordTime(false, db, -1);
                     }
                 }
         );
@@ -256,18 +181,37 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        recordTime(true, db);
+                        recordTime(true, db, -1);
                     }
                 }
         );
+
+        // 記録時刻の修正・削除(長押し)
+        for (int i=0;i<idCount;i++) {
+            // 起床時刻の修正・削除
+            final int finalI = i;
+            textGU[i].setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    recordTime(false, db, finalI);
+                    return true;
+                }
+            });
+
+            // 就寝時刻の修正・削除
+            final int finalI1 = i;
+            textGTB[i].setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    recordTime(true, db, finalI1);
+                    return true;
+                }
+            });
+        }
     }
 
-    // 起床or就寝時刻ボタンを押したときに呼ばれるメソッド
-    public void recordTime(final boolean sleep, final SQLiteDatabase db) {
-        final long idNumber = DatabaseUtils.queryNumEntries(db, "DateTable");
-
-        final ContentValues contentValues = new ContentValues();
-        final ContentValues contentValues1 = new ContentValues();
+    // 起床or就寝時刻ボタンまたは記録のテキストビューを押したときに呼ばれるメソッド
+    public void recordTime(final boolean sleep, final SQLiteDatabase db, final int i) {
 
         calendar = Calendar.getInstance();
 
@@ -276,6 +220,35 @@ public class MainActivity extends AppCompatActivity {
         date = calendar.get(Calendar.DATE);
         hour = calendar.get(Calendar.HOUR_OF_DAY);
         minute = calendar.get(Calendar.MINUTE);
+
+        String tableName;
+        if (i != -1) {
+            if (sleep == false) {
+                tableName = "GetUpTable";
+            }else {
+                tableName = "GoToBedTable";
+            }
+
+            Cursor cursor0 = db.query("DateTable", new String[] {"id", "year", "month", "date"}, "id=" + i, null, null, null, null);
+            cursor0.moveToFirst();
+            year = cursor0.getInt(1);
+            month = cursor0.getInt(2);
+            date = cursor0.getInt(3);
+            cursor0.close();
+
+            Cursor cursor = db.query(tableName, new String[] {"id", "hour", "minute"}, "id=" + i, null, null, null, null);
+            cursor.moveToFirst();
+            hour = cursor.getInt(1);
+            minute = cursor.getInt(2);
+            cursor.close();
+            
+            if (hour == -1) {
+                hour = 0;
+            }
+            if (minute == -1) {
+                minute = 0;
+            }
+        }
 
         // タイムピッカーを表示
         final CustomTimePickerDialog timePickerDialog;
@@ -294,21 +267,15 @@ public class MainActivity extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-//                        contentValues.put("id", idNumber); // このままだと日付が同じときでもidをインクリメントしてしまう！
-                        contentValues.put("year", year);
-                        contentValues.put("month", month);
-                        contentValues.put("date", date);
 
-//                        contentValues1.put("id", idNumber);
-                        contentValues1.put("hour", hour);
-                        contentValues1.put("minute", minute);
-
-                        db.update("DateTable", contentValues, "id=" + (idNumber - 1), null);
-                        if(sleep == false) {
-                            db.update("GetUpTable", contentValues1, "id=" + (idNumber - 1), null);
-                        }else{
-                            db.update("GoToBedTable", contentValues1, "id=" + (idNumber - 1), null);
+                        long idNumber;
+                        if (i == -1) {
+                            idNumber = DatabaseUtils.queryNumEntries(db, "DateTable") - 1;
+                        }else {
+                            idNumber = i;
                         }
+
+                        timeHandler.updateTime(sleep, db, (int) idNumber, year, month, date, hour, minute);
 
                         finish();
                         overridePendingTransition(0, 0);
@@ -319,6 +286,27 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        if (i != -1) {
+            timePickerDialog.setButton(
+                    DialogInterface.BUTTON_NEUTRAL,
+                    "削除する",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            timeHandler.updateTime(sleep, db, i, year, month, date, -1, -1);
+
+                            finish();
+                            overridePendingTransition(0, 0);
+                            startActivity(getIntent());
+                            overridePendingTransition(0, 0);
+
+                            dialog.dismiss();
+                        }
+                    }
+            );
+        }
+
         timePickerDialog.setButton(
                 DialogInterface.BUTTON_NEGATIVE,
                 "キャンセル",
