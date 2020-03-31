@@ -22,6 +22,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import org.w3c.dom.Text;
+
+import java.time.LocalDateTime;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
@@ -56,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout varDateLay;
     LinearLayout varGULay;
     LinearLayout varGTBLay;
+    LinearLayout varSTLay;
 
     TimeHandler timeHandler = new TimeHandler();
 
@@ -90,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         varDateLay = (LinearLayout) findViewById(R.id.DateLayout);
         varGULay = (LinearLayout) findViewById(R.id.GULayout);
         varGTBLay = (LinearLayout) findViewById(R.id.GTBLayout);
+        varSTLay = (LinearLayout) findViewById(R.id.STLayout);
 
         Cursor cursor = db.query("DateTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
         Cursor cursor1 = db.query("GetUpTable", new String[] {"id", "hour", "minute"}, null, null, null, null, null);
@@ -104,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
         TextView[] textDate = new TextView[(int) idCount];
         TextView[] textGU = new TextView[(int) idCount];
         TextView[] textGTB = new TextView[(int) idCount];
+        TextView[] textST = new TextView[(int) idCount - 1];
 
         // 記録を表示
         cursor.moveToFirst();
@@ -114,12 +120,14 @@ public class MainActivity extends AppCompatActivity {
             textDate[i] = new TextView(this);
             textGU[i] = new TextView(this);
             textGTB[i] = new TextView(this);
+
             int year = cursor.getInt(1);
             int month = cursor.getInt(2);
             int date = cursor.getInt(3);
 
             String timeGUSt = "--:--";
             String timeGTBSt = "--:--";
+            String timeSTSt = "--:--";
 
             if(i < idGU){
                 int hourGU = cursor1.getInt(1);
@@ -128,9 +136,11 @@ public class MainActivity extends AppCompatActivity {
                 timeGUSt = timeHandler.timeString(hourGU, minuteGU);
             }
 
+            int hourGTB = -1;
+            int minuteGTB = -1;
             if(i < idGTB) {
-                int hourGTB = cursor2.getInt(1);
-                int minuteGTB = cursor2.getInt(2);
+                hourGTB = cursor2.getInt(1);
+                minuteGTB = cursor2.getInt(2);
 
                 timeGTBSt = timeHandler.timeString(hourGTB, minuteGTB);
             }
@@ -139,9 +149,11 @@ public class MainActivity extends AppCompatActivity {
             textGU[i].setText(timeGUSt);
             textGTB[i].setText(timeGTBSt);
 //            textDate[i].setWidth(convertDp2Px(80));
-            textDate[i].setHeight(100);
-            textGU[i].setHeight(100);
-            textGTB[i].setHeight(100);
+
+            textDate[i].setHeight(150);
+            textGU[i].setHeight(150);
+            textGTB[i].setHeight(150);
+
 //            textGU[i].setWidth(convertDp2Px(100));
 //            textGTB[i].setWidth(convertDp2Px(100));
 //            textDate[i].setGravity(Gravity.TOP);
@@ -152,6 +164,39 @@ public class MainActivity extends AppCompatActivity {
             cursor.moveToNext();
             cursor1.moveToNext();
             cursor2.moveToNext();
+
+            if (i < idCount - 1) {
+                textST[i] = new TextView(this);
+
+                // 睡眠時間計算のため、次の起床時刻を取得
+                int hourGUnext = cursor1.getInt(1);
+                int minuteGUnext = cursor1.getInt(2);
+
+                // 起床・就寝の値が揃っているとき
+                if (hourGUnext != -1 && hourGTB != -1) {
+                    int dateST = 0;
+                    // 日付を跨いだ場合(これは暫定で正午の12時。深夜ではない！)
+                    if (hourGTB > 12) {
+                        dateST = 1;
+                    }
+
+                    Calendar calST = Calendar.getInstance();
+                    calST.set(0, 0, dateST, hourGUnext, minuteGUnext);
+                    calST.add(Calendar.HOUR, 0 - hourGTB);
+                    calST.add(Calendar.MINUTE, 0 - minuteGTB);
+
+                    int hourST = calST.get(Calendar.HOUR_OF_DAY);
+                    int minuteST = calST.get(Calendar.MINUTE);
+
+                    timeSTSt = timeHandler.timeString(hourST, minuteST);
+                }
+                textST[i].setText(timeSTSt);
+                textST[i].setTextSize(30);
+                textST[i].setHeight(150);
+                textST[i].setGravity(Gravity.RIGHT);
+
+                varSTLay.addView(textST[i], 0);
+            }
 
 //            timeLayout[i].setOrientation(LinearLayout.HORIZONTAL);
 //            timeLayout[i].addView(textDate[i]);
@@ -165,6 +210,11 @@ public class MainActivity extends AppCompatActivity {
         cursor.close();
         cursor1.close();
         cursor2.close();
+
+        // 睡眠時間の表示位置調整のための空のテキストビュー
+        TextView emptyST = new TextView(this);
+        emptyST.setHeight(75);
+        varSTLay.addView(emptyST, 0);
 
         // 起床時刻ボタンの処理
         findViewById(R.id.GUbtn).setOnClickListener(
@@ -213,6 +263,15 @@ public class MainActivity extends AppCompatActivity {
     // 起床or就寝時刻ボタンまたは記録のテキストビューを押したときに呼ばれるメソッド
     public void recordTime(final boolean sleep, final SQLiteDatabase db, final int i) {
 
+        String sleepText;
+        if (sleep == false) {
+            sleepText = "起床";
+        }else {
+            sleepText = "就寝";
+        }
+
+        String updateORadd = "記録";
+
         calendar = Calendar.getInstance();
 
         year = calendar.get(Calendar.YEAR);
@@ -229,6 +288,8 @@ public class MainActivity extends AppCompatActivity {
                 tableName = "GoToBedTable";
             }
 
+            updateORadd = "修正";
+
             Cursor cursor0 = db.query("DateTable", new String[] {"id", "year", "month", "date"}, "id=" + i, null, null, null, null);
             cursor0.moveToFirst();
             year = cursor0.getInt(1);
@@ -241,12 +302,12 @@ public class MainActivity extends AppCompatActivity {
             hour = cursor.getInt(1);
             minute = cursor.getInt(2);
             cursor.close();
-            
+
             if (hour == -1) {
-                hour = 0;
+                hour = calendar.get(Calendar.HOUR_OF_DAY);
             }
             if (minute == -1) {
-                minute = 0;
+                minute = calendar.get(Calendar.MINUTE);
             }
         }
 
@@ -260,10 +321,10 @@ public class MainActivity extends AppCompatActivity {
         };
         timePickerDialog = new CustomTimePickerDialog(MainActivity.this, TimePickerDialog.THEME_HOLO_LIGHT, listener, hour, minute, true);
 
-        timePickerDialog.setTitle(year + "年" + month + "月" + date + "日の起床時刻");
+        timePickerDialog.setTitle(year + "年" + month + "月" + date + "日の" + sleepText + "時刻");
         timePickerDialog.setButton(
                 DialogInterface.BUTTON_POSITIVE,
-                "記録する",
+                updateORadd + "する",
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

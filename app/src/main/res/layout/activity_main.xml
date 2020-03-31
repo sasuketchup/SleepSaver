@@ -11,37 +11,37 @@
         android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:text="日付"
-        android:textSize="24sp"
+        android:textSize="18sp"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toStartOf="@+id/scrollView"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="100dp"
+        android:layout_width="90dp"
         android:layout_height="wrap_content"
         android:text="起床時刻"
-        android:textSize="24sp"
+        android:textSize="18sp"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toEndOf="@+id/textView"
         app:layout_constraintTop_toTopOf="@+id/textView" />
 
     <TextView
         android:id="@+id/textView3"
-        android:layout_width="100dp"
+        android:layout_width="90dp"
         android:layout_height="wrap_content"
         android:text="就寝時刻"
-        android:textSize="24sp"
+        android:textSize="18sp"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toEndOf="@+id/textView2"
         app:layout_constraintTop_toTopOf="@+id/textView2" />
 
     <TextView
         android:id="@+id/textView4"
-        android:layout_width="100dp"
+        android:layout_width="90dp"
         android:layout_height="wrap_content"
         android:text="睡眠時間"
-        android:textSize="24sp"
+        android:textSize="18sp"
         app:layout_constraintStart_toEndOf="@+id/textView3"
         app:layout_constraintTop_toTopOf="@+id/textView3" />
 
@@ -68,7 +68,7 @@
 
             <LinearLayout
                 android:id="@+id/GULayout"
-                android:layout_width="100dp"
+                android:layout_width="90dp"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
@@ -76,13 +76,13 @@
 
             <LinearLayout
                 android:id="@+id/GTBLayout"
-                android:layout_width="100dp"
+                android:layout_width="90dp"
                 android:layout_height="match_parent"
                 android:orientation="vertical"></LinearLayout>
 
             <LinearLayout
                 android:id="@+id/STLayout"
-                android:layout_width="100dp"
+                android:layout_width="90dp"
                 android:layout_height="match_parent"
                 android:orientation="vertical"></LinearLayout>
 
