@@ -112,9 +112,9 @@ public class MainActivity extends AppCompatActivity {
         TextView[] textST = new TextView[(int) idCount - 1];
 
         // 記録を表示
-        cursor.moveToFirst();
-        cursor1.moveToFirst();
-        cursor2.moveToFirst();
+        cursor.moveToLast();
+        cursor1.moveToLast();
+        cursor2.moveToLast();
         for(int i=0;i<idCount;i++){
 //            timeLayout[i] = new LinearLayout(this);
             textDate[i] = new TextView(this);
@@ -129,18 +129,18 @@ public class MainActivity extends AppCompatActivity {
             String timeGTBSt = "--:--";
             String timeSTSt = "--:--";
 
+            int hourGU = -1;
+            int minuteGU = -1;
             if(i < idGU){
-                int hourGU = cursor1.getInt(1);
-                int minuteGU = cursor1.getInt(2);
+                hourGU = cursor1.getInt(1);
+                minuteGU = cursor1.getInt(2);
 
                 timeGUSt = timeHandler.timeString(hourGU, minuteGU);
             }
 
-            int hourGTB = -1;
-            int minuteGTB = -1;
             if(i < idGTB) {
-                hourGTB = cursor2.getInt(1);
-                minuteGTB = cursor2.getInt(2);
+                int hourGTB = cursor2.getInt(1);
+                int minuteGTB = cursor2.getInt(2);
 
                 timeGTBSt = timeHandler.timeString(hourGTB, minuteGTB);
             }
@@ -161,29 +161,29 @@ public class MainActivity extends AppCompatActivity {
             textGTB[i].setGravity(Gravity.RIGHT);
             textGU[i].setTextSize(30);
             textGTB[i].setTextSize(30);
-            cursor.moveToNext();
-            cursor1.moveToNext();
-            cursor2.moveToNext();
+            cursor.moveToPrevious();
+            cursor1.moveToPrevious();
+            cursor2.moveToPrevious();
 
             if (i < idCount - 1) {
                 textST[i] = new TextView(this);
 
-                // 睡眠時間計算のため、次の起床時刻を取得
-                int hourGUnext = cursor1.getInt(1);
-                int minuteGUnext = cursor1.getInt(2);
+                // 睡眠時間計算のため、次の就寝時刻を取得
+                int hourGTBnext = cursor2.getInt(1);
+                int minuteGTBnext = cursor2.getInt(2);
 
                 // 起床・就寝の値が揃っているとき
-                if (hourGUnext != -1 && hourGTB != -1) {
+                if (hourGTBnext != -1 && hourGU != -1) {
                     int dateST = 0;
                     // 日付を跨いだ場合(これは暫定で正午の12時。深夜ではない！)
-                    if (hourGTB > 12) {
+                    if (hourGTBnext > 12) {
                         dateST = 1;
                     }
 
                     Calendar calST = Calendar.getInstance();
-                    calST.set(0, 0, dateST, hourGUnext, minuteGUnext);
-                    calST.add(Calendar.HOUR, 0 - hourGTB);
-                    calST.add(Calendar.MINUTE, 0 - minuteGTB);
+                    calST.set(0, 0, dateST, hourGU, minuteGU);
+                    calST.add(Calendar.HOUR, 0 - hourGTBnext);
+                    calST.add(Calendar.MINUTE, 0 - minuteGTBnext);
 
                     int hourST = calST.get(Calendar.HOUR_OF_DAY);
                     int minuteST = calST.get(Calendar.MINUTE);
@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
                 textST[i].setHeight(150);
                 textST[i].setGravity(Gravity.RIGHT);
 
-                varSTLay.addView(textST[i], 0);
+                varSTLay.addView(textST[i]);
             }
 
 //            timeLayout[i].setOrientation(LinearLayout.HORIZONTAL);
@@ -203,9 +203,9 @@ public class MainActivity extends AppCompatActivity {
 //            timeLayout[i].addView(textGU[i]);
 //            timeLayout[i].addView(textGTB[i]);
 //            varRecordLay.addView(timeLayout[i], 0);
-            varDateLay.addView(textDate[i], 0);
-            varGULay.addView(textGU[i], 0);
-            varGTBLay.addView(textGTB[i], 0);
+            varDateLay.addView(textDate[i]);
+            varGULay.addView(textGU[i]);
+            varGTBLay.addView(textGTB[i]);
         }
         cursor.close();
         cursor1.close();
@@ -215,6 +215,17 @@ public class MainActivity extends AppCompatActivity {
         TextView emptyST = new TextView(this);
         emptyST.setHeight(75);
         varSTLay.addView(emptyST, 0);
+
+        // 設定ボタンの処理
+        findViewById(R.id.Settings).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(MainActivity.this, PrefActivity.class);
+                        startActivity(intent);
+                    }
+                }
+        );
 
         // 起床時刻ボタンの処理
         findViewById(R.id.GUbtn).setOnClickListener(
@@ -237,9 +248,9 @@ public class MainActivity extends AppCompatActivity {
         );
 
         // 記録時刻の修正・削除(長押し)
-        for (int i=0;i<idCount;i++) {
+        for (int i=0; i<idCount; i++) {
             // 起床時刻の修正・削除
-            final int finalI = i;
+            final int finalI = (int) (idCount - i) - 1;
             textGU[i].setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
@@ -249,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
             });
 
             // 就寝時刻の修正・削除
-            final int finalI1 = i;
+            final int finalI1 = (int) (idCount - i) - 1;
             textGTB[i].setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
