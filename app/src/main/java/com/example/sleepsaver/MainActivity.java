@@ -10,14 +10,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.BatteryManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.View;
 import android.database.DatabaseUtils;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -68,6 +71,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SharedPreferences sp = getSharedPreferences("pref", MODE_PRIVATE);
+        int results = sp.getInt("results", 0);
+        Button settings = (Button) findViewById(R.id.Settings);
+        settings.setText("" + results + "");
+
         MyOpenHelper helper = new MyOpenHelper(this);
         final SQLiteDatabase db = helper.getWritableDatabase();
 
@@ -88,6 +96,9 @@ public class MainActivity extends AppCompatActivity {
 
             timeHandler.insertTime(db, 0, year, month, date, -1, -1, -1, -1);
         }
+
+        // データの行数を再取得
+        idCount = DatabaseUtils.queryNumEntries(db, "DateTable");
 
         varRecordLay = (LinearLayout) findViewById(R.id.RecordLayout);
 
