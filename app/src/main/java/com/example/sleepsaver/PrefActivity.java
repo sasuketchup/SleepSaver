@@ -99,6 +99,7 @@ public class PrefActivity extends PreferenceActivity {
                                         editor.commit();
 
                                         Intent intent = new Intent(PrefActivity.this, MainActivity.class);
+                                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                         startActivity(intent);
                                         finish();
                                     }
