@@ -73,8 +73,8 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences sp = getSharedPreferences("pref", MODE_PRIVATE);
         int results = sp.getInt("results", 0);
-        Button settings = (Button) findViewById(R.id.Settings);
-        settings.setText("" + results + "");
+//        Button settings = (Button) findViewById(R.id.Settings);
+//        settings.setText("" + results + "");
 
         MyOpenHelper helper = new MyOpenHelper(this);
         final SQLiteDatabase db = helper.getWritableDatabase();
@@ -99,6 +99,17 @@ public class MainActivity extends AppCompatActivity {
 
         // データの行数を再取得
         idCount = DatabaseUtils.queryNumEntries(db, "DateTable");
+
+        // データと表示件数の差分
+        int diff_id = 0;
+
+        // 表示件数を計算
+        if (results != 0) {
+            if (idCount > results) {
+                diff_id = (int) (idCount - results);
+                idCount = results;
+            }
+        }
 
         varRecordLay = (LinearLayout) findViewById(R.id.RecordLayout);
 
@@ -261,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
         // 記録時刻の修正・削除(長押し)
         for (int i=0; i<idCount; i++) {
             // 起床時刻の修正・削除
-            final int finalI = (int) (idCount - i) - 1;
+            final int finalI = (int) (idCount - i) - 1 + diff_id;
             textGU[i].setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
@@ -271,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
             });
 
             // 就寝時刻の修正・削除
-            final int finalI1 = (int) (idCount - i) - 1;
+            final int finalI1 = (int) (idCount - i) - 1 + diff_id;
             textGTB[i].setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {

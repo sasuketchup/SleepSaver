@@ -6,4 +6,8 @@
         android:key="results"
         android:title="表示件数" />
 
+    <PreferenceScreen
+        android:key="save"
+        android:title="保存" />
+
 </PreferenceScreen>
