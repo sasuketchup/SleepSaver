@@ -7,7 +7,12 @@
         android:title="表示件数" />
 
     <PreferenceScreen
+        android:key="date_line"
+        android:title="日付変更時刻" />
+
+    <PreferenceScreen
         android:key="save"
-        android:title="保存" />
+        android:title="保存"
+        android:summary="すべての設定を保存します" />
 
 </PreferenceScreen>
