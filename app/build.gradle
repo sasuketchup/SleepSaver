@@ -1,6 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('../app/libs/keystore/debug.keystore')
+        }
+    }
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.sleepsaver"
