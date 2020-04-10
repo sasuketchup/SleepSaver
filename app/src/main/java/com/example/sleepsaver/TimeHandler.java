@@ -1,8 +1,11 @@
 package com.example.sleepsaver;
 
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 
 import java.util.Calendar;
 
@@ -29,8 +32,22 @@ public class TimeHandler {
         return timeSt;
     }
 
+    // 4桁の数値を時と分に分けるメソッド
+    public int[] number_to_time(int number) {
+        int[] time = {0,0};
+        time[1] = number % 100;
+        time[0] = (number - time[1]) / 100;
+        return time;
+    }
+    // 時と分を4桁の数値に合成するメソッド
+    public int time_to_number(int hour, int minute) {
+        int number = 0;
+        number = (hour * 100) + minute;
+        return number;
+    }
+
     // 記録し忘れの対応処理メソッド
-    public void fillForget(SQLiteDatabase db, Calendar cal_now, Calendar cal_latest) {
+    public void fillForget(SQLiteDatabase db, Calendar cal_now, Calendar cal_latest, Context context) {
         Cursor cursor0 = db.query("DateTable", new String[]{"id", "year", "month", "date"}, null, null, null, null, null);
         // 最新の行に移動
         cursor0.moveToLast();
@@ -40,10 +57,32 @@ public class TimeHandler {
         int latestDate = cursor0.getInt(3);
         cursor0.close();
 
+        // 設定から1日のサイクルを取得
+        SharedPreferences sp = context.getSharedPreferences("pref", Context.MODE_PRIVATE);
+        // 起床→就寝
+        int stay_up_line = sp.getInt("stay_up_line", 1200);
+        int hour_line = number_to_time(stay_up_line)[0];
+        int minute_line = number_to_time(stay_up_line)[1];
+        // Calenderにセット
+        Calendar cal_stay_up = Calendar.getInstance();
+        cal_stay_up.set(Calendar.HOUR_OF_DAY, hour_line);
+        cal_stay_up.set(Calendar.MINUTE, minute_line);
+        // 就寝→起床
+        int sleeping_line = sp.getInt("sleeping_line", 0);
+        int hour_line2 = number_to_time(sleeping_line)[0];
+        int minute_line2 = number_to_time(sleeping_line)[1];
+        // Calenderにセット
+        Calendar cal_sleeping = Calendar.getInstance();
+        cal_sleeping.set(Calendar.HOUR_OF_DAY, hour_line2);
+        cal_sleeping.set(Calendar.MINUTE, minute_line2);
+
+        // 起床→就寝と就寝→起床の大小を比較
+        int comparison = cal_stay_up.compareTo(cal_sleeping);
+
         // 現在の日付(と時刻)を取得
         cal_now = Calendar.getInstance();
 
-        // 最新の日付をセット
+        // 記録されているうちの最新の日付をセット
         cal_latest = Calendar.getInstance();
         cal_latest.set(latestYear, latestMonth, latestDate);
 

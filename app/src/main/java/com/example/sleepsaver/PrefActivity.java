@@ -25,18 +25,22 @@ public class PrefActivity extends PreferenceActivity {
     // 表示件数を格納する変数
     int resultsNum;
 
-    // 日付変更時刻を格納する変数(4桁→それぞれ)
-    int date_line;
+    // 1日のサイクルを格納する変数(4桁→それぞれ)
+    int stay_up_line;
+    int sleeping_line;
     int hour_line;
     int minute_line;
+    int hour_line2;
+    int minute_line2;
 
-    String date_line_St;
+    String stay_up_St;
+    String sleeping_St;
 
     AlertDialog alertDialog;
 
     int resultsWhich;
 
-    // ピッカーの時刻を変更したときに変数に代入するようにするために、TimePickerDialogを継承したクラス
+    // ピッカーの時刻を変更したときに変数に代入するようにするために、TimePickerDialogを継承したクラス(起床→就寝用)
     public class CustomTimePickerDialog extends TimePickerDialog {
 
         public CustomTimePickerDialog(Context context, int themeResId, OnTimeSetListener listener, int hourOfDay, int minute, boolean is24HourView) {
@@ -48,6 +52,77 @@ public class PrefActivity extends PreferenceActivity {
             hour_line = s_hour;
             minute_line = s_minute;
         }
+    }
+    // ピッカーの時刻を変更したときに変数に代入するようにするために、TimePickerDialogを継承したクラス(就寝→起床用)
+    public class CustomTimePickerDialog2 extends TimePickerDialog {
+
+        public CustomTimePickerDialog2(Context context, int themeResId, OnTimeSetListener listener, int hourOfDay, int minute, boolean is24HourView) {
+            super(context, themeResId, listener, hourOfDay, minute, is24HourView);
+        }
+
+        @Override
+        public void onTimeChanged(TimePicker view, int s_hour, int s_minute) {
+            hour_line2 = s_hour;
+            minute_line2 = s_minute;
+        }
+    }
+
+    // 1日のサイクルのボタンを押したときに呼ばれるメソッド
+    public void cycleButton(final PreferenceScreen button, final boolean state, TimePickerDialog timePickerDialog) {
+
+        String switchingText;
+        final String textSure;
+        if (state == true) {
+            switchingText = "起床→就寝";
+            textSure = "起き";
+        } else {
+            switchingText = "就寝→起床";
+            textSure = "寝";
+        }
+
+        // タイムピッカーを表示
+        timePickerDialog.setTitle(switchingText + "切り替え時刻");
+        timePickerDialog.setButton(
+                DialogInterface.BUTTON_POSITIVE,
+                "設定",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                        String line_St = "--:--";
+                        if (state == true) {
+                            stay_up_line = timeHandler.time_to_number(hour_line, minute_line);
+                            line_St = timeHandler.timeString(hour_line, minute_line);
+                        } else {
+                            sleeping_line = timeHandler.time_to_number(hour_line2, minute_line2);
+                            line_St = timeHandler.timeString(hour_line2, minute_line2);
+                        }
+                        button.setSummary(line_St + "\n確実に" + textSure + "ている時刻を指定してください。");
+
+                        dialogInterface.dismiss();
+                    }
+                }
+        );
+        timePickerDialog.setButton(
+                DialogInterface.BUTTON_NEGATIVE,
+                "キャンセル",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // 値をリセット
+                        if (state == true) {
+                            hour_line = timeHandler.number_to_time(stay_up_line)[0];
+                            minute_line = timeHandler.number_to_time(stay_up_line)[1];
+                        } else {
+                            hour_line2 = timeHandler.number_to_time(sleeping_line)[0];
+                            minute_line2 = timeHandler.number_to_time(sleeping_line)[1];
+                        }
+
+                        dialogInterface.dismiss();
+                    }
+                }
+        );
+        timePickerDialog.show();
     }
 
     @Override
@@ -108,20 +183,20 @@ public class PrefActivity extends PreferenceActivity {
                 }
         );
 
-        // 日付変更時刻を取得
-        date_line = sp.getInt("date_line", 0);
-        minute_line = date_line % 100;
-        hour_line = (date_line - minute_line) / 100;
-        date_line_St = timeHandler.timeString(hour_line, minute_line);
+        // 起床→就寝切り替え時刻を取得
+        stay_up_line = sp.getInt("stay_up_line", 1200);
+        hour_line = timeHandler.number_to_time(stay_up_line)[0];
+        minute_line = timeHandler.number_to_time(stay_up_line)[1];
+        stay_up_St = timeHandler.timeString(hour_line, minute_line);
 
-        // 日付変更時刻ボタン
-        final PreferenceScreen date_line_btn = (PreferenceScreen) findPreference("date_line");
-        date_line_btn.setSummary("日付を切り替える時刻: " + date_line_St + "\n確実に就寝している時刻を指定してください");
-        date_line_btn.setOnPreferenceClickListener(
+        // 起床→就寝切り替え時刻ボタン
+        final PreferenceScreen stay_up_btn = (PreferenceScreen) findPreference("stay_up_line");
+        stay_up_btn.setSummary(stay_up_St + "\n確実に起きている時刻を指定してください。");
+        stay_up_btn.setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        // タイムピッカーを表示
+                        // 1つ目のカスタム型
                         CustomTimePickerDialog timePickerDialog;
                         CustomTimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
                             @Override
@@ -130,36 +205,69 @@ public class PrefActivity extends PreferenceActivity {
                             }
                         };
                         timePickerDialog = new CustomTimePickerDialog(PrefActivity.this, TimePickerDialog.THEME_HOLO_LIGHT, listener, hour_line, minute_line, true);
-                        timePickerDialog.setTitle("日付変更時刻");
-                        timePickerDialog.setButton(
-                                DialogInterface.BUTTON_POSITIVE,
-                                "設定",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        date_line = (hour_line * 100) + minute_line;
-                                        date_line_St = timeHandler.timeString(hour_line, minute_line);
-                                        date_line_btn.setSummary("日付を切り替える時刻: " + date_line_St + "\n確実に就寝している時刻を指定してください");
 
-                                        dialogInterface.dismiss();
-                                    }
-                                }
-                        );
-                        timePickerDialog.setButton(
-                                DialogInterface.BUTTON_NEGATIVE,
-                                "キャンセル",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        // 値をリセット
-                                        minute_line = date_line % 100;
-                                        hour_line = (date_line - minute_line) / 100;
+                        cycleButton(stay_up_btn, true, timePickerDialog);
 
-                                        dialogInterface.dismiss();
-                                    }
-                                }
-                        );
-                        timePickerDialog.show();
+//                        timePickerDialog.setTitle("起床→就寝切り替え時刻");
+//                        timePickerDialog.setButton(
+//                                DialogInterface.BUTTON_POSITIVE,
+//                                "設定",
+//                                new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialogInterface, int i) {
+//                                        stay_up_line = time_to_number(hour_line, minute_line);
+//                                        stay_up_St = timeHandler.timeString(hour_line, minute_line);
+//                                        stay_up_btn.setSummary(stay_up_St + "\n確実に起きている時刻を指定してください");
+//
+//                                        dialogInterface.dismiss();
+//                                    }
+//                                }
+//                        );
+//                        timePickerDialog.setButton(
+//                                DialogInterface.BUTTON_NEGATIVE,
+//                                "キャンセル",
+//                                new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialogInterface, int i) {
+//                                        // 値をリセット
+//                                        hour_line = number_to_time(stay_up_line)[0];
+//                                        minute_line = number_to_time(stay_up_line)[1];
+//
+//                                        dialogInterface.dismiss();
+//                                    }
+//                                }
+//                        );
+//                        timePickerDialog.show();
+                        return true;
+                    }
+                }
+        );
+
+        // 就寝→起床切り替え時刻を取得
+        sleeping_line = sp.getInt("sleeping_line", 0);
+        hour_line2 = timeHandler.number_to_time(sleeping_line)[0];
+        minute_line2 = timeHandler.number_to_time(sleeping_line)[1];
+        sleeping_St = timeHandler.timeString(hour_line2, minute_line2);
+
+        // 就寝→起床切り替え時刻ボタン
+        final PreferenceScreen sleeping_btn = (PreferenceScreen) findPreference("sleeping_line");
+        sleeping_btn.setSummary(sleeping_St + "\n確実に寝ている時刻を指定してください。");
+        sleeping_btn.setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        // 2つ目のカスタム型
+                        CustomTimePickerDialog2 timePickerDialog;
+                        CustomTimePickerDialog2.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker timePicker, int i, int i1) {
+
+                            }
+                        };
+                        timePickerDialog = new CustomTimePickerDialog2(PrefActivity.this, TimePickerDialog.THEME_HOLO_LIGHT, listener, hour_line2, minute_line2, true);
+
+                        cycleButton(sleeping_btn, false, timePickerDialog);
+
                         return true;
                     }
                 }
@@ -182,8 +290,10 @@ public class PrefActivity extends PreferenceActivity {
                                         // 表示件数
                                         editor.putInt("results", resultsNum);
 
-                                        // 日付変更時刻
-                                        editor.putInt("date_line", date_line);
+                                        // 起床→就寝切り替え時刻
+                                        editor.putInt("stay_up_line", stay_up_line);
+                                        // 就寝→起床切り替え時刻
+                                        editor.putInt("sleeping_line", sleeping_line);
 
                                         editor.commit();
 

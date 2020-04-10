@@ -72,9 +72,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         SharedPreferences sp = getSharedPreferences("pref", MODE_PRIVATE);
+        // 表示範囲を取得
         int results = sp.getInt("results", 0);
-//        Button settings = (Button) findViewById(R.id.Settings);
-//        settings.setText("" + results + "");
+        // 起床→就寝切り替え時刻を取得
+        int stay_up_line = sp.getInt("stay_up_line", 1200);
+        int hour_line = timeHandler.number_to_time(stay_up_line)[0];
 
         MyOpenHelper helper = new MyOpenHelper(this);
         final SQLiteDatabase db = helper.getWritableDatabase();
@@ -85,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         // データが1行以上あるとき実行
         if(idCount > 0) {
             // 記録し忘れがある場合、差分を埋める
-            timeHandler.fillForget(db, cal_now, cal_latest);
+            timeHandler.fillForget(db, cal_now, cal_latest, MainActivity.this);
         }else{
             // データが空のとき実行
             calendar = Calendar.getInstance();
@@ -190,22 +192,22 @@ public class MainActivity extends AppCompatActivity {
             if (i < idCount - 1) {
                 textST[i] = new TextView(this);
 
-                // 睡眠時間計算のため、次の就寝時刻を取得
-                int hourGTBnext = cursor2.getInt(1);
-                int minuteGTBnext = cursor2.getInt(2);
+                // 睡眠時間計算のため、一つ前の就寝時刻を取得
+                int hourGTBPrevious = cursor2.getInt(1);
+                int minuteGTBPrevious = cursor2.getInt(2);
 
                 // 起床・就寝の値が揃っているとき
-                if (hourGTBnext != -1 && hourGU != -1) {
+                if (hourGTBPrevious != -1 && hourGU != -1) {
                     int dateST = 0;
-                    // 日付を跨いだ場合(これは暫定で正午の12時。深夜ではない！)
-                    if (hourGTBnext > 12) {
+                    // 日付を跨いだ場合(起床→就寝切り替え時刻より遅い(かつ24時より前の)場合は24時を跨ぐので引かれる方の日付をプラス1)
+                    if (hourGTBPrevious > hour_line) {
                         dateST = 1;
                     }
 
                     Calendar calST = Calendar.getInstance();
                     calST.set(0, 0, dateST, hourGU, minuteGU);
-                    calST.add(Calendar.HOUR, 0 - hourGTBnext);
-                    calST.add(Calendar.MINUTE, 0 - minuteGTBnext);
+                    calST.add(Calendar.HOUR, 0 - hourGTBPrevious);
+                    calST.add(Calendar.MINUTE, 0 - minuteGTBPrevious);
 
                     int hourST = calST.get(Calendar.HOUR_OF_DAY);
                     int minuteST = calST.get(Calendar.MINUTE);

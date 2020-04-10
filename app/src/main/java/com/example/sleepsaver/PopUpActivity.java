@@ -94,7 +94,7 @@ public class PopUpActivity extends AppCompatActivity {
                     public void onClick(View view) {
 
                         // 記録し忘れがある場合、差分を埋める
-                        timeHandler.fillForget(db, cal_now, cal_latest);
+                        timeHandler.fillForget(db, cal_now, cal_latest, PopUpActivity.this);
 
                         long idNumber = DatabaseUtils.queryNumEntries(db, "DateTable"); // 日付によるインクリメント問題！
 

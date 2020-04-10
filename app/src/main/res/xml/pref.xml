@@ -6,13 +6,21 @@
         android:key="results"
         android:title="表示件数" />
 
-    <PreferenceScreen
-        android:key="date_line"
-        android:title="日付変更時刻" />
+    <PreferenceCategory android:title="1日のサイクル">
+
+        <PreferenceScreen
+            android:key="stay_up_line"
+            android:title="起床→就寝切り替え時刻" />
+
+        <PreferenceScreen
+            android:key="sleeping_line"
+            android:title="就寝→起床切り替え時刻" />
+
+    </PreferenceCategory>
 
     <PreferenceScreen
         android:key="save"
         android:title="保存"
-        android:summary="すべての設定を保存します" />
+        android:summary="すべての設定を保存します。" />
 
 </PreferenceScreen>
