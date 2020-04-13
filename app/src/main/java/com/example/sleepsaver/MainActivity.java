@@ -1,33 +1,22 @@
 package com.example.sleepsaver;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
-import android.os.BatteryManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.View;
 import android.database.DatabaseUtils;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-import org.w3c.dom.Text;
-
-import java.time.LocalDateTime;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
@@ -87,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         // データが1行以上あるとき実行
         if(idCount > 0) {
             // 記録し忘れがある場合、差分を埋める
-            timeHandler.fillForget(db, cal_now, cal_latest, MainActivity.this);
+            timeHandler.fillForget(db, MainActivity.this);
         }else{
             // データが空のとき実行
             calendar = Calendar.getInstance();
@@ -307,7 +296,10 @@ public class MainActivity extends AppCompatActivity {
 
         String updateORadd = "記録";
 
+        // 現在の日付と時刻を取得
         calendar = Calendar.getInstance();
+        // 該当する時刻の場合加算or減算
+        calendar.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(this));
 
         year = calendar.get(Calendar.YEAR);
         month = calendar.get(Calendar.MONTH) + 1;

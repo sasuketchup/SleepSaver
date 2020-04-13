@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.preference.PreferenceManager;
 
 import java.util.Calendar;
 
@@ -46,17 +45,8 @@ public class TimeHandler {
         return number;
     }
 
-    // 記録し忘れの対応処理メソッド
-    public void fillForget(SQLiteDatabase db, Calendar cal_now, Calendar cal_latest, Context context) {
-        Cursor cursor0 = db.query("DateTable", new String[]{"id", "year", "month", "date"}, null, null, null, null, null);
-        // 最新の行に移動
-        cursor0.moveToLast();
-        int latestID = cursor0.getInt(0);
-        int latestYear = cursor0.getInt(1);
-        int latestMonth = cursor0.getInt(2) - 1; // 月は0からなので-1する！！
-        int latestDate = cursor0.getInt(3);
-        cursor0.close();
-
+    // 1日のサイクルと現在時刻を比較するメソッド
+    public int compareTime(Context context) {
         // 設定から1日のサイクルを取得
         SharedPreferences sp = context.getSharedPreferences("pref", Context.MODE_PRIVATE);
         // 起床→就寝
@@ -80,10 +70,74 @@ public class TimeHandler {
         int comparison = cal_stay_up.compareTo(cal_sleeping);
 
         // 現在の日付(と時刻)を取得
-        cal_now = Calendar.getInstance();
+        Calendar cal_now = Calendar.getInstance();
+
+        // 現在の時刻と就寝→起床の時刻を比較し、該当の時刻の場合、日付に加算or減算
+        int comp_now_sl = cal_now.compareTo(cal_sleeping);
+        int add_date = 0;
+        if (comparison == -1 && comp_now_sl == 1) {
+            add_date = 1;
+        } else if (comparison == 1 && comp_now_sl == -1){
+            add_date = -1;
+        }
+        return add_date;
+    }
+
+    // 記録し忘れの対応処理メソッド
+    public void fillForget(SQLiteDatabase db, Context context) {
+        Cursor cursor0 = db.query("DateTable", new String[]{"id", "year", "month", "date"}, null, null, null, null, null);
+        // 最新の行に移動
+        cursor0.moveToLast();
+        int latestID = cursor0.getInt(0);
+        int latestYear = cursor0.getInt(1);
+        int latestMonth = cursor0.getInt(2) - 1; // 月は0からなので-1する！！
+        int latestDate = cursor0.getInt(3);
+        cursor0.close();
+
+//        // 設定から1日のサイクルを取得
+//        SharedPreferences sp = context.getSharedPreferences("pref", Context.MODE_PRIVATE);
+//        // 起床→就寝
+//        int stay_up_line = sp.getInt("stay_up_line", 1200);
+//        int hour_line = number_to_time(stay_up_line)[0];
+//        int minute_line = number_to_time(stay_up_line)[1];
+//        // Calenderにセット
+//        Calendar cal_stay_up = Calendar.getInstance();
+//        cal_stay_up.set(Calendar.HOUR_OF_DAY, hour_line);
+//        cal_stay_up.set(Calendar.MINUTE, minute_line);
+//        // 就寝→起床
+//        int sleeping_line = sp.getInt("sleeping_line", 0);
+//        int hour_line2 = number_to_time(sleeping_line)[0];
+//        int minute_line2 = number_to_time(sleeping_line)[1];
+//        // Calenderにセット
+//        Calendar cal_sleeping = Calendar.getInstance();
+//        cal_sleeping.set(Calendar.HOUR_OF_DAY, hour_line2);
+//        cal_sleeping.set(Calendar.MINUTE, minute_line2);
+//
+//        // 起床→就寝と就寝→起床の大小を比較
+//        int comparison = cal_stay_up.compareTo(cal_sleeping);
+
+        // 現在の日付(と時刻)を取得
+        Calendar cal_now = Calendar.getInstance();
+
+        // 1日のサイクルと現在時刻を比較し結果を加算
+        cal_now.add(Calendar.DAY_OF_MONTH, compareTime(context));
+
+//        // 現在の時刻と就寝→起床の時刻を比較し、該当の時刻の場合、日付に加算or減算
+//        int comp_now_sl;
+//        if (comparison == -1) {
+//            comp_now_sl = cal_now.compareTo(cal_sleeping);
+//            if (comp_now_sl == 1) {
+//                cal_now.add(Calendar.DATE, 1);
+//            }
+//        } else {
+//            comp_now_sl = cal_now.compareTo(cal_sleeping);
+//            if (comp_now_sl == -1) {
+//                cal_now.add(Calendar.DATE, -1);
+//            }
+//        }
 
         // 記録されているうちの最新の日付をセット
-        cal_latest = Calendar.getInstance();
+        Calendar cal_latest = Calendar.getInstance();
         cal_latest.set(latestYear, latestMonth, latestDate);
 
         // 最新の日とアプリを開いた日の差分を計算

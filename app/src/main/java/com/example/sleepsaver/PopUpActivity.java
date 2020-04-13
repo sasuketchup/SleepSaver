@@ -1,6 +1,5 @@
 package com.example.sleepsaver;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.DatabaseUtils;
@@ -44,7 +43,10 @@ public class PopUpActivity extends AppCompatActivity {
         varTextGUorGTB = findViewById(R.id.textGUorGTB);
         varTextTime = findViewById(R.id.textTime);
 
+        // 現在の日付と時刻を取得
         calendar = Calendar.getInstance();
+        // 該当する時刻の場合加算or減算
+        calendar.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(this));
 
         final int year = calendar.get(Calendar.YEAR);
         final int month = calendar.get(Calendar.MONTH) + 1;
@@ -94,7 +96,7 @@ public class PopUpActivity extends AppCompatActivity {
                     public void onClick(View view) {
 
                         // 記録し忘れがある場合、差分を埋める
-                        timeHandler.fillForget(db, cal_now, cal_latest, PopUpActivity.this);
+                        timeHandler.fillForget(db, PopUpActivity.this);
 
                         long idNumber = DatabaseUtils.queryNumEntries(db, "DateTable"); // 日付によるインクリメント問題！
 
