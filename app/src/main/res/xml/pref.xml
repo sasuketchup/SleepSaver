@@ -4,7 +4,7 @@
 
     <PreferenceScreen
         android:key="results"
-        android:title="表示件数" />
+        android:title="表示範囲" />
 
     <PreferenceCategory android:title="1日のサイクル">
 
@@ -18,9 +18,13 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="設定の保存">
+
     <PreferenceScreen
         android:key="save"
-        android:title="保存"
+        android:title="保存する"
         android:summary="すべての設定を保存します。" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

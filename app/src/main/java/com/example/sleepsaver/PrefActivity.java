@@ -133,25 +133,31 @@ public class PrefActivity extends PreferenceActivity {
         SharedPreferences sp = PrefActivity.this.getSharedPreferences("pref", Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = sp.edit();
 
-        // 表示件数の選択肢
-        final String[] resultsSt = {"5件", "10件", "すべて表示"};
-        // 表示件数を取得
+        // 表示範囲の選択肢
+        final String[] resultsSt = {"過去1週間", "過去2週間", "過去3週間", "過去4週間", "すべて表示"};
+        // 表示範囲を取得
         resultsNum = sp.getInt("results", 0);
         switch (resultsNum) {
-            case 5:
+            case 7:
                 resultsWhich = 0;
                 break;
-            case 10:
+            case 14:
                 resultsWhich = 1;
                 break;
-            case 0:
+            case 21:
                 resultsWhich = 2;
+                break;
+            case 28:
+                resultsWhich = 3;
+                break;
+            case 0:
+                resultsWhich = 4;
                 break;
         }
 
-        // 表示件数ボタン
+        // 表示範囲ボタン
         final PreferenceScreen resultsBtn = (PreferenceScreen) findPreference("results");
-        resultsBtn.setSummary("記録の表示件数: " + resultsSt[resultsWhich]);
+        resultsBtn.setSummary("記録の表示範囲: " + resultsSt[resultsWhich]);
         resultsBtn.setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
@@ -163,20 +169,26 @@ public class PrefActivity extends PreferenceActivity {
                                 resultsWhich = i;
                                 switch (resultsWhich) {
                                     case 0:
-                                        resultsNum = 5;
+                                        resultsNum = 7;
                                         break;
                                     case 1:
-                                        resultsNum = 10;
+                                        resultsNum = 14;
                                         break;
                                     case 2:
+                                        resultsNum = 21;
+                                        break;
+                                    case 3:
+                                        resultsNum = 28;
+                                        break;
+                                    case 4:
                                         resultsNum = 0;
                                         break;
                                 }
-                                resultsBtn.setSummary("記録の表示件数: " + resultsSt[resultsWhich]);
+                                resultsBtn.setSummary("記録の表示範囲: " + resultsSt[resultsWhich]);
                                 alertDialog.dismiss();
                             }
                         };
-                        builder.setTitle("表示件数").setSingleChoiceItems(resultsSt, resultsWhich, onDialogClickListener);
+                        builder.setTitle("表示範囲").setSingleChoiceItems(resultsSt, resultsWhich, onDialogClickListener);
                         alertDialog = builder.show();
                         return true;
                     }
@@ -319,5 +331,43 @@ public class PrefActivity extends PreferenceActivity {
                     }
                 }
         );
+    }
+
+    // バックボタン押下時の処理
+    @Override
+    public void onBackPressed() {
+        // 保存されている設定値を取得
+        SharedPreferences sp = PrefActivity.this.getSharedPreferences("pref", Context.MODE_PRIVATE);
+        int results_back = sp.getInt("results", 0);
+        int stay_up_back = sp.getInt("stay_up_line", 1200);
+        int sleeping_back = sp.getInt("sleeping_line", 0);
+
+        // 設定が変更されていなければ閉じる、そうでなければダイアログ表示
+        if (results_back == resultsNum && stay_up_back == stay_up_line && sleeping_back == sleeping_line) {
+            finish();
+        } else {
+            // アラートダイアログ表示
+            AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
+            builder.setTitle("変更された設定があります。\n破棄しますか？");
+            builder.setPositiveButton(
+                    "破棄する",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    }
+            );
+            builder.setNegativeButton(
+                    "キャンセル",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    }
+            );
+            builder.show();
+        }
     }
 }
