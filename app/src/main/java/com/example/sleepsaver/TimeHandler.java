@@ -31,6 +31,11 @@ public class TimeHandler {
         return timeSt;
     }
 
+    // 日付を表示する形式に整理するメソッド
+    public String dateString(int year, int month, int date) {
+        return year + "/" + month + "/" + date;
+    }
+
     // 4桁の数値を時と分に分けるメソッド
     public int[] number_to_time(int number) {
         int[] time = {0,0};

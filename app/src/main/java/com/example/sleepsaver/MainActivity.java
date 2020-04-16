@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         int diff_id = 0;
 
         // 表示件数を計算
-        if (results != 0) {
+        if (results > 0) {
             if (idCount > results) {
                 diff_id = (int) (idCount - results);
                 idCount = results;
