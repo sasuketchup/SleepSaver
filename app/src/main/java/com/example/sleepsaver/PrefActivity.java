@@ -5,10 +5,13 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Fragment;
 import android.app.TimePickerDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -160,6 +163,9 @@ public class PrefActivity extends PreferenceActivity {
         SharedPreferences sp = PrefActivity.this.getSharedPreferences("pref", Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = sp.edit();
 
+        MyOpenHelper helper = new MyOpenHelper(this);
+        final SQLiteDatabase db = helper.getWritableDatabase();
+
         // 表示範囲の選択肢
         final String[] resultsSt = {"すべて表示", "過去1週間", "過去2週間", "過去3週間", "過去4週間", "指定日～今日"};
         // 表示範囲を取得
@@ -185,9 +191,22 @@ public class PrefActivity extends PreferenceActivity {
                 break;
         }
 
+        // 表示範囲の指定日をDBから取得
+        Cursor cursor = db.query("RangeTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
+        cursor.moveToFirst();
+        spec_year = cursor.getInt(1);
+        spec_month = cursor.getInt(2);
+        spec_date = cursor.getInt(3);
+        cursor.close();
+
         // 表示範囲ボタン
         final PreferenceScreen resultsBtn = (PreferenceScreen) findPreference("results");
-        resultsBtn.setSummary("記録の表示範囲: " + resultsSt[resultsWhich]);
+        if (resultsWhich < 5) {
+            resultsBtn.setSummary("記録の表示範囲: " + resultsSt[resultsWhich]);
+        } else {
+            spec_St = timeHandler.dateString(spec_year, spec_month + 1, spec_date) + "～今日";
+            resultsBtn.setSummary("記録の表示範囲: " + spec_St);
+        }
         resultsBtn.setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
@@ -214,7 +233,6 @@ public class PrefActivity extends PreferenceActivity {
                                         resultsNum = 28;
                                         break;
                                     case 5:
-                                        resultsNum = -1;
                                         // 指定日～今日のカスタムデイトピッカーダイアログ
                                         CustomDatePickerDialog datePickerDialog;
                                         CustomDatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
@@ -223,10 +241,12 @@ public class PrefActivity extends PreferenceActivity {
 
                                             }
                                         };
-                                        Calendar cal_now = Calendar.getInstance();
-                                        spec_year = cal_now.get(Calendar.YEAR);
-                                        spec_month = cal_now.get(Calendar.MONTH);
-                                        spec_date = cal_now.get(Calendar.DAY_OF_MONTH);
+                                        if (spec_year == 0 && spec_month == 0 && spec_date == 0) {
+                                            Calendar cal_now = Calendar.getInstance();
+                                            spec_year = cal_now.get(Calendar.YEAR);
+                                            spec_month = cal_now.get(Calendar.MONTH);
+                                            spec_date = cal_now.get(Calendar.DAY_OF_MONTH);
+                                        }
                                         datePickerDialog = new CustomDatePickerDialog(PrefActivity.this, listener, spec_year, spec_month, spec_date);
                                         // 最大値を今日に
                                         Calendar cal_max = Calendar.getInstance();
@@ -240,6 +260,7 @@ public class PrefActivity extends PreferenceActivity {
                                                 new DialogInterface.OnClickListener() {
                                                     @Override
                                                     public void onClick(DialogInterface dialog, int which) {
+                                                        resultsNum = -1;
                                                         spec_St = timeHandler.dateString(spec_year, spec_month + 1, spec_date) + "～今日";
                                                         resultsBtn.setSummary("記録の表示範囲: " + spec_St);
                                                         dialog.dismiss();
@@ -376,8 +397,14 @@ public class PrefActivity extends PreferenceActivity {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        // 表示件数
+                                        // 表示範囲
                                         editor.putInt("results", resultsNum);
+                                        // 今日～指定日の指定日
+                                        ContentValues contentValues = new ContentValues();
+                                        contentValues.put("year", spec_year);
+                                        contentValues.put("month", spec_month);
+                                        contentValues.put("date", spec_date);
+                                        db.update("RangeTable", contentValues, "id=" + 0, null);
 
                                         // 起床→就寝切り替え時刻
                                         editor.putInt("stay_up_line", stay_up_line);
