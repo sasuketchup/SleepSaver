@@ -44,7 +44,9 @@ public class MainActivity extends AppCompatActivity {
 
     Calendar calendar;
     Calendar cal_now;
-    Calendar cal_latest;
+    Calendar cal_spec;
+    Calendar cal_spec1;
+    Calendar cal_spec2;
 
     LinearLayout varRecordLay;
 
@@ -93,6 +95,54 @@ public class MainActivity extends AppCompatActivity {
 
         // データと表示件数の差分
         int diff_id = 0;
+
+        // 指定日1～2の時、表示範囲を決めるための変数
+        int diff_now_spec1 = (int) (idCount - 1);
+        int diff_now_spec2 = 0;
+
+        // 指定日1～指定日2(resultsが-2)の場合
+        if (results == -2) {
+            Cursor cursor = db.query("RangeTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
+            cursor.moveToPosition(1);
+            int spec_year1 = cursor.getInt(1);
+            int spec_month1 = cursor.getInt(2);
+            int spec_date1 = cursor.getInt(3);
+            cursor.moveToNext();
+            int spec_year2 = cursor.getInt(1);
+            int spec_month2 = cursor.getInt(2);
+            int spec_date2 = cursor.getInt(3);
+            cursor.close();
+            // 取得した日付をセット
+            cal_spec1 = Calendar.getInstance();
+            cal_spec1.set(spec_year1, spec_month1, spec_date1);
+            cal_spec2 = Calendar.getInstance();
+            cal_spec2.set(spec_year2, spec_month2, spec_date2);
+            // 今日の日付を取得
+            cal_now = Calendar.getInstance();
+            cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(MainActivity.this));
+            // 今日と指定日1、2の差日数を計算
+            diff_now_spec1 = timeHandler.cal_diff_Days(cal_now, cal_spec1);
+            diff_now_spec2 = timeHandler.cal_diff_Days(cal_now, cal_spec2);
+        }
+
+        // 指定日～今日(resultsが-1)の場合に指定日と今日の差分を計算
+        if (results == -1) {
+            // 指定日をDBから取得
+            Cursor cursor = db.query("RangeTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
+            cursor.moveToFirst();
+            int spec_year = cursor.getInt(1);
+            int spec_month = cursor.getInt(2);
+            int spec_date = cursor.getInt(3);
+            cursor.close();
+            // 取得した日付をセット
+            cal_spec = Calendar.getInstance();
+            cal_spec.set(spec_year, spec_month, spec_date);
+            // 今日の日付を取得
+            cal_now = Calendar.getInstance();
+            cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(MainActivity.this));
+            // 指定日と今日の差を計算し、表示件数に代入
+            results = timeHandler.cal_diff_Days(cal_now, cal_spec) + 1;
+        }
 
         // 表示件数を計算
         if (results > 0) {
@@ -208,7 +258,9 @@ public class MainActivity extends AppCompatActivity {
                 textST[i].setHeight(150);
                 textST[i].setGravity(Gravity.RIGHT);
 
-                varSTLay.addView(textST[i]);
+                if (diff_now_spec2 <= i && i <= (diff_now_spec1 - 1)) {
+                    varSTLay.addView(textST[i]);
+                }
             }
 
 //            timeLayout[i].setOrientation(LinearLayout.HORIZONTAL);
@@ -216,9 +268,11 @@ public class MainActivity extends AppCompatActivity {
 //            timeLayout[i].addView(textGU[i]);
 //            timeLayout[i].addView(textGTB[i]);
 //            varRecordLay.addView(timeLayout[i], 0);
-            varDateLay.addView(textDate[i]);
-            varGULay.addView(textGU[i]);
-            varGTBLay.addView(textGTB[i]);
+            if (diff_now_spec2 <= i && i <= diff_now_spec1) {
+                varDateLay.addView(textDate[i]);
+                varGULay.addView(textGU[i]);
+                varGTBLay.addView(textGTB[i]);
+            }
         }
         cursor.close();
         cursor1.close();

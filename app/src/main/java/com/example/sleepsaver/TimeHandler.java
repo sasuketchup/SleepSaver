@@ -36,6 +36,13 @@ public class TimeHandler {
         return year + "/" + month + "/" + date;
     }
 
+    // 2つの日付の差分の日数を計算するメソッド
+    public int cal_diff_Days(Calendar calendar1, Calendar calendar2) {
+        long cal_diff_Millis = calendar1.getTimeInMillis() - calendar2.getTimeInMillis();
+        int MILLIS_OF_DAY = 1000 * 60 * 60 * 24;
+        return (int) (cal_diff_Millis / MILLIS_OF_DAY);
+    }
+
     // 4桁の数値を時と分に分けるメソッド
     public int[] number_to_time(int number) {
         int[] time = {0,0};
@@ -99,61 +106,23 @@ public class TimeHandler {
         int latestDate = cursor0.getInt(3);
         cursor0.close();
 
-//        // 設定から1日のサイクルを取得
-//        SharedPreferences sp = context.getSharedPreferences("pref", Context.MODE_PRIVATE);
-//        // 起床→就寝
-//        int stay_up_line = sp.getInt("stay_up_line", 1200);
-//        int hour_line = number_to_time(stay_up_line)[0];
-//        int minute_line = number_to_time(stay_up_line)[1];
-//        // Calenderにセット
-//        Calendar cal_stay_up = Calendar.getInstance();
-//        cal_stay_up.set(Calendar.HOUR_OF_DAY, hour_line);
-//        cal_stay_up.set(Calendar.MINUTE, minute_line);
-//        // 就寝→起床
-//        int sleeping_line = sp.getInt("sleeping_line", 0);
-//        int hour_line2 = number_to_time(sleeping_line)[0];
-//        int minute_line2 = number_to_time(sleeping_line)[1];
-//        // Calenderにセット
-//        Calendar cal_sleeping = Calendar.getInstance();
-//        cal_sleeping.set(Calendar.HOUR_OF_DAY, hour_line2);
-//        cal_sleeping.set(Calendar.MINUTE, minute_line2);
-//
-//        // 起床→就寝と就寝→起床の大小を比較
-//        int comparison = cal_stay_up.compareTo(cal_sleeping);
-
         // 現在の日付(と時刻)を取得
         Calendar cal_now = Calendar.getInstance();
 
         // 1日のサイクルと現在時刻を比較し結果を加算
         cal_now.add(Calendar.DAY_OF_MONTH, compareTime(context));
 
-//        // 現在の時刻と就寝→起床の時刻を比較し、該当の時刻の場合、日付に加算or減算
-//        int comp_now_sl;
-//        if (comparison == -1) {
-//            comp_now_sl = cal_now.compareTo(cal_sleeping);
-//            if (comp_now_sl == 1) {
-//                cal_now.add(Calendar.DATE, 1);
-//            }
-//        } else {
-//            comp_now_sl = cal_now.compareTo(cal_sleeping);
-//            if (comp_now_sl == -1) {
-//                cal_now.add(Calendar.DATE, -1);
-//            }
-//        }
-
         // 記録されているうちの最新の日付をセット
         Calendar cal_latest = Calendar.getInstance();
         cal_latest.set(latestYear, latestMonth, latestDate);
 
         // 最新の日とアプリを開いた日の差分を計算
-        long cal_diff_Millis = cal_now.getTimeInMillis() - cal_latest.getTimeInMillis();
-        int MILLIS_OF_DAY = 1000 * 60 * 60 * 24;
-        final int cal_diff_Days = (int) (cal_diff_Millis / MILLIS_OF_DAY);
+        int cal_diff_now_latest = cal_diff_Days(cal_now, cal_latest);
 
         // 1日以上差があるとき実行
-        if (cal_diff_Days > 0) {
+        if (cal_diff_now_latest > 0) {
             // 当日まで、-1を保存
-            for (int i = 0; i < cal_diff_Days; i++) {
+            for (int i = 0; i < cal_diff_now_latest; i++) {
                 cal_latest.add(Calendar.DAY_OF_MONTH, 1);
                 int emptyYear = cal_latest.get(Calendar.YEAR);
                 int emptyMonth = cal_latest.get(Calendar.MONTH) + 1;
