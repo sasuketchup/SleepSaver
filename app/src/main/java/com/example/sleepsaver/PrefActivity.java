@@ -32,7 +32,6 @@ public class PrefActivity extends PreferenceActivity {
 
     // 表示範囲を格納する変数
     int resultsNum;
-
     // 表示範囲の指定日を格納する変数
     // 指定日～今日の指定日
     int spec_year;
@@ -46,7 +45,6 @@ public class PrefActivity extends PreferenceActivity {
     int spec_year2;
     int spec_month2;
     int spec_date2;
-
     // 指定日表示用のString
     String spec_St;
 
@@ -57,13 +55,42 @@ public class PrefActivity extends PreferenceActivity {
     int minute_line;
     int hour_line2;
     int minute_line2;
-
+    // 切り替え時刻のString
     String stay_up_St;
     String sleeping_St;
 
+    // 目標睡眠時間ボタン
+    PreferenceScreen slp_target_btn;
+    // 目標就寝時刻の4桁と時と分の変数
+    int gtb_target;
+    int gtb_target_hour;
+    int gtb_target_minute;
+    // 目標起床時刻の4桁と時と分の変数
+    int gu_target;
+    int gu_target_hour;
+    int gu_target_minute;
+    // 目標睡眠時間の4桁と時と分の変数
+    int slp_target;
+    int slp_target_hour;
+    int slp_target_minute;
+    // 目標のString
+    String gtb_target_St;
+    String gu_target_St;
+    String slp_target_St;
+
+    // 表示範囲のアラートダイアログ
     AlertDialog alertDialog;
 
+    // 目標睡眠時間のアラートダイアログ
+    AlertDialog alertDialog2;
+
+    // 目標就寝時刻と目標起床時刻から目標睡眠時間を計算するためのCalender
+    Calendar cal_diff_target;
+
     int resultsWhich;
+
+    // 目標睡眠時間のアラートダイアログの選択されている項目を保持する変数
+    int slp_which;
 
     // ピッカーの日付を変更したときに変数に代入するようにするために、DatePickerDialogを継承したクラス(指定日～今日用)
     public class CustomDatePickerDialog extends DatePickerDialog {
@@ -77,7 +104,6 @@ public class PrefActivity extends PreferenceActivity {
             spec_date = date;
         }
     }
-
     // ピッカーの日付を変更したときに変数に代入するようにするために、DatePickerDialogを継承したクラス(指定日1～指定日2の指定日1用)
     public class CustomDatePickerDialog1 extends DatePickerDialog {
         public CustomDatePickerDialog1(Context context, OnDateSetListener listener, int year, int month, int date) {
@@ -90,7 +116,6 @@ public class PrefActivity extends PreferenceActivity {
             spec_date1 = date;
         }
     }
-
     // ピッカーの日付を変更したときに変数に代入するようにするために、DatePickerDialogを継承したクラス(指定日1～指定日2の指定日2用)
     public class CustomDatePickerDialog2 extends DatePickerDialog {
         public CustomDatePickerDialog2(Context context, OnDateSetListener listener, int year, int month, int date) {
@@ -128,6 +153,46 @@ public class PrefActivity extends PreferenceActivity {
         public void onTimeChanged(TimePicker view, int s_hour, int s_minute) {
             hour_line2 = s_hour;
             minute_line2 = s_minute;
+        }
+    }
+
+    // ピッカーの時刻を変更したときに変数に代入するようにするために、TimePickerDialogを継承したクラス(目標就寝時刻用)
+    public class CustomTimePickerDialog3 extends TimePickerDialog {
+
+        public CustomTimePickerDialog3(Context context, int themeResId, OnTimeSetListener listener, int hourOfDay, int minute, boolean is24HourView) {
+            super(context, themeResId, listener, hourOfDay, minute, is24HourView);
+        }
+
+        @Override
+        public void onTimeChanged(TimePicker view, int s_hour, int s_minute) {
+            gtb_target_hour = s_hour;
+            gtb_target_minute = s_minute;
+        }
+    }
+    // ピッカーの時刻を変更したときに変数に代入するようにするために、TimePickerDialogを継承したクラス(目標起床時刻用)
+    public class CustomTimePickerDialog4 extends TimePickerDialog {
+
+        public CustomTimePickerDialog4(Context context, int themeResId, OnTimeSetListener listener, int hourOfDay, int minute, boolean is24HourView) {
+            super(context, themeResId, listener, hourOfDay, minute, is24HourView);
+        }
+
+        @Override
+        public void onTimeChanged(TimePicker view, int s_hour, int s_minute) {
+            gu_target_hour = s_hour;
+            gu_target_minute = s_minute;
+        }
+    }
+    // ピッカーの時刻を変更したときに変数に代入するようにするために、TimePickerDialogを継承したクラス(目標睡眠時間用)
+    public class CustomTimePickerDialog5 extends TimePickerDialog {
+
+        public CustomTimePickerDialog5(Context context, int themeResId, OnTimeSetListener listener, int hourOfDay, int minute, boolean is24HourView) {
+            super(context, themeResId, listener, hourOfDay, minute, is24HourView);
+        }
+
+        @Override
+        public void onTimeChanged(TimePicker view, int s_hour, int s_minute) {
+            slp_target_hour = s_hour;
+            slp_target_minute = s_minute;
         }
     }
 
@@ -257,6 +322,86 @@ public class PrefActivity extends PreferenceActivity {
         timePickerDialog.show();
     }
 
+    // それぞれの目標ボタンを押したときに呼ばれるメソッド
+    public void targetButton(final PreferenceScreen button, final int target_state, final TimePickerDialog timePickerDialog) {
+
+        // サマリーに表示するために目標睡眠時間ボタンを取得
+        slp_target_btn = (PreferenceScreen) findPreference("sleeping_target");
+
+        String targetText = "";
+//        final String textSure;
+        if (target_state == 3) {
+            targetText = "就寝時刻";
+//            textSure = "起き";
+        } else if (target_state == 4){
+            targetText = "起床時刻";
+//            textSure = "寝";
+        } else if (target_state == 5) {
+            targetText = "睡眠時間";
+        }
+
+        // タイムピッカーを表示
+        timePickerDialog.setTitle("目標" + targetText);
+        timePickerDialog.setButton(
+                DialogInterface.BUTTON_POSITIVE,
+                "OK",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                        Calendar cal_summary;
+                        String target_St = "--:--";
+                        if (target_state == 3) {
+                            gtb_target = timeHandler.time_to_number(gtb_target_hour, gtb_target_minute);
+                            target_St = timeHandler.timeString(gtb_target_hour, gtb_target_minute);
+                            // slp_targetがマイナスの時、差を計算してサマリーに表示
+                            if (slp_target < 0) {
+                                cal_summary = timeHandler.diff_gu_gtb(gu_target, gtb_target);
+                                slp_target_btn.setSummary(timeHandler.timeString(cal_summary.get(Calendar.HOUR_OF_DAY), cal_summary.get(Calendar.MINUTE)));
+                            }
+                        } else if (target_state == 4) {
+                            gu_target = timeHandler.time_to_number(gu_target_hour, gu_target_minute);
+                            target_St = timeHandler.timeString(gu_target_hour, gu_target_minute);
+                            // slp_targetがマイナスの時、差を計算してサマリーに表示
+                            if (slp_target < 0) {
+                                cal_summary = timeHandler.diff_gu_gtb(gu_target, gtb_target);
+                                slp_target_btn.setSummary(timeHandler.timeString(cal_summary.get(Calendar.HOUR_OF_DAY), cal_summary.get(Calendar.MINUTE)));
+                            }
+                        } else if (target_state == 5) {
+                            slp_which = 1;
+                            slp_target = timeHandler.time_to_number(slp_target_hour, slp_target_minute);
+                            target_St = timeHandler.timeString(slp_target_hour, slp_target_minute);
+                        }
+                        button.setSummary(target_St);
+
+                        dialogInterface.dismiss();
+                    }
+                }
+        );
+        timePickerDialog.setButton(
+                DialogInterface.BUTTON_NEGATIVE,
+                "キャンセル",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // 値をリセット
+                        if (target_state == 3) {
+                            gtb_target_hour = timeHandler.number_to_time(gtb_target)[0];
+                            gtb_target_minute = timeHandler.number_to_time(gtb_target)[1];
+                        } else if (target_state == 4) {
+                            gu_target_hour = timeHandler.number_to_time(gu_target)[0];
+                            gu_target_minute = timeHandler.number_to_time(gu_target)[1];
+                        } else if (target_state == 5) {
+                            slp_target_hour = timeHandler.number_to_time(Math.abs(slp_target))[0];
+                            slp_target_minute = timeHandler.number_to_time(Math.abs(slp_target))[1];
+                        }
+                        dialogInterface.dismiss();
+                    }
+                }
+        );
+        timePickerDialog.show();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -369,36 +514,6 @@ public class PrefActivity extends PreferenceActivity {
 
                                         designateDate(resultsBtn, 0, datePickerDialog);
 
-//                                        // 最大値を今日に
-//                                        Calendar cal_max = Calendar.getInstance();
-//                                        cal_max.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(PrefActivity.this));
-//                                        DatePicker datePicker = datePickerDialog.getDatePicker();
-//                                        datePicker.setMaxDate(cal_max.getTimeInMillis());
-//
-//                                        datePickerDialog.setButton(
-//                                                DialogInterface.BUTTON_POSITIVE,
-//                                                "OK",
-//                                                new DialogInterface.OnClickListener() {
-//                                                    @Override
-//                                                    public void onClick(DialogInterface dialog, int which) {
-//                                                        resultsNum = -1;
-//                                                        spec_St = timeHandler.dateString(spec_year, spec_month + 1, spec_date) + "～今日";
-//                                                        resultsBtn.setSummary("記録の表示範囲: " + spec_St);
-//                                                        dialog.dismiss();
-//                                                    }
-//                                                }
-//                                        );
-//                                        datePickerDialog.setButton(
-//                                                DialogInterface.BUTTON_NEGATIVE,
-//                                                "キャンセル",
-//                                                new DialogInterface.OnClickListener() {
-//                                                    @Override
-//                                                    public void onClick(DialogInterface dialog, int which) {
-//                                                        dialog.dismiss();
-//                                                    }
-//                                                }
-//                                        );
-//                                        datePickerDialog.show();
                                         break;
                                     case 6:
                                         // 指定日1のカスタムデイトピッカーダイアログ
@@ -495,6 +610,151 @@ public class PrefActivity extends PreferenceActivity {
                 }
         );
 
+        // 目標就寝時刻を取得
+        gtb_target = sp.getInt("go_to_bed_target", 0);
+        gtb_target_hour = timeHandler.number_to_time(gtb_target)[0];
+        gtb_target_minute = timeHandler.number_to_time(gtb_target)[1];
+        gtb_target_St = timeHandler.timeString(gtb_target_hour, gtb_target_minute);
+
+        // 目標就寝時刻ボタン
+        final PreferenceScreen gtb_target_btn = (PreferenceScreen) findPreference("go_to_bed_target");
+        gtb_target_btn.setSummary(gtb_target_St);
+        gtb_target_btn.setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+
+                        CustomTimePickerDialog3 timePickerDialog;
+                        CustomTimePickerDialog3.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker timePicker, int i, int i1) {
+
+                            }
+                        };
+                        timePickerDialog = new CustomTimePickerDialog3(PrefActivity.this, TimePickerDialog.THEME_HOLO_LIGHT, listener, gtb_target_hour, gtb_target_minute, true);
+
+                        targetButton(gtb_target_btn, 3, timePickerDialog);
+
+                        return true;
+                    }
+                }
+        );
+
+        // 目標起床時刻を取得
+        gu_target = sp.getInt("get_up_target", 800);
+        gu_target_hour = timeHandler.number_to_time(gu_target)[0];
+        gu_target_minute = timeHandler.number_to_time(gu_target)[1];
+        gu_target_St = timeHandler.timeString(gu_target_hour, gu_target_minute);
+
+        // 目標起床時刻ボタン
+        final PreferenceScreen gu_target_btn = (PreferenceScreen) findPreference("get_up_target");
+        gu_target_btn.setSummary(gu_target_St);
+        gu_target_btn.setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+
+                        CustomTimePickerDialog4 timePickerDialog;
+                        CustomTimePickerDialog4.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker timePicker, int i, int i1) {
+
+                            }
+                        };
+                        timePickerDialog = new CustomTimePickerDialog4(PrefActivity.this, TimePickerDialog.THEME_HOLO_LIGHT, listener, gu_target_hour, gu_target_minute, true);
+
+                        targetButton(gu_target_btn, 4, timePickerDialog);
+
+                        return true;
+                    }
+                }
+        );
+
+        // slp_targetの絶対値を格納するための変数
+        int abs_slp_target;
+        // 目標睡眠時間を取得
+        slp_target = sp.getInt("sleeping_target", 800);
+        // 目標睡眠時間ボタン取得
+        slp_target_btn = (PreferenceScreen) findPreference("sleeping_target");
+        // 就寝・起床の差の場合はマイナスの値、プラスは自分で指定の場合
+        if (slp_target < 0) {
+            slp_which = 0;
+            cal_diff_target = timeHandler.diff_gu_gtb(gu_target, gtb_target);
+            slp_target_St = timeHandler.timeString(cal_diff_target.get(Calendar.HOUR_OF_DAY), cal_diff_target.get(Calendar.MINUTE));
+            // 絶対値を取り、時と分に分ける
+            abs_slp_target = Math.abs(slp_target);
+            slp_target_hour = timeHandler.number_to_time(abs_slp_target)[0];
+            slp_target_minute = timeHandler.number_to_time(abs_slp_target)[1];
+        } else {
+            slp_which = 1;
+            slp_target_hour = timeHandler.number_to_time(slp_target)[0];
+            slp_target_minute = timeHandler.number_to_time(slp_target)[1];
+            slp_target_St = timeHandler.timeString(slp_target_hour, slp_target_minute);
+        }
+        // サマリーに表示
+        slp_target_btn.setSummary(slp_target_St);
+        // 目標睡眠時間ボタン押下時の処理
+        slp_target_btn.setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        // 目標起床時刻と目標就寝時刻の差を計算
+                        cal_diff_target = timeHandler.diff_gu_gtb(gu_target, gtb_target);
+//                        final Calendar cal_gu_target = Calendar.getInstance();
+//                        cal_gu_target.set(0, 0, 0, gu_target_hour, gu_target_minute);
+//                        cal_gu_target.add(Calendar.HOUR, 0 - gtb_target_hour);
+//                        cal_gu_target.add(Calendar.MINUTE, 0 - gtb_target_minute);
+                        final String diff_gu_gtb_St = timeHandler.timeString(cal_diff_target.get(Calendar.HOUR_OF_DAY), cal_diff_target.get(Calendar.MINUTE));
+
+                        // 選択肢として表示するためにStringを再設定
+                        slp_target_St = timeHandler.timeString(slp_target_hour, slp_target_minute);
+
+                        // 起床・就寝の差と目標睡眠時間が同じかどうか
+//                        if (slp_target_St.equals(diff_gu_gtb_St)) {
+//                            slp_which = 0;
+//                        } else {
+//                            slp_which = 1;
+//                        }
+
+                        // アラートダイアログに選択肢として表示するString配列
+                        String[] slp_option_St = {diff_gu_gtb_St + "(起床時刻-就寝時刻)", slp_target_St + "(自分で指定)"};
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
+                        DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which) {
+                                    case 0:
+                                        slp_which = 0;
+                                        if (slp_target > 0) {
+                                            slp_target = 0 - slp_target;
+                                        }
+                                        slp_target_btn.setSummary(diff_gu_gtb_St);
+                                        break;
+                                    case 1:
+                                        CustomTimePickerDialog5 timePickerDialog;
+                                        CustomTimePickerDialog5.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
+                                            @Override
+                                            public void onTimeSet(TimePicker timePicker, int i, int i1) {
+
+                                            }
+                                        };
+                                        timePickerDialog = new CustomTimePickerDialog5(PrefActivity.this, TimePickerDialog.THEME_HOLO_LIGHT, listener, slp_target_hour, slp_target_minute, true);
+
+                                        targetButton(slp_target_btn, 5, timePickerDialog);
+                                        break;
+                                }
+                                alertDialog2.dismiss();
+                            }
+                        };
+                        builder.setTitle("目標睡眠時間").setSingleChoiceItems(slp_option_St, slp_which, onClickListener);
+                        alertDialog2 = builder.show();
+
+                        return true;
+                    }
+                }
+        );
+
         // 保存ボタン
         PreferenceScreen saveBtn = (PreferenceScreen) findPreference("save");
         saveBtn.setOnPreferenceClickListener(
@@ -535,6 +795,13 @@ public class PrefActivity extends PreferenceActivity {
                                         // 就寝→起床切り替え時刻
                                         editor.putInt("sleeping_line", sleeping_line);
 
+                                        // 目標就寝時刻
+                                        editor.putInt("go_to_bed_target", gtb_target);
+                                        // 目標起床時刻
+                                        editor.putInt("get_up_target", gu_target);
+                                        // 目標睡眠時間
+                                        editor.putInt("sleeping_target", slp_target);
+
                                         editor.commit();
 
                                         Intent intent = new Intent(PrefActivity.this, MainActivity.class);
@@ -569,6 +836,9 @@ public class PrefActivity extends PreferenceActivity {
         int results_back = sp.getInt("results", 0);
         int stay_up_back = sp.getInt("stay_up_line", 1200);
         int sleeping_back = sp.getInt("sleeping_line", 0);
+        int gtb_target_back = sp.getInt("go_to_bed_target", 0);
+        int gu_target_back = sp.getInt("get_up_target", 800);
+        int slp_target_back = sp.getInt("sleeping_target", 800);
         // 表示範囲の指定日をDBから取得
         MyOpenHelper helper = new MyOpenHelper(this);
         SQLiteDatabase db = helper.getWritableDatabase();
@@ -591,7 +861,8 @@ public class PrefActivity extends PreferenceActivity {
         if (results_back == resultsNum && stay_up_back == stay_up_line && sleeping_back == sleeping_line
                 && year_back == spec_year && month_back == spec_month && date_back == spec_date
                 && year_back1 == spec_year1 && month_back1 == spec_month1 && date_back1 == spec_date1
-                && year_back2 == spec_year2 && month_back2 == spec_month2 && date_back2 == spec_date2) {
+                && year_back2 == spec_year2 && month_back2 == spec_month2 && date_back2 == spec_date2
+                && gtb_target_back == gtb_target && gu_target_back == gu_target && slp_target_back == slp_target) {
             finish();
         } else {
             // アラートダイアログ表示

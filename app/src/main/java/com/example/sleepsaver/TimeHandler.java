@@ -57,6 +57,19 @@ public class TimeHandler {
         return number;
     }
 
+    // 目標起床時刻と目標就寝時刻の差を計算し、Calenderを返すメソッド
+    public Calendar diff_gu_gtb(int gu_target, int gtb_target) {
+        int gu_hour = number_to_time(gu_target)[0];
+        int gu_minute = number_to_time(gu_target)[1];
+        int gtb_hour = number_to_time(gtb_target)[0];
+        int gtb_minute = number_to_time(gtb_target)[1];
+        Calendar cal_target = Calendar.getInstance();
+        cal_target.set(0, 0, 0, gu_hour, gu_minute);
+        cal_target.add(Calendar.HOUR, 0 - gtb_hour);
+        cal_target.add(Calendar.MINUTE, 0 - gtb_minute);
+        return cal_target;
+    }
+
     // 1日のサイクルと現在時刻を比較するメソッド
     public int compareTime(Context context) {
         // 設定から1日のサイクルを取得

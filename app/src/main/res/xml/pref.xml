@@ -2,9 +2,13 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceScreen
-        android:key="results"
-        android:title="表示範囲" />
+    <PreferenceCategory android:title="記録の表示">
+
+        <PreferenceScreen
+            android:key="results"
+            android:title="表示範囲" />
+
+    </PreferenceCategory>
 
     <PreferenceCategory android:title="1日のサイクル">
 
@@ -15,6 +19,22 @@
         <PreferenceScreen
             android:key="sleeping_line"
             android:title="就寝→起床切り替え時刻" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="睡眠目標">
+
+        <PreferenceScreen
+            android:key="go_to_bed_target"
+            android:title="目標就寝時刻" />
+
+        <PreferenceScreen
+            android:key="get_up_target"
+            android:title="目標起床時刻" />
+
+        <PreferenceScreen
+            android:key="sleeping_target"
+            android:title="目標睡眠時間" />
 
     </PreferenceCategory>
 
