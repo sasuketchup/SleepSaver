@@ -102,46 +102,53 @@ public class MainActivity extends AppCompatActivity {
 
         // 指定日1～指定日2(resultsが-2)の場合
         if (results == -2) {
-            Cursor cursor = db.query("RangeTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
-            cursor.moveToPosition(1);
-            int spec_year1 = cursor.getInt(1);
-            int spec_month1 = cursor.getInt(2);
-            int spec_date1 = cursor.getInt(3);
-            cursor.moveToNext();
-            int spec_year2 = cursor.getInt(1);
-            int spec_month2 = cursor.getInt(2);
-            int spec_date2 = cursor.getInt(3);
-            cursor.close();
-            // 取得した日付をセット
-            cal_spec1 = Calendar.getInstance();
-            cal_spec1.set(spec_year1, spec_month1, spec_date1);
-            cal_spec2 = Calendar.getInstance();
-            cal_spec2.set(spec_year2, spec_month2, spec_date2);
-            // 今日の日付を取得
-            cal_now = Calendar.getInstance();
-            cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(MainActivity.this));
             // 今日と指定日1、2の差日数を計算
-            diff_now_spec1 = timeHandler.cal_diff_Days(cal_now, cal_spec1);
-            diff_now_spec2 = timeHandler.cal_diff_Days(cal_now, cal_spec2);
+            diff_now_spec1 = spec12_today(db, MainActivity.this)[0];
+            diff_now_spec2 = spec12_today(db, MainActivity.this)[1];
+
+//            Cursor cursor = db.query("RangeTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
+//            cursor.moveToPosition(1);
+//            int spec_year1 = cursor.getInt(1);
+//            int spec_month1 = cursor.getInt(2);
+//            int spec_date1 = cursor.getInt(3);
+//            cursor.moveToNext();
+//            int spec_year2 = cursor.getInt(1);
+//            int spec_month2 = cursor.getInt(2);
+//            int spec_date2 = cursor.getInt(3);
+//            cursor.close();
+//            // 取得した日付をセット
+//            cal_spec1 = Calendar.getInstance();
+//            cal_spec1.set(spec_year1, spec_month1, spec_date1);
+//            cal_spec2 = Calendar.getInstance();
+//            cal_spec2.set(spec_year2, spec_month2, spec_date2);
+//            // 今日の日付を取得
+//            cal_now = Calendar.getInstance();
+//            cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(MainActivity.this));
+//            // 今日と指定日1、2の差日数を計算
+//            diff_now_spec1 = timeHandler.cal_diff_Days(cal_now, cal_spec1);
+//            diff_now_spec2 = timeHandler.cal_diff_Days(cal_now, cal_spec2);
         }
 
         // 指定日～今日(resultsが-1)の場合に指定日と今日の差分を計算
         if (results == -1) {
-            // 指定日をDBから取得
-            Cursor cursor = db.query("RangeTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
-            cursor.moveToFirst();
-            int spec_year = cursor.getInt(1);
-            int spec_month = cursor.getInt(2);
-            int spec_date = cursor.getInt(3);
-            cursor.close();
-            // 取得した日付をセット
-            cal_spec = Calendar.getInstance();
-            cal_spec.set(spec_year, spec_month, spec_date);
-            // 今日の日付を取得
-            cal_now = Calendar.getInstance();
-            cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(MainActivity.this));
             // 指定日と今日の差を計算し、表示件数に代入
-            results = timeHandler.cal_diff_Days(cal_now, cal_spec) + 1;
+            results = spec_today(db, MainActivity.this);
+
+//            // 指定日をDBから取得
+//            Cursor cursor = db.query("RangeTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
+//            cursor.moveToFirst();
+//            int spec_year = cursor.getInt(1);
+//            int spec_month = cursor.getInt(2);
+//            int spec_date = cursor.getInt(3);
+//            cursor.close();
+//            // 取得した日付をセット
+//            cal_spec = Calendar.getInstance();
+//            cal_spec.set(spec_year, spec_month, spec_date);
+//            // 今日の日付を取得
+//            cal_now = Calendar.getInstance();
+//            cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(MainActivity.this));
+//            // 指定日と今日の差を計算し、表示件数に代入
+//            results = timeHandler.cal_diff_Days(cal_now, cal_spec) + 1;
         }
 
         // 表示件数を計算
@@ -282,6 +289,17 @@ public class MainActivity extends AppCompatActivity {
         TextView emptyST = new TextView(this);
         emptyST.setHeight(75);
         varSTLay.addView(emptyST, 0);
+
+        // 睡眠データボタンの処理
+        findViewById(R.id.data_page).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(MainActivity.this, DataActivity.class);
+                        startActivity(intent);
+                    }
+                }
+        );
 
         // 設定ボタンの処理
         findViewById(R.id.Settings).setOnClickListener(
@@ -460,6 +478,50 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
         timePickerDialog.show();
+    }
+
+    // 指定日と今日の差分を計算するメソッド
+    public int spec_today(SQLiteDatabase db, Context context) {
+        // 指定日をDBから取得
+        Cursor cursor = db.query("RangeTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
+        cursor.moveToFirst();
+        int spec_year = cursor.getInt(1);
+        int spec_month = cursor.getInt(2);
+        int spec_date = cursor.getInt(3);
+        cursor.close();
+        // 取得した日付をセット
+        Calendar cal_spec = Calendar.getInstance();
+        cal_spec.set(spec_year, spec_month, spec_date);
+        // 今日の日付を取得
+        Calendar cal_now = Calendar.getInstance();
+        cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(context));
+        // 指定日と今日の差を計算し、返す
+        return timeHandler.cal_diff_Days(cal_now, cal_spec) + 1;
+    }
+
+    // 指定日1と今日、指定日2と今日の差分を計算するメソッド
+    public int[] spec12_today(SQLiteDatabase db, Context context) {
+        // 指定日1、2をDBから取得
+        Cursor cursor = db.query("RangeTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
+        cursor.moveToPosition(1);
+        int spec_year1 = cursor.getInt(1);
+        int spec_month1 = cursor.getInt(2);
+        int spec_date1 = cursor.getInt(3);
+        cursor.moveToNext();
+        int spec_year2 = cursor.getInt(1);
+        int spec_month2 = cursor.getInt(2);
+        int spec_date2 = cursor.getInt(3);
+        cursor.close();
+        // 取得した日付をセット
+        Calendar cal_spec1 = Calendar.getInstance();
+        cal_spec1.set(spec_year1, spec_month1, spec_date1);
+        Calendar cal_spec2 = Calendar.getInstance();
+        cal_spec2.set(spec_year2, spec_month2, spec_date2);
+        // 今日の日付を取得
+        Calendar cal_now = Calendar.getInstance();
+        cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(context));
+        // 今日と指定日1、2の差日数を計算し配列として返す
+        return new int[]{timeHandler.cal_diff_Days(cal_now, cal_spec1), timeHandler.cal_diff_Days(cal_now, cal_spec2)};
     }
 
     // dpをpxに変換するメソッド
