@@ -42,15 +42,17 @@ public class DataActivity extends AppCompatActivity {
         int gu_target_minute = timeHandler.number_to_time(gu_target)[1];
         String gu_target_St = timeHandler.timeString(gu_target_hour, gu_target_minute);
         // 目標睡眠時間
-        String slp_target_St;
+        int slp_target_hour;
+        int slp_target_minute;
         if (slp_target < 0) {
             Calendar cal_diff_target = timeHandler.diff_gu_gtb(gu_target, gtb_target);
-            slp_target_St = timeHandler.timeString(cal_diff_target.get(Calendar.HOUR_OF_DAY), cal_diff_target.get(Calendar.MINUTE));
+            slp_target_hour = cal_diff_target.get(Calendar.HOUR_OF_DAY);
+            slp_target_minute = cal_diff_target.get(Calendar.MINUTE);
         } else {
-            int slp_target_hour = timeHandler.number_to_time(slp_target)[0];
-            int slp_target_minute = timeHandler.number_to_time(slp_target)[1];
-            slp_target_St = timeHandler.timeString(slp_target_hour, slp_target_minute);
+            slp_target_hour = timeHandler.number_to_time(slp_target)[0];
+            slp_target_minute = timeHandler.number_to_time(slp_target)[1];
         }
+        String slp_target_St = timeHandler.timeString(slp_target_hour, slp_target_minute);
         // 目標をTextViewに表示
         TextView targetGU_text = findViewById(R.id.target_GU);
         TextView targetGTB_text = findViewById(R.id.target_GTB);
@@ -102,6 +104,12 @@ public class DataActivity extends AppCompatActivity {
         // 睡眠時間
         int sumST = 0;
         int countST = 0;
+        // 目標達成回数をカウントする変数
+        int clear_targetGU = 0;
+        int clear_targetGTB = 0;
+        int clear_targetST = 0;
+        // 目標睡眠時間を分に換算
+        int convert_minutes_targetST = (slp_target_hour * 60) + slp_target_minute;
 
         cursor1.moveToLast();
         cursor2.moveToLast();
@@ -115,6 +123,19 @@ public class DataActivity extends AppCompatActivity {
                 // (起床) 記録がある場合
                 if (hourGU != -1) {
                     countGU++;
+
+                    // Calenderを使い目標達成かどうか判定
+                    Calendar cal_GU = Calendar.getInstance();
+                    Calendar cal_targetGU = Calendar.getInstance();
+                    cal_GU.set(Calendar.HOUR_OF_DAY, hourGU);
+                    cal_GU.set(Calendar.MINUTE, minuteGU);
+                    cal_targetGU.set(Calendar.HOUR_OF_DAY, gu_target_hour);
+                    cal_targetGU.set(Calendar.MINUTE, gu_target_minute);
+                    if (cal_GU.compareTo(cal_targetGU) <= 0) {
+                        // 目標と同じか前の場合インクリメント
+                        clear_targetGU++;
+                    }
+
                     // 時を分に換算
                     int convert_minutesGU = (hourGU * 60) + minuteGU;
                     // 合計に加算
@@ -123,10 +144,30 @@ public class DataActivity extends AppCompatActivity {
                 // (就寝) 記録がある場合
                 if (hourGTB != -1) {
                     countGTB++;
-                    // 0時を過ぎている場合、24を加算
+
+                    // Calenderを使い目標達成かどうか判定
+                    Calendar cal_GTB = Calendar.getInstance();
+                    Calendar cal_targetGTB = Calendar.getInstance();
+                    cal_GTB.set(Calendar.HOUR_OF_DAY, hourGTB);
+                    cal_GTB.set(Calendar.MINUTE, minuteGTB);
+                    cal_targetGTB.set(Calendar.HOUR_OF_DAY, gtb_target_hour);
+                    cal_targetGTB.set(Calendar.MINUTE, gtb_target_minute);
+                    // 目標就寝時刻が0時以降の場合、Calenderに1日加算
+                    if (gtb_target_hour < hour_line) {
+                        cal_targetGTB.add(Calendar.DATE, 1);
+                    }
+
+                    // 結果が0時を過ぎている場合、24を加算&Calenderに1日加算
                     if (hourGTB < hour_line) {
                         hourGTB = hourGTB + 24;
+                        cal_GTB.add(Calendar.DATE, 1);
                     }
+
+                    if (cal_GTB.compareTo(cal_targetGTB) <= 0) {
+                        // 目標と同じか前の場合インクリメント
+                        clear_targetGTB++;
+                    }
+
                     // 時を分に換算
                     int convert_minutesGTB = (hourGTB * 60) + minuteGTB;
                     // 合計に加算
@@ -137,6 +178,7 @@ public class DataActivity extends AppCompatActivity {
             cursor1.moveToPrevious();
             cursor2.moveToPrevious();
 
+            // (睡眠時間)
             if (i < idCount - 1 && diff_now_spec2 <= i && i <= (diff_now_spec1 - 1)) {
                 // 睡眠時間計算のため、一つ前の就寝時刻を取得
                 int hourGTBPrevious = cursor2.getInt(1);
@@ -156,6 +198,12 @@ public class DataActivity extends AppCompatActivity {
 
                     // 時間を分に換算
                     int convert_minutesST = (hourST * 60) + minuteST;
+
+                    if (convert_minutesST >= convert_minutes_targetST) {
+                        // 目標以上の場合インクリメント
+                        clear_targetST++;
+                    }
+
                     // 合計に加算
                     sumST = sumST + convert_minutesST;
                 }
@@ -190,9 +238,30 @@ public class DataActivity extends AppCompatActivity {
         TextView aveGU_text = findViewById(R.id.ave_GU);
         TextView aveGTB_text = findViewById(R.id.ave_GTB);
         TextView aveST_text = findViewById(R.id.ave_ST);
-        aveGU_text.setText(aveGU_St);
-        aveGTB_text.setText(aveGTB_St);
-        aveST_text.setText(aveST_St);
+        aveGU_text.setText(aveGU_St + "(" + countGU + "件)");
+        aveGTB_text.setText(aveGTB_St + "(" + countGTB + "件)");
+        aveST_text.setText(aveST_St + "(" + countST + "件)");
 
+        // 目標達成回数を表示
+        TextView clearGU_text = findViewById(R.id.count_GU);
+        TextView clearGTB_text = findViewById(R.id.count_GTB);
+        TextView clearST_text = findViewById(R.id.count_ST);
+        clearGU_text.setText(clear_targetGU + "回");
+        clearGTB_text.setText(clear_targetGTB + "回");
+        clearST_text.setText(clear_targetST + "回");
+
+        // 目標達成率を計算&表示
+        double dbl_clear_rateGU = ((double) clear_targetGU / countGU) * 100;
+        int clear_rateGU = (int) dbl_clear_rateGU;
+        double dbl_clear_rateGTB = ((double) clear_targetGTB / countGTB) * 100;
+        int clear_rateGTB = (int) dbl_clear_rateGTB;
+        double dbl_clear_rateST = ((double) clear_targetST / countST) * 100;
+        int clear_rateST = (int) dbl_clear_rateST;
+        TextView rateGU_text = findViewById(R.id.rate_GU);
+        TextView rateGTB_text = findViewById(R.id.rate_GTB);
+        TextView rateST_text = findViewById(R.id.rate_ST);
+        rateGU_text.setText(clear_rateGU + "%");
+        rateGTB_text.setText(clear_rateGTB + "%");
+        rateST_text.setText(clear_rateST + "%");
     }
 }
