@@ -16,6 +16,8 @@ public class DataActivity extends AppCompatActivity {
     MainActivity mainActivity = new MainActivity();
     TimeHandler timeHandler = new TimeHandler();
 
+    Calendar cal_now;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,6 +92,33 @@ public class DataActivity extends AppCompatActivity {
                 idCount = results;
             }
         }
+
+        // 期間を表示するために今日の日付を取得
+        cal_now = Calendar.getInstance();
+        // compareTimeが重複しないように条件分岐
+        if (results != -2) {
+            cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(DataActivity.this));
+        }
+        // 最新の日付を計算し、取得
+        cal_now.add(Calendar.DAY_OF_MONTH, 0 - diff_now_spec2);
+        int latest_year = cal_now.get(Calendar.YEAR);
+        int latest_month = cal_now.get(Calendar.MONTH) + 1;
+        int latest_date = cal_now.get(Calendar.DATE);
+
+        // カレンダーを再取得
+        cal_now = Calendar.getInstance();
+        // 条件分岐し、期間中の最古の日付を計算し、取得
+        if (results != -2) {
+            cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(DataActivity.this) - (int) (idCount - 1));
+        }else {
+            cal_now.add(Calendar.DAY_OF_MONTH, 0 - diff_now_spec1);
+        }
+        int oldest_year = cal_now.get(Calendar.YEAR);
+        int oldest_month = cal_now.get(Calendar.MONTH) + 1;
+        int oldest_date = cal_now.get(Calendar.DATE);
+
+        TextView period_text = findViewById(R.id.period);
+        period_text.setText("期間:" + timeHandler.dateString(oldest_year, oldest_month, oldest_date) + "～" + timeHandler.dateString(latest_year, latest_month, latest_date));
 
         Cursor cursor1 = db.query("GetUpTable", new String[] {"id", "hour", "minute"}, null, null, null, null, null);
         Cursor cursor2 = db.query("GoToBedTable", new String[] {"id", "hour", "minute"}, null, null, null, null, null);
