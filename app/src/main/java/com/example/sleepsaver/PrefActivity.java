@@ -47,6 +47,8 @@ public class PrefActivity extends PreferenceActivity {
     int spec_date2;
     // 指定日表示用のString
     String spec_St;
+    // 表示範囲の設定ボタン
+    PreferenceScreen resultsBtn;
 
     // 1日のサイクルを格納する変数(4桁→それぞれ)
     int stay_up_line;
@@ -196,11 +198,140 @@ public class PrefActivity extends PreferenceActivity {
         }
     }
 
-    // 表示範囲の日付を指定するメソッド
-    public void designateDate(final PreferenceScreen button, final int spec_point, final DatePickerDialog datePickerDialog) {
+    // 表示範囲から選択肢をセットするメソッド
+    public int setChoices(int resultsNum) {
+        switch (resultsNum) {
+            case 0:
+                resultsWhich = 0;
+                break;
+            case 7:
+                resultsWhich = 1;
+                break;
+            case 14:
+                resultsWhich = 2;
+                break;
+            case 21:
+                resultsWhich = 3;
+                break;
+            case 28:
+                resultsWhich = 4;
+                break;
+            case -1:
+                resultsWhich = 5;
+                break;
+            case -2:
+                resultsWhich = 6;
+                break;
+        }
+        return resultsWhich;
+    }
+
+    // 表示範囲及び対象期間を設定しString型で返すメソッド
+    public String setRange(final Context context) {
+
+        // 表示範囲の選択肢
+        final String[] resultsSt = {"すべて表示", "過去1週間", "過去2週間", "過去3週間", "過去4週間", "指定日～今日", "指定日1～指定日2"};
+        // ダイアログのタイトル
+        String dialogTitle = "表示範囲";
+        if (context != PrefActivity.this) {
+            resultsSt[0] = "すべて";
+            dialogTitle = "対象期間";
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        DialogInterface.OnClickListener onDialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                resultsWhich = i;
+                switch (resultsWhich) {
+                    case 0:
+                        resultsNum = 0;
+                        break;
+                    case 1:
+                        resultsNum = 7;
+                        break;
+                    case 2:
+                        resultsNum = 14;
+                        break;
+                    case 3:
+                        resultsNum = 21;
+                        break;
+                    case 4:
+                        resultsNum = 28;
+                        break;
+                    case 5:
+                        // 指定日～今日のカスタムデイトピッカーダイアログ
+                        CustomDatePickerDialog datePickerDialog;
+                        CustomDatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+
+                            }
+                        };
+                        if (spec_year == 0 && spec_month == 0 && spec_date == 0) {
+                            Calendar cal_now = Calendar.getInstance();
+                            cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(context));
+                            spec_year = cal_now.get(Calendar.YEAR);
+                            spec_month = cal_now.get(Calendar.MONTH);
+                            spec_date = cal_now.get(Calendar.DAY_OF_MONTH);
+                        }
+                        datePickerDialog = new CustomDatePickerDialog(context, listener, spec_year, spec_month, spec_date);
+
+                        spec_St = designateDate(0, datePickerDialog, context);
+                        // resultsBtn.setSummary("記録の表示範囲: " + designateDate(resultsBtn, 0, datePickerDialog));
+                        break;
+                    case 6:
+                        // 指定日1のカスタムデイトピッカーダイアログ
+                        CustomDatePickerDialog1 datePickerDialog1;
+                        CustomDatePickerDialog1.OnDateSetListener listener1 = new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+
+                            }
+                        };
+                        if (spec_year1 == 0 && spec_month1 == 0 && spec_date1 == 0) {
+                            Calendar cal_now = Calendar.getInstance();
+                            cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(context));
+                            spec_year1 = cal_now.get(Calendar.YEAR);
+                            spec_month1 = cal_now.get(Calendar.MONTH);
+                            spec_date1 = cal_now.get(Calendar.DAY_OF_MONTH);
+                        }
+                        datePickerDialog1 = new CustomDatePickerDialog1(context, listener1, spec_year1, spec_month1, spec_date1);
+
+                        spec_St = designateDate(1, datePickerDialog1, context);
+                        // resultsBtn.setSummary("記録の表示範囲: " + designateDate(resultsBtn, 1, datePickerDialog1));
+                        break;
+                }
+                if (resultsWhich < 5) {
+                    spec_St = resultsSt[resultsWhich];
+                    // resultsBtn.setSummary("記録の表示範囲: " + resultsSt[resultsWhich]);
+                }
+                alertDialog.dismiss();
+
+                // すべて～過去4週間までのみ
+
+                // 設定画面から呼んだ場合サマリーに表示
+                if (context == PrefActivity.this) {
+                    resultsBtn.setSummary("記録の表示範囲: " + spec_St);
+                } else { // 睡眠データ画面から呼んだ場合アクティビティを再スタート
+                    Intent intent = new Intent(context, DataActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("Update", true);
+                    context.startActivity(intent);
+                }
+            }
+        };
+        builder.setTitle(dialogTitle).setSingleChoiceItems(resultsSt, resultsWhich, onDialogClickListener);
+        alertDialog = builder.show();
+
+        return spec_St;
+    }
+
+    // 表示範囲の日付を指定しString型で返すメソッド
+    public String designateDate(final int spec_point, final DatePickerDialog datePickerDialog, final Context context) {
         // 最大値を今日に
         Calendar cal_max = Calendar.getInstance();
-        cal_max.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(PrefActivity.this) + 1);
+        cal_max.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(context) + 1);
         DatePicker datePicker = datePickerDialog.getDatePicker();
         datePicker.setMaxDate(cal_max.getTimeInMillis());
 
@@ -210,7 +341,6 @@ public class PrefActivity extends PreferenceActivity {
             cal_min.set(spec_year1, spec_month1, spec_date1);
             datePicker.setMinDate(cal_min.getTimeInMillis());
         }
-
 
         if (spec_point != 0) {
             datePickerDialog.setTitle("指定日" + spec_point);
@@ -235,19 +365,23 @@ public class PrefActivity extends PreferenceActivity {
                             };
                             if (spec_year2 == 0 && spec_month2 == 0 && spec_date2 == 0) {
                                 Calendar cal_now = Calendar.getInstance();
-                                cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(PrefActivity.this));
+                                cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(context));
                                 spec_year2 = cal_now.get(Calendar.YEAR);
                                 spec_month2 = cal_now.get(Calendar.MONTH);
                                 spec_date2 = cal_now.get(Calendar.DAY_OF_MONTH);
                             }
-                            datePickerDialog2 = new CustomDatePickerDialog2(PrefActivity.this, listener, spec_year2, spec_month2, spec_date2);
-                            designateDate(button, 2, datePickerDialog2);
+                            datePickerDialog2 = new CustomDatePickerDialog2(context, listener, spec_year2, spec_month2, spec_date2);
+                            spec_St = designateDate(2, datePickerDialog2, context);
                         } else if (spec_point == 2) {
                             resultsNum = -2;
                             spec_St = timeHandler.dateString(spec_year1, spec_month1 + 1, spec_date1) + "～" + timeHandler.dateString(spec_year2, spec_month2 + 1, spec_date2);
                         }
-                        button.setSummary("記録の表示範囲: " + spec_St);
+                        // button.setSummary("記録の表示範囲: " + spec_St);
                         dialog.dismiss();
+                        // 設定画面から呼んだ場合サマリーに表示
+                        if (context == PrefActivity.this) {
+                            resultsBtn.setSummary("記録の表示範囲: " + spec_St);
+                        }
                     }
                 }
         );
@@ -262,6 +396,8 @@ public class PrefActivity extends PreferenceActivity {
                 }
         );
         datePickerDialog.show();
+
+        return spec_St;
     }
 
     // 1日のサイクルのボタンを押したときに呼ばれるメソッド
@@ -413,33 +549,12 @@ public class PrefActivity extends PreferenceActivity {
         MyOpenHelper helper = new MyOpenHelper(this);
         final SQLiteDatabase db = helper.getWritableDatabase();
 
-        // 表示範囲の選択肢
-        final String[] resultsSt = {"すべて表示", "過去1週間", "過去2週間", "過去3週間", "過去4週間", "指定日～今日", "指定日1～指定日2"};
         // 表示範囲を取得
         resultsNum = sp.getInt("results", 0);
-        switch (resultsNum) {
-            case 0:
-                resultsWhich = 0;
-                break;
-            case 7:
-                resultsWhich = 1;
-                break;
-            case 14:
-                resultsWhich = 2;
-                break;
-            case 21:
-                resultsWhich = 3;
-                break;
-            case 28:
-                resultsWhich = 4;
-                break;
-            case -1:
-                resultsWhich = 5;
-                break;
-            case -2:
-                resultsWhich = 6;
-                break;
-        }
+
+        // 表示範囲の選択肢
+        final String[] resultsSt = {"すべて表示", "過去1週間", "過去2週間", "過去3週間", "過去4週間", "指定日～今日", "指定日1～指定日2"};
+        setChoices(resultsNum);
 
         // 表示範囲の指定日をDBから取得
         Cursor cursor = db.query("RangeTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
@@ -458,7 +573,7 @@ public class PrefActivity extends PreferenceActivity {
         cursor.close();
 
         // 表示範囲ボタン
-        final PreferenceScreen resultsBtn = (PreferenceScreen) findPreference("results");
+        resultsBtn = (PreferenceScreen) findPreference("results");
         if (resultsWhich < 5) {
             resultsBtn.setSummary("記録の表示範囲: " + resultsSt[resultsWhich]);
         } else {
@@ -473,78 +588,81 @@ public class PrefActivity extends PreferenceActivity {
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
-                        DialogInterface.OnClickListener onDialogClickListener = new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                resultsWhich = i;
-                                switch (resultsWhich) {
-                                    case 0:
-                                        resultsNum = 0;
-                                        break;
-                                    case 1:
-                                        resultsNum = 7;
-                                        break;
-                                    case 2:
-                                        resultsNum = 14;
-                                        break;
-                                    case 3:
-                                        resultsNum = 21;
-                                        break;
-                                    case 4:
-                                        resultsNum = 28;
-                                        break;
-                                    case 5:
-                                        // 指定日～今日のカスタムデイトピッカーダイアログ
-                                        CustomDatePickerDialog datePickerDialog;
-                                        CustomDatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
-                                            @Override
-                                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
 
-                                            }
-                                        };
-                                        if (spec_year == 0 && spec_month == 0 && spec_date == 0) {
-                                            Calendar cal_now = Calendar.getInstance();
-                                            cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(PrefActivity.this));
-                                            spec_year = cal_now.get(Calendar.YEAR);
-                                            spec_month = cal_now.get(Calendar.MONTH);
-                                            spec_date = cal_now.get(Calendar.DAY_OF_MONTH);
-                                        }
-                                        datePickerDialog = new CustomDatePickerDialog(PrefActivity.this, listener, spec_year, spec_month, spec_date);
+                        setRange(PrefActivity.this);
 
-                                        designateDate(resultsBtn, 0, datePickerDialog);
-
-                                        break;
-                                    case 6:
-                                        // 指定日1のカスタムデイトピッカーダイアログ
-                                        CustomDatePickerDialog1 datePickerDialog1;
-                                        CustomDatePickerDialog1.OnDateSetListener listener1 = new DatePickerDialog.OnDateSetListener() {
-                                            @Override
-                                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-
-                                            }
-                                        };
-                                        if (spec_year1 == 0 && spec_month1 == 0 && spec_date1 == 0) {
-                                            Calendar cal_now = Calendar.getInstance();
-                                            cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(PrefActivity.this));
-                                            spec_year1 = cal_now.get(Calendar.YEAR);
-                                            spec_month1 = cal_now.get(Calendar.MONTH);
-                                            spec_date1 = cal_now.get(Calendar.DAY_OF_MONTH);
-                                        }
-                                        datePickerDialog1 = new CustomDatePickerDialog1(PrefActivity.this, listener1, spec_year1, spec_month1, spec_date1);
-
-                                        designateDate(resultsBtn, 1, datePickerDialog1);
-
-                                        break;
-                                }
-                                if (resultsWhich < 5) {
-                                    resultsBtn.setSummary("記録の表示範囲: " + resultsSt[resultsWhich]);
-                                }
-                                alertDialog.dismiss();
-                            }
-                        };
-                        builder.setTitle("表示範囲").setSingleChoiceItems(resultsSt, resultsWhich, onDialogClickListener);
-                        alertDialog = builder.show();
+//                        AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
+//                        DialogInterface.OnClickListener onDialogClickListener = new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialogInterface, int i) {
+//                                resultsWhich = i;
+//                                switch (resultsWhich) {
+//                                    case 0:
+//                                        resultsNum = 0;
+//                                        break;
+//                                    case 1:
+//                                        resultsNum = 7;
+//                                        break;
+//                                    case 2:
+//                                        resultsNum = 14;
+//                                        break;
+//                                    case 3:
+//                                        resultsNum = 21;
+//                                        break;
+//                                    case 4:
+//                                        resultsNum = 28;
+//                                        break;
+//                                    case 5:
+//                                        // 指定日～今日のカスタムデイトピッカーダイアログ
+//                                        CustomDatePickerDialog datePickerDialog;
+//                                        CustomDatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
+//                                            @Override
+//                                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+//
+//                                            }
+//                                        };
+//                                        if (spec_year == 0 && spec_month == 0 && spec_date == 0) {
+//                                            Calendar cal_now = Calendar.getInstance();
+//                                            cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(PrefActivity.this));
+//                                            spec_year = cal_now.get(Calendar.YEAR);
+//                                            spec_month = cal_now.get(Calendar.MONTH);
+//                                            spec_date = cal_now.get(Calendar.DAY_OF_MONTH);
+//                                        }
+//                                        datePickerDialog = new CustomDatePickerDialog(PrefActivity.this, listener, spec_year, spec_month, spec_date);
+//
+////                                        designateDate(resultsBtn, 0, datePickerDialog);
+//
+//                                        break;
+//                                    case 6:
+//                                        // 指定日1のカスタムデイトピッカーダイアログ
+//                                        CustomDatePickerDialog1 datePickerDialog1;
+//                                        CustomDatePickerDialog1.OnDateSetListener listener1 = new DatePickerDialog.OnDateSetListener() {
+//                                            @Override
+//                                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+//
+//                                            }
+//                                        };
+//                                        if (spec_year1 == 0 && spec_month1 == 0 && spec_date1 == 0) {
+//                                            Calendar cal_now = Calendar.getInstance();
+//                                            cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(PrefActivity.this));
+//                                            spec_year1 = cal_now.get(Calendar.YEAR);
+//                                            spec_month1 = cal_now.get(Calendar.MONTH);
+//                                            spec_date1 = cal_now.get(Calendar.DAY_OF_MONTH);
+//                                        }
+//                                        datePickerDialog1 = new CustomDatePickerDialog1(PrefActivity.this, listener1, spec_year1, spec_month1, spec_date1);
+//
+////                                        designateDate(resultsBtn, 1, datePickerDialog1);
+//
+//                                        break;
+//                                }
+//                                if (resultsWhich < 5) {
+//                                    resultsBtn.setSummary("記録の表示範囲: " + resultsSt[resultsWhich]);
+//                                }
+//                                alertDialog.dismiss();
+//                            }
+//                        };
+//                        builder.setTitle("表示範囲").setSingleChoiceItems(resultsSt, resultsWhich, onDialogClickListener);
+//                        alertDialog = builder.show();
                         return true;
                     }
                 }

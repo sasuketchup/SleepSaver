@@ -1,10 +1,12 @@
 package com.example.sleepsaver;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +17,7 @@ public class DataActivity extends AppCompatActivity {
 
     MainActivity mainActivity = new MainActivity();
     TimeHandler timeHandler = new TimeHandler();
+    PrefActivity prefActivity = new PrefActivity();
 
     Calendar cal_now;
 
@@ -23,9 +26,24 @@ public class DataActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_data);
 
+        // インテントを受け取る
+        Intent intent = getIntent();
+        boolean reStart = intent.getBooleanExtra("Update", false);
+
         SharedPreferences sp = getSharedPreferences("pref", MODE_PRIVATE);
-        // 期間を取得
-        int results = sp.getInt("results", 0);
+
+        // 対象期間
+        int results;
+        if (reStart) {
+            // 再スタートの場合
+            results = prefActivity.resultsNum;
+        } else {
+            // 初回の場合期間を取得
+            results = sp.getInt("results", 0);
+        }
+
+        // 期間を押したときの選択肢をセット
+        prefActivity.resultsWhich = prefActivity.setChoices(results);
 
         // 起床→就寝切り替え時刻を取得
         int stay_up_line = sp.getInt("stay_up_line", 1200);
@@ -110,7 +128,7 @@ public class DataActivity extends AppCompatActivity {
         // 条件分岐し、期間中の最古の日付を計算し、取得
         if (results != -2) {
             cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(DataActivity.this) - (int) (idCount - 1));
-        }else {
+        } else {
             cal_now.add(Calendar.DAY_OF_MONTH, 0 - diff_now_spec1);
         }
         int oldest_year = cal_now.get(Calendar.YEAR);
@@ -120,8 +138,40 @@ public class DataActivity extends AppCompatActivity {
         TextView period_text = findViewById(R.id.period);
         period_text.setText("期間:" + timeHandler.dateString(oldest_year, oldest_month, oldest_date) + "～" + timeHandler.dateString(latest_year, latest_month, latest_date));
 
-        Cursor cursor1 = db.query("GetUpTable", new String[] {"id", "hour", "minute"}, null, null, null, null, null);
-        Cursor cursor2 = db.query("GoToBedTable", new String[] {"id", "hour", "minute"}, null, null, null, null, null);
+        calculateData(db, idCount, diff_now_spec1, diff_now_spec2, gu_target_hour, gu_target_minute, gtb_target_hour, gtb_target_minute, slp_target_hour, slp_target_minute, hour_line);
+
+        // 対象期間の指定日をDBから取得
+        Cursor cursor = db.query("RangeTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
+        cursor.moveToFirst();
+        prefActivity.spec_year = cursor.getInt(1);
+        prefActivity.spec_month = cursor.getInt(2);
+        prefActivity.spec_date = cursor.getInt(3);
+        cursor.moveToNext();
+        prefActivity.spec_year1 = cursor.getInt(1);
+        prefActivity.spec_month1 = cursor.getInt(2);
+        prefActivity.spec_date1 = cursor.getInt(3);
+        cursor.moveToNext();
+        prefActivity.spec_year2 = cursor.getInt(1);
+        prefActivity.spec_month2 = cursor.getInt(2);
+        prefActivity.spec_date2 = cursor.getInt(3);
+        cursor.close();
+
+        // 期間ボタンを押したときの処理
+        period_text.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        prefActivity.setRange(DataActivity.this);
+                    }
+                }
+        );
+    }
+
+    // 各種睡眠データを計算し表示するメソッド
+    public void calculateData(SQLiteDatabase db, long idCount, int diff_now_spec1, int diff_now_spec2, int gu_target_hour, int gu_target_minute, int gtb_target_hour, int gtb_target_minute, int slp_target_hour, int slp_target_minute, int hour_line) {
+
+        Cursor cursor1 = db.query("GetUpTable", new String[]{"id", "hour", "minute"}, null, null, null, null, null);
+        Cursor cursor2 = db.query("GoToBedTable", new String[]{"id", "hour", "minute"}, null, null, null, null, null);
 
         // 平均を算出するための合計と個数
         // 起床
@@ -142,7 +192,7 @@ public class DataActivity extends AppCompatActivity {
 
         cursor1.moveToLast();
         cursor2.moveToLast();
-        for (int i=0;i<idCount;i++) {
+        for (int i = 0; i < idCount; i++) {
             int hourGU = cursor1.getInt(1);
             int minuteGU = cursor1.getInt(2);
             int hourGTB = cursor2.getInt(1);

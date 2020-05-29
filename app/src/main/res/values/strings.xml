@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">SleepSaver</string>
+    <string name="date_table">DateTable</string>
+    <string name="get_up_table">GetUpTable</string>
+    <string name="go_to_bed_table">GoToBedTable</string>
+    <string name="range_table">RangeTable</string>
+    <string name="id">id</string>
+    <string name="year">year</string>
+    <string name="month">month</string>
+    <string name="date">date</string>
+    <string name="hour">hour</string>
+    <string name="minute">minute</string>
+    <string name="empty_time">--:--</string>
+    <string name="nen">年</string>
+    <string name="tsuki">月</string>
+    <string name="hi">日</string>
+    <string name="kishou">起床</string>
+    <string name="shushin">就寝</string>
 </resources>

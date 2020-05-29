@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // データの行数を再取得
-        idCount = DatabaseUtils.queryNumEntries(db, "DateTable");
+        idCount = DatabaseUtils.queryNumEntries(db, getString(R.string.date_table));
 
         // データと表示件数の差分
         int diff_id = 0;
@@ -296,6 +296,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(MainActivity.this, DataActivity.class);
+                        intent.putExtra("Update", false);
                         startActivity(intent);
                     }
                 }
