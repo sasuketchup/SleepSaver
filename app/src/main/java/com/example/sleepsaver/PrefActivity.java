@@ -31,20 +31,20 @@ public class PrefActivity extends PreferenceActivity {
     TimeHandler timeHandler = new TimeHandler();
 
     // 表示範囲を格納する変数
-    int resultsNum;
+    static int resultsNum;
     // 表示範囲の指定日を格納する変数
     // 指定日～今日の指定日
-    int spec_year;
-    int spec_month;
-    int spec_date;
+    static int spec_year;
+    static int spec_month;
+    static int spec_date;
     // 指定日1～指定日2の指定日1
-    int spec_year1;
-    int spec_month1;
-    int spec_date1;
+    static int spec_year1;
+    static int spec_month1;
+    static int spec_date1;
     // 指定日1～指定日2の指定日2
-    int spec_year2;
-    int spec_month2;
-    int spec_date2;
+    static int spec_year2;
+    static int spec_month2;
+    static int spec_date2;
     // 指定日表示用のString
     String spec_St;
     // 表示範囲の設定ボタン
@@ -302,22 +302,14 @@ public class PrefActivity extends PreferenceActivity {
                         // resultsBtn.setSummary("記録の表示範囲: " + designateDate(resultsBtn, 1, datePickerDialog1));
                         break;
                 }
-                if (resultsWhich < 5) {
-                    spec_St = resultsSt[resultsWhich];
-                    // resultsBtn.setSummary("記録の表示範囲: " + resultsSt[resultsWhich]);
-                }
                 alertDialog.dismiss();
 
                 // すべて～過去4週間までのみ
+                if (resultsWhich < 5) {
+                    spec_St = resultsSt[resultsWhich];
+                    // resultsBtn.setSummary("記録の表示範囲: " + resultsSt[resultsWhich]);
 
-                // 設定画面から呼んだ場合サマリーに表示
-                if (context == PrefActivity.this) {
-                    resultsBtn.setSummary("記録の表示範囲: " + spec_St);
-                } else { // 睡眠データ画面から呼んだ場合アクティビティを再スタート
-                    Intent intent = new Intent(context, DataActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra("Update", true);
-                    context.startActivity(intent);
+                    setOrUpdateRange(context);
                 }
             }
         };
@@ -378,9 +370,10 @@ public class PrefActivity extends PreferenceActivity {
                         }
                         // button.setSummary("記録の表示範囲: " + spec_St);
                         dialog.dismiss();
-                        // 設定画面から呼んだ場合サマリーに表示
-                        if (context == PrefActivity.this) {
-                            resultsBtn.setSummary("記録の表示範囲: " + spec_St);
+
+                        // 指定日～今日の指定日か指定日2の時
+                        if (spec_point != 1) {
+                            setOrUpdateRange(context);
                         }
                     }
                 }
@@ -398,6 +391,24 @@ public class PrefActivity extends PreferenceActivity {
         datePickerDialog.show();
 
         return spec_St;
+    }
+
+    // 範囲をサマリーに表示または更新するメソッド
+    public void setOrUpdateRange(Context context) {
+        // 設定画面から呼んだ場合サマリーに表示
+        if (context == PrefActivity.this) {
+            resultsBtn.setSummary("記録の表示範囲: " + spec_St);
+        } else { // 睡眠データ画面から呼んだ場合アクティビティを再スタート
+            Intent intent = new Intent(context, DataActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.putExtra("Update", true);
+            context.startActivity(intent);
+        }
+    }
+
+    // resultsNumを返すためのメソッド
+    public int getResultsNum() {
+        return resultsNum;
     }
 
     // 1日のサイクルのボタンを押したときに呼ばれるメソッド

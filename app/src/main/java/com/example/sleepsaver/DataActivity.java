@@ -1,5 +1,9 @@
 package com.example.sleepsaver;
 
+import android.app.AlertDialog;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -34,13 +38,11 @@ public class DataActivity extends AppCompatActivity {
 
         // 対象期間
         int results;
-        if (reStart) {
-            // 再スタートの場合
-            results = prefActivity.resultsNum;
-        } else {
+        if (!reStart) {
             // 初回の場合期間を取得
-            results = sp.getInt("results", 0);
+            PrefActivity.resultsNum = sp.getInt("results", 0);
         }
+        results = PrefActivity.resultsNum;
 
         // 期間を押したときの選択肢をセット
         prefActivity.resultsWhich = prefActivity.setChoices(results);
@@ -94,14 +96,14 @@ public class DataActivity extends AppCompatActivity {
         // 指定日1～指定日2(resultsが-2)の場合
         if (results == -2) {
             // 今日と指定日1、2の差日数を計算
-            diff_now_spec1 = mainActivity.spec12_today(db, DataActivity.this)[0];
-            diff_now_spec2 = mainActivity.spec12_today(db, DataActivity.this)[1];
+            diff_now_spec1 = mainActivity.spec12_today(db, DataActivity.this, reStart)[0];
+            diff_now_spec2 = mainActivity.spec12_today(db, DataActivity.this, reStart)[1];
         }
 
         // 指定日～今日(resultsが-1)の場合に指定日と今日の差分を計算
         if (results == -1) {
             // 指定日と今日の差を計算し、表示件数に代入
-            results = mainActivity.spec_today(db, DataActivity.this);
+            results = mainActivity.spec_today(db, DataActivity.this, reStart);
         }
 
         // 対象の期間を計算
@@ -140,21 +142,23 @@ public class DataActivity extends AppCompatActivity {
 
         calculateData(db, idCount, diff_now_spec1, diff_now_spec2, gu_target_hour, gu_target_minute, gtb_target_hour, gtb_target_minute, slp_target_hour, slp_target_minute, hour_line);
 
-        // 対象期間の指定日をDBから取得
-        Cursor cursor = db.query("RangeTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
-        cursor.moveToFirst();
-        prefActivity.spec_year = cursor.getInt(1);
-        prefActivity.spec_month = cursor.getInt(2);
-        prefActivity.spec_date = cursor.getInt(3);
-        cursor.moveToNext();
-        prefActivity.spec_year1 = cursor.getInt(1);
-        prefActivity.spec_month1 = cursor.getInt(2);
-        prefActivity.spec_date1 = cursor.getInt(3);
-        cursor.moveToNext();
-        prefActivity.spec_year2 = cursor.getInt(1);
-        prefActivity.spec_month2 = cursor.getInt(2);
-        prefActivity.spec_date2 = cursor.getInt(3);
-        cursor.close();
+        // 初回の場合対象期間の指定日をDBから取得
+        if (!reStart) {
+            Cursor cursor = db.query("RangeTable", new String[]{"id", "year", "month", "date"}, null, null, null, null, null);
+            cursor.moveToFirst();
+            PrefActivity.spec_year = cursor.getInt(1);
+            PrefActivity.spec_month = cursor.getInt(2);
+            PrefActivity.spec_date = cursor.getInt(3);
+            cursor.moveToNext();
+            PrefActivity.spec_year1 = cursor.getInt(1);
+            PrefActivity.spec_month1 = cursor.getInt(2);
+            PrefActivity.spec_date1 = cursor.getInt(3);
+            cursor.moveToNext();
+            PrefActivity.spec_year2 = cursor.getInt(1);
+            PrefActivity.spec_month2 = cursor.getInt(2);
+            PrefActivity.spec_date2 = cursor.getInt(3);
+            cursor.close();
+        }
 
         // 期間ボタンを押したときの処理
         period_text.setOnClickListener(
@@ -342,5 +346,111 @@ public class DataActivity extends AppCompatActivity {
         rateGU_text.setText(clear_rateGU + "%");
         rateGTB_text.setText(clear_rateGTB + "%");
         rateST_text.setText(clear_rateST + "%");
+    }
+
+    // バックボタン押下時の処理
+    @Override
+    public void onBackPressed() {
+        // 保存されている設定値を取得
+        final SharedPreferences sp = DataActivity.this.getSharedPreferences("pref", Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = sp.edit();
+        final int results_back = sp.getInt("results", 0);
+        // 範囲の指定日をDBから取得
+        MyOpenHelper helper = new MyOpenHelper(this);
+        final SQLiteDatabase db = helper.getWritableDatabase();
+        Cursor cursor = db.query("RangeTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
+        cursor.moveToFirst();
+        final int year_back = cursor.getInt(1);
+        final int month_back = cursor.getInt(2);
+        final int date_back = cursor.getInt(3);
+        cursor.moveToNext();
+        final int year_back1 = cursor.getInt(1);
+        final int month_back1 = cursor.getInt(2);
+        final int date_back1 = cursor.getInt(3);
+        cursor.moveToNext();
+        final int year_back2 = cursor.getInt(1);
+        final int month_back2 = cursor.getInt(2);
+        final int date_back2 = cursor.getInt(3);
+        cursor.close();
+
+        // 期間が変更されていなければ閉じる、そうでなければダイアログ表示
+        if (results_back == PrefActivity.resultsNum
+                && year_back == PrefActivity.spec_year && month_back == PrefActivity.spec_month && date_back == PrefActivity.spec_date
+                && year_back1 == PrefActivity.spec_year1 && month_back1 == PrefActivity.spec_month1 && date_back1 == PrefActivity.spec_date1
+                && year_back2 == PrefActivity.spec_year2 && month_back2 == PrefActivity.spec_month2 && date_back2 == PrefActivity.spec_date2) {
+            finish();
+        } else {
+            // アラートダイアログ表示
+            AlertDialog.Builder builder = new AlertDialog.Builder(DataActivity.this);
+            builder.setTitle("期間が変更されています。\n設定として保存しますか？");
+            builder.setPositiveButton(
+                    "保存する",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // 期間
+                            editor.putInt("results", PrefActivity.resultsNum);
+                            editor.commit();
+                            // 今日～指定日の指定日
+                            ContentValues contentValues = new ContentValues();
+                            contentValues.put("year", PrefActivity.spec_year);
+                            contentValues.put("month", PrefActivity.spec_month);
+                            contentValues.put("date", PrefActivity.spec_date);
+                            db.update("RangeTable", contentValues, "id=" + 0, null);
+                            // 指定日1
+                            ContentValues contentValues1 = new ContentValues();
+                            contentValues1.put("year", PrefActivity.spec_year1);
+                            contentValues1.put("month", PrefActivity.spec_month1);
+                            contentValues1.put("date", PrefActivity.spec_date1);
+                            db.update("RangeTable", contentValues1, "id=" + 1, null);
+                            // 指定日2
+                            ContentValues contentValues2 = new ContentValues();
+                            contentValues2.put("year", PrefActivity.spec_year2);
+                            contentValues2.put("month", PrefActivity.spec_month2);
+                            contentValues2.put("date", PrefActivity.spec_date2);
+                            db.update("RangeTable", contentValues2, "id=" + 2, null);
+
+                            Intent intent = new Intent(DataActivity.this, MainActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(intent);
+                            finish();
+                        }
+                    }
+            );
+            builder.setNegativeButton(
+                    "破棄する",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int which) {
+                            // 破棄して設定を戻す
+                            PrefActivity.resultsNum = results_back;
+
+                            PrefActivity.spec_year = year_back;
+                            PrefActivity.spec_month = month_back;
+                            PrefActivity.spec_date = date_back;
+
+                            PrefActivity.spec_year1 = year_back1;
+                            PrefActivity.spec_month1 = month_back1;
+                            PrefActivity.spec_date1 = date_back1;
+
+                            PrefActivity.spec_year2 = year_back2;
+                            PrefActivity.spec_month2 = month_back2;
+                            PrefActivity.spec_date2 = date_back2;
+
+                            finish();
+                        }
+                    }
+            );
+            builder.setNeutralButton(
+                    "キャンセル",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    }
+            );
+            builder.show();
+        }
     }
 }
