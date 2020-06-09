@@ -264,6 +264,17 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
+        // グラフボタンの処理
+        findViewById(R.id.graph_page).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(MainActivity.this, GraphActivity.class);
+                        startActivity(intent);
+                    }
+                }
+        );
+
         // 設定ボタンの処理
         findViewById(R.id.Settings).setOnClickListener(
                 new View.OnClickListener() {
