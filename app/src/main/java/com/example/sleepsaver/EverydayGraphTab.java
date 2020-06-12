@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -41,6 +42,10 @@ public class EverydayGraphTab extends Fragment {
         MyOpenHelper helper = new MyOpenHelper(getContext());
         SQLiteDatabase db = helper.getWritableDatabase();
 
+        // x軸
+        XAxis xAxis = everydayChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+
         Cursor cursor1 = db.query("GetUpTable", new String[] {"id", "hour", "minute"}, null, null, null, null, null);
         Cursor cursor2 = db.query("GoToBedTable", new String[] {"id", "hour", "minute"}, null, null, null, null, null);
 
@@ -62,7 +67,9 @@ public class EverydayGraphTab extends Fragment {
             idCount = 14;
         }
 
-        // テーブルから取得したデータをセット
+        // テーブルからデータを取得
+        int timeGU[] = new int[(int) idCount];
+        int timeGTB[] = new int[(int) idCount];
         for (int i = 0; i < idCount; i++) {
             int hourGU = cursor1.getInt(1);
             int minuteGU = cursor1.getInt(2);
@@ -70,15 +77,20 @@ public class EverydayGraphTab extends Fragment {
             int hourGTB = cursor2.getInt(1);
             int minuteGTB = cursor2.getInt(2);
 
-            valuesGU.add(new Entry(i, (hourGU * 60) + minuteGU, null, null));
-
-            valuesGTB.add(new Entry(i, (hourGTB * 60) + minuteGTB, null, null));
+            timeGU[i] = (hourGU * 60) + minuteGU;
+            timeGTB[i] = (hourGTB * 60) + minuteGTB;
 
             cursor1.moveToPrevious();
             cursor2.moveToPrevious();
         }
         cursor1.close();
         cursor2.close();
+
+        // テーブルから取得したデータを古い方からセット
+        for (int i = 0; i < idCount; i++) {
+            valuesGU.add(new Entry(i, timeGU[(int) (idCount) - i - 1], null, null));
+            valuesGTB.add(new Entry(i, timeGTB[(int) idCount - i - 1], null, null));
+        }
 
         LineDataSet setGU;
         LineDataSet setGTB;
