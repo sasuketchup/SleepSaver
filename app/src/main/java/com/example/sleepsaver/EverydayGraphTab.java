@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
@@ -14,15 +16,27 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.formatter.IValueFormatter;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class EverydayGraphTab extends Fragment {
+
+    TimeHandler timeHandler = new TimeHandler();
+
+    long idCount;
 
     @Nullable
     @Override
@@ -42,9 +56,29 @@ public class EverydayGraphTab extends Fragment {
         MyOpenHelper helper = new MyOpenHelper(getContext());
         SQLiteDatabase db = helper.getWritableDatabase();
 
+        SharedPreferences sp = getContext().getSharedPreferences("pref", Context.MODE_PRIVATE);
+        // 目標を取得
+        int gtb_target = sp.getInt("go_to_bed_target", 0);
+        int gu_target = sp.getInt("get_up_target", 800);
+        // 目標起床時刻
+        int gu_target_hour = timeHandler.number_to_time(gu_target)[0];
+        int gu_target_minute = timeHandler.number_to_time(gu_target)[1];
+        // 目標就寝時刻
+        int gtb_target_hour = timeHandler.number_to_time(gtb_target)[0];
+        int gtb_target_minute = timeHandler.number_to_time(gtb_target)[1];
+
         // x軸
         XAxis xAxis = everydayChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+
+        // y軸(左)
+        YAxis ylAxis = everydayChart.getAxisLeft();
+
+        // 目標時刻のラインを表示
+        LimitLine gu_targetLine = new LimitLine((gu_target_hour * 60) + gu_target_minute, "目標起床時刻" + timeHandler.timeString(gu_target_hour, gu_target_minute));
+        LimitLine gtb_targetLine = new LimitLine((gtb_target_hour * 60) + gtb_target_minute, "目標就寝時刻" + timeHandler.timeString(gtb_target_hour, gtb_target_minute));
+        ylAxis.addLimitLine(gu_targetLine);
+        ylAxis.addLimitLine(gtb_targetLine);
 
         Cursor cursor1 = db.query("GetUpTable", new String[] {"id", "hour", "minute"}, null, null, null, null, null);
         Cursor cursor2 = db.query("GoToBedTable", new String[] {"id", "hour", "minute"}, null, null, null, null, null);
@@ -62,7 +96,7 @@ public class EverydayGraphTab extends Fragment {
         ArrayList<Entry> valuesGTB = new ArrayList<>();
 
         // データの行数を取得し表示する期間と比較
-        long idCount = DatabaseUtils.queryNumEntries(db, "DateTable");
+        idCount = DatabaseUtils.queryNumEntries(db, "DateTable");
         if (idCount > 14) {
             idCount = 14;
         }
@@ -98,6 +132,21 @@ public class EverydayGraphTab extends Fragment {
         setGU = new LineDataSet(valuesGU, "起床時刻");
         setGTB = new LineDataSet(valuesGTB, "就寝時刻");
 
+        // (起床)プロットされる値を時刻に
+        setGU.setValueFormatter(new IValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+                return timeHandler.minutes_to_timeString((int)value);
+            }
+        });
+        // (就寝)プロットされる値を時刻に
+        setGTB.setValueFormatter(new IValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+                return timeHandler.minutes_to_timeString((int)value);
+            }
+        });
+
         ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
         dataSets.add(setGU);
         dataSets.add(setGTB);
@@ -106,7 +155,41 @@ public class EverydayGraphTab extends Fragment {
 
         everydayChart.setData(lineData);
 
+        // x軸のラベルを日付に
+        xAxis.setValueFormatter(new IAxisValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                String dateLabel = "";
+                if ((value % 1) == 0) {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.add(Calendar.DAY_OF_MONTH, (int)value - ((int)idCount - 1));
+                    int month = calendar.get(Calendar.MONTH) + 1;
+                    int date = calendar.get(Calendar.DAY_OF_MONTH);
+                    dateLabel = month + "/" + date;
+                }
+                return dateLabel;
+            }
+        });
+
+        // y軸のラベルを時刻に
+//        String labels[] = new String[ylAxis.getLabelCount()];
+//        for (int i = 0; i < ylAxis.getLabelCount(); i++) {
+//            String labelGet = ylAxis.getFormattedLabel(i);
+//            int labelGetInt = Integer.parseInt(labelGet.replaceAll("[^0-9]", ""));
+//            int labelMinute = labelGetInt % 60;
+//            int labelHour = (labelGetInt - labelMinute) / 60;
+//            labels[i] = timeHandler.timeString(labelHour, labelMinute);
+//        }
+//        ylAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
+
+        ylAxis.setValueFormatter(new IAxisValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return timeHandler.minutes_to_timeString((int)value);
+            }
+        });
+
         TextView textView5 = (TextView)view.findViewById(R.id.textView5);
-        textView5.setText("!!!");
+        textView5.setText("");
     }
 }

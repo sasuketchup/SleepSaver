@@ -31,6 +31,13 @@ public class TimeHandler {
         return timeSt;
     }
 
+    // 分換算された時間の値を時と分に分け、表示する形式に整理するメソッド
+    public String minutes_to_timeString(int minutesValue) {
+        int minute = minutesValue % 60;
+        int hour = (minutesValue - minute) / 60;
+        return timeString(hour, minute);
+    }
+
     // 日付を表示する形式に整理するメソッド
     public String dateString(int year, int month, int date) {
         return year + "/" + month + "/" + date;
