@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -57,6 +59,9 @@ public class EverydayGraphTab extends Fragment {
         SQLiteDatabase db = helper.getWritableDatabase();
 
         SharedPreferences sp = getContext().getSharedPreferences("pref", Context.MODE_PRIVATE);
+        // 起床→就寝切り替え時刻を取得
+        int stay_up_line = sp.getInt("stay_up_line", 1200);
+        int hour_line = timeHandler.number_to_time(stay_up_line)[0];
         // 目標を取得
         int gtb_target = sp.getInt("go_to_bed_target", 0);
         int gu_target = sp.getInt("get_up_target", 800);
@@ -73,6 +78,9 @@ public class EverydayGraphTab extends Fragment {
 
         // y軸(左)
         YAxis ylAxis = everydayChart.getAxisLeft();
+
+        // y軸(右)非表示
+        everydayChart.getAxisRight().setEnabled(false);
 
         // 目標時刻のラインを表示
         LimitLine gu_targetLine = new LimitLine((gu_target_hour * 60) + gu_target_minute, "目標起床時刻" + timeHandler.timeString(gu_target_hour, gu_target_minute));
@@ -111,8 +119,21 @@ public class EverydayGraphTab extends Fragment {
             int hourGTB = cursor2.getInt(1);
             int minuteGTB = cursor2.getInt(2);
 
-            timeGU[i] = (hourGU * 60) + minuteGU;
-            timeGTB[i] = (hourGTB * 60) + minuteGTB;
+            // 就寝時刻が0時より前の場合-24する
+            if (hourGTB >= hour_line) {
+                hourGTB = hourGTB - 24;
+            }
+
+            if (minuteGU == -1) { // データが空の時
+                timeGU[i] = 2000; // ありえない値
+            } else { // データがあるとき
+                timeGU[i] = (hourGU * 60) + minuteGU;
+            }
+            if (minuteGTB == -1) { // データが空の時
+                timeGTB[i] = 2000; // ありえない値
+            } else { // データがあるとき
+                timeGTB[i] = (hourGTB * 60) + minuteGTB;
+            }
 
             cursor1.moveToPrevious();
             cursor2.moveToPrevious();
@@ -122,8 +143,12 @@ public class EverydayGraphTab extends Fragment {
 
         // テーブルから取得したデータを古い方からセット
         for (int i = 0; i < idCount; i++) {
-            valuesGU.add(new Entry(i, timeGU[(int) (idCount) - i - 1], null, null));
-            valuesGTB.add(new Entry(i, timeGTB[(int) idCount - i - 1], null, null));
+            if (timeGU[(int) idCount - i - 1] != 2000) { // 空(2000)でないとき
+                valuesGU.add(new Entry(i, timeGU[(int) idCount - i - 1], null, null));
+            }
+            if (timeGTB[(int) idCount - i - 1] != 2000) { // 空(2000)でないとき
+                valuesGTB.add(new Entry(i, timeGTB[(int) idCount - i - 1], null, null));
+            }
         }
 
         LineDataSet setGU;
@@ -131,6 +156,21 @@ public class EverydayGraphTab extends Fragment {
 
         setGU = new LineDataSet(valuesGU, "起床時刻");
         setGTB = new LineDataSet(valuesGTB, "就寝時刻");
+
+        // 凡例
+        Legend legend = everydayChart.getLegend();
+        // legend.setCustom();
+
+        // ラインの色
+        setGTB.setColor(Color.MAGENTA);
+        setGTB.setCircleColor(Color.MAGENTA);
+
+        // 塗りつぶし
+        setGU.setDrawFilled(true);
+        setGTB.setDrawFilled(true);
+        setGU.setFillColor(Color.BLUE);
+        setGTB.setFillColor(Color.WHITE);
+        setGTB.setFillAlpha(130);
 
         // (起床)プロットされる値を時刻に
         setGU.setValueFormatter(new IValueFormatter() {
@@ -143,6 +183,10 @@ public class EverydayGraphTab extends Fragment {
         setGTB.setValueFormatter(new IValueFormatter() {
             @Override
             public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+                // 値がマイナスの時24時間足す
+                if (value < 0) {
+                    value = value + 1440;
+                }
                 return timeHandler.minutes_to_timeString((int)value);
             }
         });
@@ -162,6 +206,7 @@ public class EverydayGraphTab extends Fragment {
                 String dateLabel = "";
                 if ((value % 1) == 0) {
                     Calendar calendar = Calendar.getInstance();
+                    calendar.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(getContext()));
                     calendar.add(Calendar.DAY_OF_MONTH, (int)value - ((int)idCount - 1));
                     int month = calendar.get(Calendar.MONTH) + 1;
                     int date = calendar.get(Calendar.DAY_OF_MONTH);
@@ -185,6 +230,10 @@ public class EverydayGraphTab extends Fragment {
         ylAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
+                // 値がマイナスの時24時間足す
+                if (value < 0) {
+                    value = value + 1440;
+                }
                 return timeHandler.minutes_to_timeString((int)value);
             }
         });

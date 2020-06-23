@@ -38,6 +38,18 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="充電切り替え時のポップアップ画面表示">
+
+        <CheckBoxPreference
+            android:key="display_popup"
+            android:title="記録画面を表示する" />
+
+        <SwitchPreference
+            android:key="inversion"
+            android:title="接続・切断と就寝・起床の反転" />
+
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="設定の保存">
 
     <PreferenceScreen

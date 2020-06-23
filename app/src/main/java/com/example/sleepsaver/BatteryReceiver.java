@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.BatteryManager;
 
 public class BatteryReceiver extends BroadcastReceiver {
@@ -15,6 +16,8 @@ public class BatteryReceiver extends BroadcastReceiver {
     // 充電の接続状態が変わったときに実行
     @Override
     public void onReceive(Context context, Intent intent) {
+
+        SharedPreferences sp = context.getSharedPreferences("pref", Context.MODE_PRIVATE);
 
         intent = new Intent(context, PopUpActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);

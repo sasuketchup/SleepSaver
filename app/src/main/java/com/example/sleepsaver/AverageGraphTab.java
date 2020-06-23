@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.mikephil.charting.charts.BarChart;
+
 public class AverageGraphTab extends Fragment {
 
     @Nullable
@@ -17,5 +19,12 @@ public class AverageGraphTab extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.tab_average_graph, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        BarChart averageChart = view.findViewById(R.id.average_chart);
     }
 }

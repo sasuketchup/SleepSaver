@@ -13,11 +13,13 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.preference.SwitchPreference;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 
@@ -93,6 +95,11 @@ public class PrefActivity extends PreferenceActivity {
 
     // 目標睡眠時間のアラートダイアログの選択されている項目を保持する変数
     int slp_which;
+
+    // ポップアップ画面の表示or非表示の変数
+    boolean display_popup;
+    // 就寝・起床反転の変数
+    boolean inversion;
 
     // ピッカーの日付を変更したときに変数に代入するようにするために、DatePickerDialogを継承したクラス(指定日～今日用)
     public class CustomDatePickerDialog extends DatePickerDialog {
@@ -879,6 +886,65 @@ public class PrefActivity extends PreferenceActivity {
                         builder.setTitle("目標睡眠時間").setSingleChoiceItems(slp_option_St, slp_which, onClickListener);
                         alertDialog2 = builder.show();
 
+                        return true;
+                    }
+                }
+        );
+
+        // 充電切り替え時のポップアップ画面表示
+        display_popup = sp.getBoolean("display_popup", false);
+        // 表示or非表示のチェックボックス
+        CheckBoxPreference display_popup_btn = (CheckBoxPreference) findPreference("display_popup");
+        // 反転のスイッチ
+        final SwitchPreference inversion_btn = (SwitchPreference) findPreference("inversion");
+        if (display_popup) {
+            display_popup_btn.setChecked(true);
+            display_popup_btn.setSummary("充電の状態が変わったとき記録画面を表示する:ON");
+            inversion_btn.setEnabled(true);
+        } else {
+            display_popup_btn.setChecked(false);
+            display_popup_btn.setSummary("充電の状態が変わったとき記録画面を表示する:OFF");
+            inversion_btn.setEnabled(false);
+        }
+        // チェックボックス押下時の処理
+        display_popup_btn.setOnPreferenceChangeListener(
+                new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object o) {
+                        if ((boolean)o) {
+                            display_popup = true;
+                            preference.setSummary("充電の状態が変わったとき記録画面を表示する:ON");
+                            inversion_btn.setEnabled(true);
+                        } else {
+                            display_popup = false;
+                            preference.setSummary("充電の状態が変わったとき記録画面を表示する:OFF");
+                            inversion_btn.setEnabled(false);
+                        }
+                        return true;
+                    }
+                }
+        );
+        // 反転の状態取得
+        inversion = sp.getBoolean("inversion", false);
+        if (!inversion) {
+            inversion_btn.setChecked(false);
+            inversion_btn.setSummary("接続時:就寝、切断時:起床");
+        } else {
+            inversion_btn.setChecked(true);
+            inversion_btn.setSummary("接続時:起床、切断時:就寝");
+        }
+        // スイッチ押下時の処理
+        inversion_btn.setOnPreferenceChangeListener(
+                new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object o) {
+                        if (!(boolean)o) {
+                            inversion = false;
+                            preference.setSummary("接続時:就寝、切断時:起床");
+                        } else {
+                            inversion = true;
+                            preference.setSummary("接続時:起床、切断時:就寝");
+                        }
                         return true;
                     }
                 }
