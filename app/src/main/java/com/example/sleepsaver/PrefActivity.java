@@ -894,7 +894,7 @@ public class PrefActivity extends PreferenceActivity {
         // 充電切り替え時のポップアップ画面表示
         display_popup = sp.getBoolean("display_popup", false);
         // 表示or非表示のチェックボックス
-        CheckBoxPreference display_popup_btn = (CheckBoxPreference) findPreference("display_popup");
+        final CheckBoxPreference display_popup_btn = (CheckBoxPreference) findPreference("display_popup");
         // 反転のスイッチ
         final SwitchPreference inversion_btn = (SwitchPreference) findPreference("inversion");
         if (display_popup) {
@@ -997,6 +997,11 @@ public class PrefActivity extends PreferenceActivity {
                                         // 目標睡眠時間
                                         editor.putInt("sleeping_target", slp_target);
 
+                                        // 充電切り替え時のポップアップ画面表示有無
+                                        editor.putBoolean("display_popup", display_popup);
+                                        // ポップアップ画面の就寝・起床反転
+                                        editor.putBoolean("inversion", inversion);
+
                                         editor.commit();
 
                                         Intent intent = new Intent(PrefActivity.this, MainActivity.class);
@@ -1034,6 +1039,8 @@ public class PrefActivity extends PreferenceActivity {
         int gtb_target_back = sp.getInt("go_to_bed_target", 0);
         int gu_target_back = sp.getInt("get_up_target", 800);
         int slp_target_back = sp.getInt("sleeping_target", 800);
+        boolean display_popup_back = sp.getBoolean("display_popup", false);
+        boolean inversion_back = sp.getBoolean("inversion", false);
         // 表示範囲の指定日をDBから取得
         MyOpenHelper helper = new MyOpenHelper(this);
         SQLiteDatabase db = helper.getWritableDatabase();
@@ -1057,7 +1064,8 @@ public class PrefActivity extends PreferenceActivity {
                 && year_back == spec_year && month_back == spec_month && date_back == spec_date
                 && year_back1 == spec_year1 && month_back1 == spec_month1 && date_back1 == spec_date1
                 && year_back2 == spec_year2 && month_back2 == spec_month2 && date_back2 == spec_date2
-                && gtb_target_back == gtb_target && gu_target_back == gu_target && slp_target_back == slp_target) {
+                && gtb_target_back == gtb_target && gu_target_back == gu_target && slp_target_back == slp_target
+                && display_popup_back == display_popup && inversion_back == inversion) {
             finish();
         } else {
             // アラートダイアログ表示

@@ -18,13 +18,18 @@ public class BatteryReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         SharedPreferences sp = context.getSharedPreferences("pref", Context.MODE_PRIVATE);
+        // ポップアップ画面表示の有無を取得
+        boolean display_popup = sp.getBoolean("display_popup", false);
 
-        intent = new Intent(context, PopUpActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
-        try {
-            pendingIntent.send();
-        } catch (PendingIntent.CanceledException e) {
-            e.printStackTrace();
+        // trueの時のみ表示
+        if (display_popup) {
+            intent = new Intent(context, PopUpActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+            try {
+                pendingIntent.send();
+            } catch (PendingIntent.CanceledException e) {
+                e.printStackTrace();
+            }
         }
 
 //        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);

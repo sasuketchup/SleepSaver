@@ -1,7 +1,9 @@
 package com.example.sleepsaver;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.BatteryManager;
@@ -36,8 +38,15 @@ public class PopUpActivity extends AppCompatActivity {
         // ロック画面上に表示
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 
+        SharedPreferences sp = PopUpActivity.this.getSharedPreferences("pref", Context.MODE_PRIVATE);
+        // 就寝・起床の反転取得
+        final boolean inversion = sp.getBoolean("inversion", false);
+
         MyOpenHelper helper = new MyOpenHelper(this);
         final SQLiteDatabase db = helper.getWritableDatabase();
+
+        // 記録し忘れがある場合、差分を埋める
+        timeHandler.fillForget(db, PopUpActivity.this);
 
         varTextState = findViewById(R.id.textState);
         varTextGUorGTB = findViewById(R.id.textGUorGTB);
@@ -68,6 +77,15 @@ public class PopUpActivity extends AppCompatActivity {
             charge_state = "就寝時刻";
         }
 
+        // 反転がtrueの場合
+        if (inversion) {
+            if (charge_state == "起床時刻") {
+                charge_state = "就寝時刻";
+            } else if (charge_state == "就寝時刻") {
+                charge_state = "起床時刻";
+            }
+        }
+
         varTextGUorGTB.setText(year + "年" + month + "月" + date + "日の" + charge_state);
         varTextTime.setIs24HourView(true);
         varTextTime.setCurrentHour(hour);
@@ -96,9 +114,9 @@ public class PopUpActivity extends AppCompatActivity {
                     public void onClick(View view) {
 
                         // 記録し忘れがある場合、差分を埋める
-                        timeHandler.fillForget(db, PopUpActivity.this); // 開いたときに変更か
+                        timeHandler.fillForget(db, PopUpActivity.this);
 
-                        long idNumber = DatabaseUtils.queryNumEntries(db, "DateTable"); // 日付によるインクリメント問題！
+                        long idNumber = DatabaseUtils.queryNumEntries(db, "DateTable");
 
                         boolean sleep = true;
 
@@ -106,6 +124,11 @@ public class PopUpActivity extends AppCompatActivity {
                             sleep = false;
                         }else if(battery_charge == 1 || battery_charge == 2 || battery_charge == 4){
                             sleep = true;
+                        }
+
+                        // 反転がtrueの場合
+                        if (inversion) {
+                            sleep = !sleep;
                         }
 
                         timeHandler.updateTime(sleep, db, (int) idNumber - 1, year, month, date, varTextTime.getCurrentHour(), varTextTime.getCurrentMinute());
