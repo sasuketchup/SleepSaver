@@ -142,6 +142,8 @@ public class MainActivity extends AppCompatActivity {
         TextView[] textGU = new TextView[(int) idCount];
         TextView[] textGTB = new TextView[(int) idCount];
         TextView[] textST = new TextView[(int) idCount - 1];
+        // 月の変わるタイミングを調べるためにmonthのみ配列
+        int[] month = new int[(int) idCount];
 
         // 記録を表示
         cursor.moveToLast();
@@ -154,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
             textGTB[i] = new TextView(this);
 
             int year = cursor.getInt(1);
-            int month = cursor.getInt(2);
+            month[i] = cursor.getInt(2);
             int date = cursor.getInt(3);
 
             String timeGUSt = "--:--";
@@ -177,7 +179,18 @@ public class MainActivity extends AppCompatActivity {
                 timeGTBSt = timeHandler.timeString(hourGTB, minuteGTB);
             }
 
-            textDate[i].setText(year + "年" + month + "月" + date + "日");
+            // 表示されるうち最新の記録と月が変わったときのみ年月を表示
+            if (i == diff_now_spec2) {
+                textDate[i].setText(year + "年" + month[i] + "月\n" + date + "日");
+            } else {
+                textDate[i].setText(date + "日");
+            }
+            if (i > 0) {
+                if (month[i] != month[i - 1]) {
+                    textDate[i].setText(year + "年" + month[i] + "月\n" + date + "日");
+                }
+            }
+
             textGU[i].setText(timeGUSt);
             textGTB[i].setText(timeGTBSt);
 //            textDate[i].setWidth(convertDp2Px(80));
