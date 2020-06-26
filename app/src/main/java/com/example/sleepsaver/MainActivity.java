@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.Gravity;
 import android.view.View;
 import android.database.DatabaseUtils;
@@ -155,9 +156,17 @@ public class MainActivity extends AppCompatActivity {
             textGU[i] = new TextView(this);
             textGTB[i] = new TextView(this);
 
+            // 曜日を準備
+            String[] week_name = {"<font color=\"red\">日</font>", "月", "火", "水", "木", "金", "<font color=\"blue\">土</font>"};
+
             int year = cursor.getInt(1);
             month[i] = cursor.getInt(2);
             int date = cursor.getInt(3);
+
+            // 日付をセットして曜日を取得
+            Calendar calendar1 = Calendar.getInstance();
+            calendar1.set(year, month[i] - 1, date);
+            int week = calendar1.get(Calendar.DAY_OF_WEEK) - 1;
 
             String timeGUSt = "--:--";
             String timeGTBSt = "--:--";
@@ -181,13 +190,13 @@ public class MainActivity extends AppCompatActivity {
 
             // 表示されるうち最新の記録と月が変わったときのみ年月を表示
             if (i == diff_now_spec2) {
-                textDate[i].setText(year + "年" + month[i] + "月\n" + date + "日");
+                textDate[i].setText(Html.fromHtml(year + "年" + month[i] + "月<br><big>" + date + "日(" + week_name[week] + ")</big>"));
             } else {
-                textDate[i].setText(date + "日");
+                textDate[i].setText(Html.fromHtml("<big>" + date + "日(" + week_name[week] + ")</big>"));
             }
             if (i > 0) {
                 if (month[i] != month[i - 1]) {
-                    textDate[i].setText(year + "年" + month[i] + "月\n" + date + "日");
+                    textDate[i].setText(Html.fromHtml(year + "年" + month[i] + "月<br><big>" + date + "日(" + week_name[week] + ")</big>"));
                 }
             }
 
