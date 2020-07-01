@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,7 @@ import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class EverydayGraphTab extends Fragment {
 
@@ -84,6 +86,9 @@ public class EverydayGraphTab extends Fragment {
         everydayChart.getAxisRight().setEnabled(false);
 
         // 目標時刻のラインを表示
+        if (gtb_target_hour >= hour_line) {
+            gtb_target_hour = gtb_target_hour - 24; // 目標就寝時刻が0時より前の場合-24する
+        }
         LimitLine gu_targetLine = new LimitLine((gu_target_hour * 60) + gu_target_minute, "目標起床時刻" + timeHandler.timeString(gu_target_hour, gu_target_minute));
         LimitLine gtb_targetLine = new LimitLine((gtb_target_hour * 60) + gtb_target_minute, "目標就寝時刻" + timeHandler.timeString(gtb_target_hour, gtb_target_minute));
         ylAxis.addLimitLine(gu_targetLine);
@@ -96,13 +101,17 @@ public class EverydayGraphTab extends Fragment {
         cursor2.moveToLast();
         cursor2.moveToPrevious();
 
-//        int data[] = {116, 111, 112, 121, 102, 83,
-//                99, 101, 74, 105, 120, 112,
-//                109, 102, 107, 93, 82, 99, 110,
-//        };
-
+        // データの値を格納するArrayList
         ArrayList<Entry> valuesGU = new ArrayList<>();
         ArrayList<Entry> valuesGTB = new ArrayList<>();
+
+        // 点の色を格納するList
+        List<Integer> circleColorGU = new ArrayList<>();
+        List<Integer> circleColorGTB = new ArrayList<>();
+
+        // 値テキストの色を格納するList
+        List<Integer> textColorGU = new ArrayList<>();
+        List<Integer> textColorGTB = new ArrayList<>();
 
         // データの行数を取得し表示する期間と比較
         idCount = DatabaseUtils.queryNumEntries(db, "DateTable");
@@ -146,9 +155,27 @@ public class EverydayGraphTab extends Fragment {
         for (int i = 0; i < idCount; i++) {
             if (timeGU[(int) idCount - i - 1] != 2000) { // 空(2000)でないとき
                 valuesGU.add(new Entry(i, timeGU[(int) idCount - i - 1], null, null));
+                if (timeGU[(int) idCount - i - 1] <= ((gu_target_hour * 60) + gu_target_minute)) {
+                    // 目標達成
+                    circleColorGU.add(Color.BLUE);
+                    textColorGU.add(Color.BLUE);
+                } else {
+                    // それ以外
+                    circleColorGU.add(Color.CYAN);
+                    textColorGU.add(Color.BLACK);
+                }
             }
             if (timeGTB[(int) idCount - i - 1] != 2000) { // 空(2000)でないとき
                 valuesGTB.add(new Entry(i, timeGTB[(int) idCount - i - 1], null, null));
+                if (timeGTB[(int) idCount - i - 1] <= ((gtb_target_hour * 60) + gtb_target_minute)) {
+                    // 目標達成
+                    circleColorGTB.add(Color.RED);
+                    textColorGTB.add(Color.RED);
+                } else {
+                    // それ以外
+                    circleColorGTB.add(Color.MAGENTA);
+                    textColorGTB.add(Color.BLACK);
+                }
             }
         }
 
@@ -164,7 +191,20 @@ public class EverydayGraphTab extends Fragment {
 
         // ラインの色
         setGTB.setColor(Color.MAGENTA);
-        setGTB.setCircleColor(Color.MAGENTA);
+
+        // 点の色
+        setGU.setCircleColors(circleColorGU);
+        setGTB.setCircleColors(circleColorGTB);
+        // 点の塗りつぶし
+        setGU.setDrawCircleHole(false);
+        setGTB.setDrawCircleHole(false);
+
+        // 値テキストの色
+        setGU.setValueTextColors(textColorGU);
+        setGTB.setValueTextColors(textColorGTB);
+        // 値のテキストサイズ
+        setGU.setValueTextSize(9);
+        setGTB.setValueTextSize(9);
 
         // 塗りつぶし
         setGU.setDrawFilled(true);
@@ -218,16 +258,6 @@ public class EverydayGraphTab extends Fragment {
         });
 
         // y軸のラベルを時刻に
-//        String labels[] = new String[ylAxis.getLabelCount()];
-//        for (int i = 0; i < ylAxis.getLabelCount(); i++) {
-//            String labelGet = ylAxis.getFormattedLabel(i);
-//            int labelGetInt = Integer.parseInt(labelGet.replaceAll("[^0-9]", ""));
-//            int labelMinute = labelGetInt % 60;
-//            int labelHour = (labelGetInt - labelMinute) / 60;
-//            labels[i] = timeHandler.timeString(labelHour, labelMinute);
-//        }
-//        ylAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
-
         ylAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
@@ -239,7 +269,7 @@ public class EverydayGraphTab extends Fragment {
             }
         });
 
-        TextView textView5 = (TextView)view.findViewById(R.id.textView5);
-        textView5.setText("");
+//        TextView textView5 = (TextView)view.findViewById(R.id.textView5);
+//        textView5.setText("");
     }
 }
