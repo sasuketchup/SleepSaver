@@ -17,6 +17,6 @@
     <string name="kishou">起床</string>
     <string name="shushin">就寝</string>
     <string name="title_activity_graph">GraphActivity</string>
-    <string name="tab_text_1">直近2週間(仮)</string>
+    <string name="tab_text_1">直近2週間</string>
     <string name="tab_text_2">平均</string>
 </resources>

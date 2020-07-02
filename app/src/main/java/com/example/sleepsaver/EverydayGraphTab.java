@@ -21,6 +21,7 @@ import android.widget.TextView;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LegendEntry;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -86,11 +87,16 @@ public class EverydayGraphTab extends Fragment {
         everydayChart.getAxisRight().setEnabled(false);
 
         // 目標時刻のラインを表示
+        int gtb_target_hour2 = gtb_target_hour;
         if (gtb_target_hour >= hour_line) {
-            gtb_target_hour = gtb_target_hour - 24; // 目標就寝時刻が0時より前の場合-24する
+            gtb_target_hour2 = gtb_target_hour - 24; // 目標就寝時刻が0時より前の場合-24する
         }
-        LimitLine gu_targetLine = new LimitLine((gu_target_hour * 60) + gu_target_minute, "目標起床時刻" + timeHandler.timeString(gu_target_hour, gu_target_minute));
-        LimitLine gtb_targetLine = new LimitLine((gtb_target_hour * 60) + gtb_target_minute, "目標就寝時刻" + timeHandler.timeString(gtb_target_hour, gtb_target_minute));
+        LimitLine gu_targetLine = new LimitLine((gu_target_hour * 60) + gu_target_minute);
+        LimitLine gtb_targetLine = new LimitLine((gtb_target_hour2 * 60) + gtb_target_minute);
+        gu_targetLine.setLineColor(Color.GREEN);
+        gtb_targetLine.setLineColor(Color.GREEN);
+        gu_targetLine.setLineWidth(1);
+        gtb_targetLine.setLineWidth(1);
         ylAxis.addLimitLine(gu_targetLine);
         ylAxis.addLimitLine(gtb_targetLine);
 
@@ -167,7 +173,7 @@ public class EverydayGraphTab extends Fragment {
             }
             if (timeGTB[(int) idCount - i - 1] != 2000) { // 空(2000)でないとき
                 valuesGTB.add(new Entry(i, timeGTB[(int) idCount - i - 1], null, null));
-                if (timeGTB[(int) idCount - i - 1] <= ((gtb_target_hour * 60) + gtb_target_minute)) {
+                if (timeGTB[(int) idCount - i - 1] <= ((gtb_target_hour2 * 60) + gtb_target_minute)) {
                     // 目標達成
                     circleColorGTB.add(Color.RED);
                     textColorGTB.add(Color.RED);
@@ -186,10 +192,15 @@ public class EverydayGraphTab extends Fragment {
         setGTB = new LineDataSet(valuesGTB, "就寝時刻");
 
         // 凡例
+        LegendEntry legendGU = new LegendEntry("起床時刻", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.CYAN);
+        LegendEntry legendGTB = new LegendEntry("就寝時刻", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.MAGENTA);
+        LegendEntry legendST = new LegendEntry("睡眠時間", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.argb(130, 0, 0, 255));
+        LegendEntry legendTL = new LegendEntry("目標起床時刻" + timeHandler.timeString(gu_target_hour, gu_target_minute) + ",目標就寝時刻" + timeHandler.timeString(gtb_target_hour, gtb_target_minute), Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.GREEN);
         Legend legend = everydayChart.getLegend();
-        // legend.setCustom();
+        legend.setCustom(new LegendEntry[]{legendGU, legendGTB, legendST, legendTL});
+        legend.setWordWrapEnabled(true);
 
-        // ラインの色
+        // 就寝時刻ラインの色
         setGTB.setColor(Color.MAGENTA);
 
         // 点の色

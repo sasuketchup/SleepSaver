@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.BarChart;
 
@@ -26,5 +27,8 @@ public class AverageGraphTab extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         BarChart averageChart = view.findViewById(R.id.average_chart);
+
+        TextView periodText = view.findViewById(R.id.ave_period);
+        periodText.setText("準備中...");
     }
 }
