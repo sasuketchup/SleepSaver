@@ -29,8 +29,10 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.formatter.IFillFormatter;
 import com.github.mikephil.charting.formatter.IValueFormatter;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
@@ -195,7 +197,7 @@ public class EverydayGraphTab extends Fragment {
         LegendEntry legendGU = new LegendEntry("起床時刻", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.CYAN);
         LegendEntry legendGTB = new LegendEntry("就寝時刻", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.MAGENTA);
         LegendEntry legendST = new LegendEntry("睡眠時間", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.argb(130, 0, 0, 255));
-        LegendEntry legendTL = new LegendEntry("目標起床時刻" + timeHandler.timeString(gu_target_hour, gu_target_minute) + ",目標就寝時刻" + timeHandler.timeString(gtb_target_hour, gtb_target_minute), Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.GREEN);
+        LegendEntry legendTL = new LegendEntry("目標起床時刻：" + timeHandler.timeString(gu_target_hour, gu_target_minute) + ",目標就寝時刻：" + timeHandler.timeString(gtb_target_hour, gtb_target_minute), Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.GREEN);
         Legend legend = everydayChart.getLegend();
         legend.setCustom(new LegendEntry[]{legendGU, legendGTB, legendST, legendTL});
         legend.setWordWrapEnabled(true);
