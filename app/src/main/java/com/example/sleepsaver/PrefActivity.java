@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -20,6 +21,9 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 
@@ -51,6 +55,9 @@ public class PrefActivity extends PreferenceActivity {
     String spec_St;
     // 表示範囲の設定ボタン
     PreferenceScreen resultsBtn;
+
+    // 新しいAPIレベル用のオリジナルタイムピッカー
+    TimePicker originalTimePicker;
 
     // 1日のサイクルを格納する変数(4桁→それぞれ)
     int stay_up_line;
@@ -431,49 +438,113 @@ public class PrefActivity extends PreferenceActivity {
             textSure = "寝";
         }
 
-        // タイムピッカーを表示
-        timePickerDialog.setTitle(switchingText + "切り替え時刻");
-        timePickerDialog.setButton(
-                DialogInterface.BUTTON_POSITIVE,
-                "OK",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
+        // APIレベルによってタイムピッカーの表示方法を分ける
+        if (Build.VERSION.SDK_INT >= 23) {
+            // 自作のタイムピッカーを表示
+            LayoutInflater inflater = getLayoutInflater();
+            View originalDialog = inflater.inflate(R.layout.dialog_original_time_picker, (ViewGroup) findViewById(R.id.dialog_root));
 
-                        String line_St = "--:--";
-                        if (state == true) {
-                            stay_up_line = timeHandler.time_to_number(hour_line, minute_line);
-                            line_St = timeHandler.timeString(hour_line, minute_line);
-                        } else {
-                            sleeping_line = timeHandler.time_to_number(hour_line2, minute_line2);
-                            line_St = timeHandler.timeString(hour_line2, minute_line2);
+            originalTimePicker = originalDialog.findViewById(R.id.originalTimePicker);
+            originalTimePicker.setIs24HourView(true);
+            if (state) {
+                originalTimePicker.setHour(hour_line);
+                originalTimePicker.setMinute(minute_line);
+            } else {
+                originalTimePicker.setHour(hour_line2);
+                originalTimePicker.setMinute(minute_line2);
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
+            builder.setView(originalDialog);
+            builder.setTitle(switchingText + "切り替え時刻");
+            builder.setPositiveButton(
+                    "OK",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            String line_St = "--:--";
+                            if (state == true) {
+                                hour_line = originalTimePicker.getHour();
+                                minute_line = originalTimePicker.getMinute();
+                                stay_up_line = timeHandler.time_to_number(hour_line, minute_line);
+                                line_St = timeHandler.timeString(hour_line, minute_line);
+                            } else {
+                                hour_line2 = originalTimePicker.getHour();
+                                minute_line2 = originalTimePicker.getMinute();
+                                sleeping_line = timeHandler.time_to_number(hour_line2, minute_line2);
+                                line_St = timeHandler.timeString(hour_line2, minute_line2);
+                            }
+                            button.setSummary(line_St + "\n確実に" + textSure + "ている時刻を指定してください。");
+
+                            dialog.dismiss();
                         }
-                        button.setSummary(line_St + "\n確実に" + textSure + "ている時刻を指定してください。");
-
-                        dialogInterface.dismiss();
                     }
-                }
-        );
-        timePickerDialog.setButton(
-                DialogInterface.BUTTON_NEGATIVE,
-                "キャンセル",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // 値をリセット
-                        if (state == true) {
-                            hour_line = timeHandler.number_to_time(stay_up_line)[0];
-                            minute_line = timeHandler.number_to_time(stay_up_line)[1];
-                        } else {
-                            hour_line2 = timeHandler.number_to_time(sleeping_line)[0];
-                            minute_line2 = timeHandler.number_to_time(sleeping_line)[1];
+            );
+            builder.setNegativeButton(
+                    "キャンセル",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // 値をリセット
+                            if (state == true) {
+                                hour_line = timeHandler.number_to_time(stay_up_line)[0];
+                                minute_line = timeHandler.number_to_time(stay_up_line)[1];
+                            } else {
+                                hour_line2 = timeHandler.number_to_time(sleeping_line)[0];
+                                minute_line2 = timeHandler.number_to_time(sleeping_line)[1];
+                            }
+
+                            dialog.dismiss();
                         }
-
-                        dialogInterface.dismiss();
                     }
-                }
-        );
-        timePickerDialog.show();
+            );
+            builder.show();
+        } else {
+            // タイムピッカーを表示
+            timePickerDialog.setTitle(switchingText + "切り替え時刻");
+            timePickerDialog.setButton(
+                    DialogInterface.BUTTON_POSITIVE,
+                    "OK",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            String line_St = "--:--";
+                            if (state == true) {
+                                stay_up_line = timeHandler.time_to_number(hour_line, minute_line);
+                                line_St = timeHandler.timeString(hour_line, minute_line);
+                            } else {
+                                sleeping_line = timeHandler.time_to_number(hour_line2, minute_line2);
+                                line_St = timeHandler.timeString(hour_line2, minute_line2);
+                            }
+                            button.setSummary(line_St + "\n確実に" + textSure + "ている時刻を指定してください。");
+
+                            dialogInterface.dismiss();
+                        }
+                    }
+            );
+            timePickerDialog.setButton(
+                    DialogInterface.BUTTON_NEGATIVE,
+                    "キャンセル",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // 値をリセット
+                            if (state == true) {
+                                hour_line = timeHandler.number_to_time(stay_up_line)[0];
+                                minute_line = timeHandler.number_to_time(stay_up_line)[1];
+                            } else {
+                                hour_line2 = timeHandler.number_to_time(sleeping_line)[0];
+                                minute_line2 = timeHandler.number_to_time(sleeping_line)[1];
+                            }
+
+                            dialogInterface.dismiss();
+                        }
+                    }
+            );
+            timePickerDialog.show();
+        }
     }
 
     // それぞれの目標ボタンを押したときに呼ばれるメソッド
@@ -494,66 +565,152 @@ public class PrefActivity extends PreferenceActivity {
             targetText = "睡眠時間";
         }
 
-        // タイムピッカーを表示
-        timePickerDialog.setTitle("目標" + targetText);
-        timePickerDialog.setButton(
-                DialogInterface.BUTTON_POSITIVE,
-                "OK",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
+        // APIレベルによってタイムピッカーの表示方法を分ける
+        if (Build.VERSION.SDK_INT >= 23) {
+            // 自作のタイムピッカーを表示
+            LayoutInflater inflater = getLayoutInflater();
+            View originalDialog = inflater.inflate(R.layout.dialog_original_time_picker, (ViewGroup) findViewById(R.id.dialog_root));
 
-                        Calendar cal_summary;
-                        String target_St = "--:--";
-                        if (target_state == 3) {
-                            gtb_target = timeHandler.time_to_number(gtb_target_hour, gtb_target_minute);
-                            target_St = timeHandler.timeString(gtb_target_hour, gtb_target_minute);
-                            // slp_targetがマイナスの時、差を計算してサマリーに表示
-                            if (slp_target < 0) {
-                                cal_summary = timeHandler.diff_gu_gtb(gu_target, gtb_target);
-                                slp_target_btn.setSummary(timeHandler.timeString(cal_summary.get(Calendar.HOUR_OF_DAY), cal_summary.get(Calendar.MINUTE)));
-                            }
-                        } else if (target_state == 4) {
-                            gu_target = timeHandler.time_to_number(gu_target_hour, gu_target_minute);
-                            target_St = timeHandler.timeString(gu_target_hour, gu_target_minute);
-                            // slp_targetがマイナスの時、差を計算してサマリーに表示
-                            if (slp_target < 0) {
-                                cal_summary = timeHandler.diff_gu_gtb(gu_target, gtb_target);
-                                slp_target_btn.setSummary(timeHandler.timeString(cal_summary.get(Calendar.HOUR_OF_DAY), cal_summary.get(Calendar.MINUTE)));
-                            }
-                        } else if (target_state == 5) {
-                            slp_which = 1;
-                            slp_target = timeHandler.time_to_number(slp_target_hour, slp_target_minute);
-                            target_St = timeHandler.timeString(slp_target_hour, slp_target_minute);
-                        }
-                        button.setSummary(target_St);
+            originalTimePicker = originalDialog.findViewById(R.id.originalTimePicker);
+            originalTimePicker.setIs24HourView(true);
+            if (target_state == 3) {
+                originalTimePicker.setHour(gtb_target_hour);
+                originalTimePicker.setMinute(gtb_target_minute);
+            } else if (target_state == 4) {
+                originalTimePicker.setHour(gu_target_hour);
+                originalTimePicker.setMinute(gu_target_minute);
+            } else if (target_state == 5) {
+                originalTimePicker.setHour(slp_target_hour);
+                originalTimePicker.setMinute(slp_target_minute);
+            }
 
-                        dialogInterface.dismiss();
-                    }
-                }
-        );
-        timePickerDialog.setButton(
-                DialogInterface.BUTTON_NEGATIVE,
-                "キャンセル",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // 値をリセット
-                        if (target_state == 3) {
-                            gtb_target_hour = timeHandler.number_to_time(gtb_target)[0];
-                            gtb_target_minute = timeHandler.number_to_time(gtb_target)[1];
-                        } else if (target_state == 4) {
-                            gu_target_hour = timeHandler.number_to_time(gu_target)[0];
-                            gu_target_minute = timeHandler.number_to_time(gu_target)[1];
-                        } else if (target_state == 5) {
-                            slp_target_hour = timeHandler.number_to_time(Math.abs(slp_target))[0];
-                            slp_target_minute = timeHandler.number_to_time(Math.abs(slp_target))[1];
+            AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
+            builder.setView(originalDialog);
+            builder.setTitle("目標" + targetText);
+            builder.setPositiveButton(
+                    "OK",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            Calendar cal_summary;
+                            String target_St = "--:--";
+                            if (target_state == 3) {
+                                gtb_target_hour = originalTimePicker.getHour();
+                                gtb_target_minute = originalTimePicker.getMinute();
+                                gtb_target = timeHandler.time_to_number(gtb_target_hour, gtb_target_minute);
+                                target_St = timeHandler.timeString(gtb_target_hour, gtb_target_minute);
+                                // slp_targetがマイナスの時、差を計算してサマリーに表示
+                                if (slp_target < 0) {
+                                    cal_summary = timeHandler.diff_gu_gtb(gu_target, gtb_target);
+                                    slp_target_btn.setSummary(timeHandler.timeString(cal_summary.get(Calendar.HOUR_OF_DAY), cal_summary.get(Calendar.MINUTE)));
+                                }
+                            } else if (target_state == 4) {
+                                gu_target_hour = originalTimePicker.getHour();
+                                gu_target_minute = originalTimePicker.getMinute();
+                                gu_target = timeHandler.time_to_number(gu_target_hour, gu_target_minute);
+                                target_St = timeHandler.timeString(gu_target_hour, gu_target_minute);
+                                // slp_targetがマイナスの時、差を計算してサマリーに表示
+                                if (slp_target < 0) {
+                                    cal_summary = timeHandler.diff_gu_gtb(gu_target, gtb_target);
+                                    slp_target_btn.setSummary(timeHandler.timeString(cal_summary.get(Calendar.HOUR_OF_DAY), cal_summary.get(Calendar.MINUTE)));
+                                }
+                            } else if (target_state == 5) {
+                                slp_which = 1;
+                                slp_target_hour = originalTimePicker.getHour();
+                                slp_target_minute = originalTimePicker.getMinute();
+                                slp_target = timeHandler.time_to_number(slp_target_hour, slp_target_minute);
+                                target_St = timeHandler.timeString(slp_target_hour, slp_target_minute);
+                            }
+                            button.setSummary(target_St);
+
+                            dialog.dismiss();
                         }
-                        dialogInterface.dismiss();
                     }
-                }
-        );
-        timePickerDialog.show();
+            );
+            builder.setNegativeButton(
+                    "キャンセル",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // 値をリセット
+                            if (target_state == 3) {
+                                gtb_target_hour = timeHandler.number_to_time(gtb_target)[0];
+                                gtb_target_minute = timeHandler.number_to_time(gtb_target)[1];
+                            } else if (target_state == 4) {
+                                gu_target_hour = timeHandler.number_to_time(gu_target)[0];
+                                gu_target_minute = timeHandler.number_to_time(gu_target)[1];
+                            } else if (target_state == 5) {
+                                slp_target_hour = timeHandler.number_to_time(Math.abs(slp_target))[0];
+                                slp_target_minute = timeHandler.number_to_time(Math.abs(slp_target))[1];
+                            }
+                            dialog.dismiss();
+                        }
+                    }
+            );
+            builder.show();
+        } else {
+            // タイムピッカーを表示
+            timePickerDialog.setTitle("目標" + targetText);
+            timePickerDialog.setButton(
+                    DialogInterface.BUTTON_POSITIVE,
+                    "OK",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            Calendar cal_summary;
+                            String target_St = "--:--";
+                            if (target_state == 3) {
+                                gtb_target = timeHandler.time_to_number(gtb_target_hour, gtb_target_minute);
+                                target_St = timeHandler.timeString(gtb_target_hour, gtb_target_minute);
+                                // slp_targetがマイナスの時、差を計算してサマリーに表示
+                                if (slp_target < 0) {
+                                    cal_summary = timeHandler.diff_gu_gtb(gu_target, gtb_target);
+                                    slp_target_btn.setSummary(timeHandler.timeString(cal_summary.get(Calendar.HOUR_OF_DAY), cal_summary.get(Calendar.MINUTE)));
+                                }
+                            } else if (target_state == 4) {
+                                gu_target = timeHandler.time_to_number(gu_target_hour, gu_target_minute);
+                                target_St = timeHandler.timeString(gu_target_hour, gu_target_minute);
+                                // slp_targetがマイナスの時、差を計算してサマリーに表示
+                                if (slp_target < 0) {
+                                    cal_summary = timeHandler.diff_gu_gtb(gu_target, gtb_target);
+                                    slp_target_btn.setSummary(timeHandler.timeString(cal_summary.get(Calendar.HOUR_OF_DAY), cal_summary.get(Calendar.MINUTE)));
+                                }
+                            } else if (target_state == 5) {
+                                slp_which = 1;
+                                slp_target = timeHandler.time_to_number(slp_target_hour, slp_target_minute);
+                                target_St = timeHandler.timeString(slp_target_hour, slp_target_minute);
+                            }
+                            button.setSummary(target_St);
+
+                            dialogInterface.dismiss();
+                        }
+                    }
+            );
+            timePickerDialog.setButton(
+                    DialogInterface.BUTTON_NEGATIVE,
+                    "キャンセル",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // 値をリセット
+                            if (target_state == 3) {
+                                gtb_target_hour = timeHandler.number_to_time(gtb_target)[0];
+                                gtb_target_minute = timeHandler.number_to_time(gtb_target)[1];
+                            } else if (target_state == 4) {
+                                gu_target_hour = timeHandler.number_to_time(gu_target)[0];
+                                gu_target_minute = timeHandler.number_to_time(gu_target)[1];
+                            } else if (target_state == 5) {
+                                slp_target_hour = timeHandler.number_to_time(Math.abs(slp_target))[0];
+                                slp_target_minute = timeHandler.number_to_time(Math.abs(slp_target))[1];
+                            }
+                            dialogInterface.dismiss();
+                        }
+                    }
+            );
+            timePickerDialog.show();
+        }
     }
 
     @Override

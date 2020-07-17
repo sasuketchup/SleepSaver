@@ -2,6 +2,7 @@ package com.example.sleepsaver;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,11 +10,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.database.DatabaseUtils;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -28,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
     int date = 0;
     int hour = 0;
     int minute = 0;
+
+    // 新しいAPIレベル用のオリジナルタイムピッカー
+    TimePicker originalTimePicker;
 
     // ピッカーの時刻を変更したときに変数に代入するようにするために、TimePickerDialogを継承したクラス
     public class CustomTimePickerDialog extends TimePickerDialog {
@@ -297,6 +304,17 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
+        // デバッグ用
+        findViewById(R.id.debug).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(MainActivity.this, PopUpActivity.class);
+                        startActivity(intent);
+                    }
+                }
+        );
+
         // 設定ボタンの処理
         findViewById(R.id.Settings).setOnClickListener(
                 new View.OnClickListener() {
@@ -406,51 +424,33 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        // タイムピッカーを表示
-        final CustomTimePickerDialog timePickerDialog;
-        final CustomTimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker timePicker, int s_hour, int s_minute) {
+        // APIレベルによってタイムピッカーの表示方法を分ける
+        if (Build.VERSION.SDK_INT >= 23) {
+            // 自作のタイムピッカーを表示
+            LayoutInflater inflater = getLayoutInflater();
+            View originalDialog = inflater.inflate(R.layout.dialog_original_time_picker, (ViewGroup) findViewById(R.id.dialog_root));
 
-            }
-        };
-        timePickerDialog = new CustomTimePickerDialog(MainActivity.this, TimePickerDialog.THEME_HOLO_LIGHT, listener, hour, minute, true);
+            originalTimePicker = originalDialog.findViewById(R.id.originalTimePicker);
+            originalTimePicker.setIs24HourView(true);
+            originalTimePicker.setHour(hour);
+            originalTimePicker.setMinute(minute);
 
-        timePickerDialog.setTitle(year + "年" + month + "月" + date + "日の" + sleepText + "時刻");
-        timePickerDialog.setButton(
-                DialogInterface.BUTTON_POSITIVE,
-                updateORadd + "する",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        long idNumber;
-                        if (i == -1) {
-                            idNumber = DatabaseUtils.queryNumEntries(db, "DateTable") - 1;
-                        }else {
-                            idNumber = i;
-                        }
-
-                        timeHandler.updateTime(sleep, db, (int) idNumber, year, month, date, hour, minute);
-
-                        finish();
-                        overridePendingTransition(0, 0);
-                        startActivity(getIntent());
-                        overridePendingTransition(0, 0);
-
-                        dialog.dismiss();
-                    }
-                }
-        );
-
-        if (i != -1) {
-            timePickerDialog.setButton(
-                    DialogInterface.BUTTON_NEUTRAL,
-                    "削除する",
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setView(originalDialog);
+            builder.setTitle(year + "年" + month + "月" + date + "日の" + sleepText + "時刻");
+            builder.setPositiveButton(
+                    updateORadd + "する",
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            timeHandler.updateTime(sleep, db, i, year, month, date, -1, -1);
+                            long idNumber;
+                            if (i == -1) {
+                                idNumber = DatabaseUtils.queryNumEntries(db, "DateTable") - 1;
+                            }else {
+                                idNumber = i;
+                            }
+
+                            timeHandler.updateTime(sleep, db, (int) idNumber, year, month, date, originalTimePicker.getHour(), originalTimePicker.getMinute());
 
                             finish();
                             overridePendingTransition(0, 0);
@@ -461,19 +461,109 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
             );
-        }
+            if (i != -1) {
+                builder.setNeutralButton(
+                        "削除する",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                timeHandler.updateTime(sleep, db, i, year, month, date, -1, -1);
 
-        timePickerDialog.setButton(
-                DialogInterface.BUTTON_NEGATIVE,
-                "キャンセル",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Negative Button がクリックされた時の動作
-                        dialog.dismiss();
+                                finish();
+                                overridePendingTransition(0, 0);
+                                startActivity(getIntent());
+                                overridePendingTransition(0, 0);
+
+                                dialog.dismiss();
+                            }
+                        }
+                );
+            }
+            builder.setNegativeButton(
+                    "キャンセル",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
                     }
+            );
+            builder.show();
+        } else {
+            // タイムピッカーを表示
+            final CustomTimePickerDialog timePickerDialog;
+            final CustomTimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
+                @Override
+                public void onTimeSet(TimePicker timePicker, int s_hour, int s_minute) {
+
                 }
-        );
-        timePickerDialog.show();
+            };
+
+//            int dialogTheme = TimePickerDialog.THEME_HOLO_LIGHT;
+//            if (Build.VERSION.SDK_INT >= 23) {
+//                dialogTheme = R.style.Theme_AppCompat_DayNight_Dialog;
+//            }
+            timePickerDialog = new CustomTimePickerDialog(MainActivity.this, TimePickerDialog.THEME_HOLO_LIGHT, listener, hour, minute, true);
+
+            timePickerDialog.setTitle(year + "年" + month + "月" + date + "日の" + sleepText + "時刻");
+            timePickerDialog.setButton(
+                    DialogInterface.BUTTON_POSITIVE,
+                    updateORadd + "する",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            long idNumber;
+                            if (i == -1) {
+                                idNumber = DatabaseUtils.queryNumEntries(db, "DateTable") - 1;
+                            } else {
+                                idNumber = i;
+                            }
+
+                            timeHandler.updateTime(sleep, db, (int) idNumber, year, month, date, hour, minute);
+
+                            finish();
+                            overridePendingTransition(0, 0);
+                            startActivity(getIntent());
+                            overridePendingTransition(0, 0);
+
+                            dialog.dismiss();
+                        }
+                    }
+            );
+
+            if (i != -1) {
+                timePickerDialog.setButton(
+                        DialogInterface.BUTTON_NEUTRAL,
+                        "削除する",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                timeHandler.updateTime(sleep, db, i, year, month, date, -1, -1);
+
+                                finish();
+                                overridePendingTransition(0, 0);
+                                startActivity(getIntent());
+                                overridePendingTransition(0, 0);
+
+                                dialog.dismiss();
+                            }
+                        }
+                );
+            }
+
+            timePickerDialog.setButton(
+                    DialogInterface.BUTTON_NEGATIVE,
+                    "キャンセル",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Negative Button がクリックされた時の動作
+                            dialog.dismiss();
+                        }
+                    }
+            );
+            timePickerDialog.show();
+        }
     }
 
     // 指定日と今日の差分を計算するメソッド

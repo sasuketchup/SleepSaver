@@ -77,7 +77,12 @@ public class TimeHandler {
         return cal_target;
     }
 
-    // 1日のサイクルと現在時刻を比較するメソッド
+    // 自作のタイムピッカーを表示するメソッド
+    public void showOriginalTimePicker(String title) {
+
+    }
+
+   // 1日のサイクルと現在時刻を比較するメソッド
     public int compareTime(Context context) {
         // 設定から1日のサイクルを取得
         SharedPreferences sp = context.getSharedPreferences("pref", Context.MODE_PRIVATE);

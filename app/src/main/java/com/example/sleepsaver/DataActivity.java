@@ -295,23 +295,52 @@ public class DataActivity extends AppCompatActivity {
         cursor1.close();
         cursor2.close();
 
-        // 平均値の計算(少数切り捨て)
-        int averageGU = sumGU / countGU;
-        int averageGTB = sumGTB / countGTB;
-        int averageST = sumST / countST;
-        // 時と分に分ける
-        int ave_minuteGU = averageGU % 60;
-        int ave_hourGU = (averageGU - ave_minuteGU) / 60;
-        int ave_minuteGTB = averageGTB % 60;
-        int ave_hourGTB = (averageGTB - ave_minuteGTB) / 60;
-        int ave_minuteST = averageST % 60;
-        int ave_hourST = (averageST - ave_minuteST) / 60;
-        // 24時以上の場合24を引いて戻す
-        if (ave_hourGU >= 24) {
-            ave_hourGU = ave_hourGU - 24;
+        int ave_hourGU;
+        int ave_minuteGU;
+        int ave_hourGTB;
+        int ave_minuteGTB;
+        int ave_hourST;
+        int ave_minuteST;
+        // 分母が0でないとき
+        if (countGU > 0) {
+            // 平均値の計算(少数切り捨て)
+            int averageGU = sumGU / countGU;
+            // 時と分に分ける
+            ave_minuteGU = averageGU % 60;
+            ave_hourGU = (averageGU - ave_minuteGU) / 60;
+            // 24時以上の場合24を引いて戻す
+            if (ave_hourGU >= 24) {
+                ave_hourGU = ave_hourGU - 24;
+            }
+        } else { // 分母が0のときは-1
+            ave_hourGU = -1;
+            ave_minuteGU = -1;
         }
-        if (ave_hourGTB >= 24) {
-            ave_hourGTB = ave_hourGTB - 24;
+        // 分母が0でないとき
+        if (countGTB > 0) {
+            // 平均値の計算(少数切り捨て)
+            int averageGTB = sumGTB / countGTB;
+            // 時と分に分ける
+            ave_minuteGTB = averageGTB % 60;
+            ave_hourGTB = (averageGTB - ave_minuteGTB) / 60;
+            // 24時以上の場合24を引いて戻す
+            if (ave_hourGTB >= 24) {
+                ave_hourGTB = ave_hourGTB - 24;
+            }
+        } else { // 分母が0のときは-1
+            ave_hourGTB = -1;
+            ave_minuteGTB = -1;
+        }
+        // 分母が0でないとき
+        if (countST > 0) {
+            // 平均値の計算(少数切り捨て)
+            int averageST = sumST / countST;
+            // 時と分に分ける
+            ave_minuteST = averageST % 60;
+            ave_hourST = (averageST - ave_minuteST) / 60;
+        } else { // 分母が0のときは-1
+            ave_hourST = -1;
+            ave_minuteST = -1;
         }
         // 表示形式に整理
         String aveGU_St = timeHandler.timeString(ave_hourGU, ave_minuteGU);
