@@ -122,8 +122,9 @@ public class EverydayGraphTab extends Fragment {
         List<Integer> textColorGTB = new ArrayList<>();
 
         // データの行数を取得し表示する期間と比較
-        idCount = DatabaseUtils.queryNumEntries(db, "DateTable");
-        if (idCount > 14) {
+        long idCount2 = DatabaseUtils.queryNumEntries(db, "DateTable");
+        idCount = idCount2;
+        if (idCount2 > 14) {
             idCount = 14;
         }
 
@@ -134,8 +135,16 @@ public class EverydayGraphTab extends Fragment {
             int hourGU = cursor1.getInt(1);
             int minuteGU = cursor1.getInt(2);
 
-            int hourGTB = cursor2.getInt(1);
-            int minuteGTB = cursor2.getInt(2);
+            int hourGTB;
+            int minuteGTB;
+            // データが2週間ちょうどかそれ以下の場合は最後の就寝記録を空(-1)にする
+            if (idCount2 <= 14 && i == (idCount - 1)) {
+                hourGTB = -1;
+                minuteGTB = -1;
+            } else {
+                hourGTB = cursor2.getInt(1);
+                minuteGTB = cursor2.getInt(2);
+            }
 
             // 就寝時刻が0時より前の場合-24する
             if (hourGTB >= hour_line) {

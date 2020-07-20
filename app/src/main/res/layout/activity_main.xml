@@ -155,14 +155,14 @@
         app:layout_constraintStart_toEndOf="@+id/data_page"
         app:layout_constraintTop_toTopOf="@+id/data_page" />
 
-    <Button
-        android:id="@+id/debug"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:text="デバッグ"
-        app:layout_constraintStart_toEndOf="@+id/graph_page"
-        app:layout_constraintTop_toTopOf="@+id/graph_page" />
+<!--    <Button-->
+<!--        android:id="@+id/debug"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="8dp"-->
+<!--        android:layout_marginLeft="8dp"-->
+<!--        android:text="デバッグ"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/graph_page"-->
+<!--        app:layout_constraintTop_toTopOf="@+id/graph_page" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

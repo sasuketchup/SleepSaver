@@ -363,12 +363,22 @@ public class DataActivity extends AppCompatActivity {
         clearST_text.setText(clear_targetST + "回");
 
         // 目標達成率を計算&表示
-        double dbl_clear_rateGU = ((double) clear_targetGU / countGU) * 100;
-        int clear_rateGU = (int) dbl_clear_rateGU;
-        double dbl_clear_rateGTB = ((double) clear_targetGTB / countGTB) * 100;
-        int clear_rateGTB = (int) dbl_clear_rateGTB;
-        double dbl_clear_rateST = ((double) clear_targetST / countST) * 100;
-        int clear_rateST = (int) dbl_clear_rateST;
+        int clear_rateGU = 0;
+        int clear_rateGTB = 0;
+        int clear_rateST = 0;
+        // カウントが1以上の時のみ計算(0の時は0%)
+        if (countGU > 0) {
+            double dbl_clear_rateGU = ((double) clear_targetGU / countGU) * 100;
+            clear_rateGU = (int) dbl_clear_rateGU;
+        }
+        if (countGTB > 0) {
+            double dbl_clear_rateGTB = ((double) clear_targetGTB / countGTB) * 100;
+            clear_rateGTB = (int) dbl_clear_rateGTB;
+        }
+        if (countST > 0) {
+            double dbl_clear_rateST = ((double) clear_targetST / countST) * 100;
+            clear_rateST = (int) dbl_clear_rateST;
+        }
         TextView rateGU_text = findViewById(R.id.rate_GU);
         TextView rateGTB_text = findViewById(R.id.rate_GTB);
         TextView rateST_text = findViewById(R.id.rate_ST);

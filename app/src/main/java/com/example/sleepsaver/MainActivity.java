@@ -305,15 +305,15 @@ public class MainActivity extends AppCompatActivity {
         );
 
         // デバッグ用
-        findViewById(R.id.debug).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(MainActivity.this, PopUpActivity.class);
-                        startActivity(intent);
-                    }
-                }
-        );
+//        findViewById(R.id.debug).setOnClickListener(
+//                new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        Intent intent = new Intent(MainActivity.this, PopUpActivity.class);
+//                        startActivity(intent);
+//                    }
+//                }
+//        );
 
         // 設定ボタンの処理
         findViewById(R.id.Settings).setOnClickListener(
