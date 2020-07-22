@@ -260,36 +260,39 @@ public class EverydayGraphTab extends Fragment {
 
         LineData lineData = new LineData(dataSets);
 
-        everydayChart.setData(lineData);
-
-        // x軸のラベルを日付に
-        xAxis.setValueFormatter(new IAxisValueFormatter() {
-            @Override
-            public String getFormattedValue(float value, AxisBase axis) {
-                String dateLabel = "";
-                if ((value % 1) == 0) {
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(getContext()));
-                    calendar.add(Calendar.DAY_OF_MONTH, (int)value - ((int)idCount - 1));
-                    int month = calendar.get(Calendar.MONTH) + 1;
-                    int date = calendar.get(Calendar.DAY_OF_MONTH);
-                    dateLabel = month + "/" + date;
+        // データが空でないときのみ
+        if (!valuesGU.isEmpty() && !valuesGTB.isEmpty()) {
+            // グラフにデータをセット
+            everydayChart.setData(lineData);
+            // x軸のラベルを日付に
+            xAxis.setValueFormatter(new IAxisValueFormatter() {
+                @Override
+                public String getFormattedValue(float value, AxisBase axis) {
+                    String dateLabel = "";
+                    if ((value % 1) == 0) {
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(getContext()));
+                        calendar.add(Calendar.DAY_OF_MONTH, (int) value - ((int) idCount - 1));
+                        int month = calendar.get(Calendar.MONTH) + 1;
+                        int date = calendar.get(Calendar.DAY_OF_MONTH);
+                        dateLabel = month + "/" + date;
+                    }
+                    return dateLabel;
                 }
-                return dateLabel;
-            }
-        });
+            });
 
-        // y軸のラベルを時刻に
-        ylAxis.setValueFormatter(new IAxisValueFormatter() {
-            @Override
-            public String getFormattedValue(float value, AxisBase axis) {
-                // 値がマイナスの時24時間足す
-                if (value < 0) {
-                    value = value + 1440;
+            // y軸のラベルを時刻に
+            ylAxis.setValueFormatter(new IAxisValueFormatter() {
+                @Override
+                public String getFormattedValue(float value, AxisBase axis) {
+                    // 値がマイナスの時24時間足す
+                    if (value < 0) {
+                        value = value + 1440;
+                    }
+                    return timeHandler.minutes_to_timeString((int) value);
                 }
-                return timeHandler.minutes_to_timeString((int)value);
-            }
-        });
+            });
+        }
 
 //        TextView textView5 = (TextView)view.findViewById(R.id.textView5);
 //        textView5.setText("");
