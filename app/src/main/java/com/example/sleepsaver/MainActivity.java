@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
         }else{
             // データが空のとき実行
             calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(this));
 
             year = calendar.get(Calendar.YEAR);
             month = calendar.get(Calendar.MONTH) + 1;
