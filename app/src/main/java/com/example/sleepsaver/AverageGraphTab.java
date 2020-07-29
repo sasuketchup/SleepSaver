@@ -89,7 +89,7 @@ public class AverageGraphTab extends Fragment {
         // 今日の曜日を取得する
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(getContext()));
-        int week = calendar.get(Calendar.DAY_OF_WEEK);
+        int current_week = calendar.get(Calendar.DAY_OF_WEEK);
 
         Cursor cursor = db.query("DateTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
 
@@ -102,28 +102,41 @@ public class AverageGraphTab extends Fragment {
 
         // データの個数から週の数を計算して配列の長さに
         long idCount = DatabaseUtils.queryNumEntries(db, "DateTable");
-        // そもそもデータの個数がweekに満たない場合
-        if (idCount < week) {
-            week = (int) idCount;
+        // そもそもデータの個数がcurrent_weekに満たない場合
+        if (idCount < current_week) {
+            current_week = (int) idCount;
         }
-        int ave_timeGU[] = new int[((((int)idCount) - week) / 7) + 1];
-        int ave_timeGTB[] = new int[((((int)idCount) - week) / 7) + 1];
+        // 配列の長さ(つまり週の数)を決める変数
+        int num_of_weeks;
+        // idCountからcurrent_weekを引いた値が7で割り切れない(つまり最も古い週のデータがちょうど7つでない)場合
+        if ((((int)idCount - current_week) % 7) != 0) {
+            num_of_weeks = (((int)idCount - current_week) / 7) + 2; // 今週と最も古い週の分を足す
+        } else { // 割り切れる(つまり最も古い週のデータがちょうど7つの)場合
+            num_of_weeks = (((int)idCount - current_week) / 7) + 1; // 今週の分を足す(データの個数がcurrent_weekに満たない場合もこれに含まれる)
+        }
+        // 配列の長さが12(グラフへの最大表示個数)より多い場合は12にする
+        if (num_of_weeks > 12) {
+            num_of_weeks = 12;
+        }
+        // 週ごとの平均
+        int ave_timeGU[] = new int[num_of_weeks];
+        int ave_timeGTB[] = new int[num_of_weeks];
         // 平均を算出するための合計と個数
         // 起床
-        int sumGU[] = new int[((((int)idCount) - week) / 7) + 1];
-        int countGU[] = new int[((((int)idCount) - week) / 7) + 1];
+        int sumGU[] = new int[num_of_weeks];
+        int countGU[] = new int[num_of_weeks];
         // 就寝
-        int sumGTB[] = new int[((((int)idCount) - week) / 7) + 1];
-        int countGTB[] = new int[((((int)idCount) - week) / 7) + 1];
+        int sumGTB[] = new int[num_of_weeks];
+        int countGTB[] = new int[num_of_weeks];
 
-        for (int i = 0; i < week; i++) {
+        for (int i = 0; i < current_week; i++) {
             int hourGU = cursor1.getInt(1);
             int minuteGU = cursor1.getInt(2);
 
             int hourGTB;
             int minuteGTB;
-            // データがweekちょうどかそれ以下の場合は最後の就寝記録を空(-1)にする
-            if (idCount <= week  && i == (week - 1)) {
+            // データがcurrent_weekちょうどかそれ以下の場合は最後の就寝記録を空(-1)にする
+            if (idCount <= current_week  && i == (current_week - 1)) {
                 hourGTB = -1;
                 minuteGTB = -1;
             } else {
