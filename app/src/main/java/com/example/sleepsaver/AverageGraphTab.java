@@ -129,14 +129,94 @@ public class AverageGraphTab extends Fragment {
         int sumGTB[] = new int[num_of_weeks];
         int countGTB[] = new int[num_of_weeks];
 
-        for (int i = 0; i < current_week; i++) {
+        // 今週
+        int[][] ave_time = calculateAve(cursor1, cursor2, 0, (int)idCount, current_week, hour_line);
+        ave_timeGU[0] = ave_time[0][0];
+        ave_timeGTB[0] = ave_time[1][0];
+
+//        sumGU[0] = 0;
+//        countGU[0] = 0;
+//        sumGTB[0] = 0;
+//        countGTB[0] = 0;
+//        for (int i = 0; i < current_week; i++) {
+//            int hourGU = cursor1.getInt(1);
+//            int minuteGU = cursor1.getInt(2);
+//
+//            int hourGTB;
+//            int minuteGTB;
+//            // データがcurrent_weekちょうどかそれ以下の場合は最後の就寝記録を空(-1)にする
+//            if (idCount <= current_week  && i == (current_week - 1)) {
+//                hourGTB = -1;
+//                minuteGTB = -1;
+//            } else {
+//                hourGTB = cursor2.getInt(1);
+//                minuteGTB = cursor2.getInt(2);
+//            }
+//
+//            // (起床) 記録がある場合
+//            if (hourGU != -1) {
+//                countGU[0]++;
+//                sumGU[0] = sumGU[0] + (hourGU * 60) + minuteGU;
+//            }
+//            // (就寝) 記録がある場合
+//            if (hourGTB != -1) {
+//                countGTB[0]++;
+//
+//                // 結果が0時を過ぎている場合、24を加算
+//                if (hourGTB < hour_line) {
+//                    hourGTB = hourGTB + 24;
+//                }
+//
+//                sumGTB[0] = sumGTB[0] + (hourGTB * 60) + minuteGTB;
+//            }
+//
+//            cursor1.moveToPrevious();
+//            cursor2.moveToPrevious();
+//        }
+//
+//        // (起床)分母が0でないとき
+//        if (countGU[0] > 0) {
+//            ave_timeGU[0] = sumGU[0] / countGU[0];
+//        } else { // 分母が0のときは2000(ありえない値)
+//            ave_timeGU[0] = 2000;
+//        }
+//        // (就寝)分母が0でないとき
+//        if (countGTB[0] > 0) {
+//            ave_timeGTB[0] = sumGTB[0] / countGTB[0];
+//            // 就寝時刻が0時より前の場合-24時間する
+//            if (ave_timeGTB[0] >= (hour_line * 60)) {
+//                ave_timeGTB[0] = ave_timeGTB[0] - 1440;
+//            }
+//        } else { // 分母が0のときは2000(ありえない値)
+//            ave_timeGTB[0] = 2000;
+//        }
+
+        // 今週と最古の週を除いた週(すべて7日ずつある)
+        for (int i = 1; i < num_of_weeks - 1; i++) {
+            int[][] ave_time2 = calculateAve(cursor1, cursor2, i, 8, 7, hour_line);
+            ave_timeGU[i] = ave_time2[0][i];
+            ave_timeGTB[i] = ave_time2[1][i];
+        }
+    }
+
+    // 週ごとの平均を計算するメソッド
+    public int[][] calculateAve(Cursor cursor1, Cursor cursor2, int weeks, int data, int days_of_week, int hour_line) {
+        // 戻り値として返すための二次元配列(GU:0,GTB:1)
+        int[][] ave_time = new int[2][];
+
+        // 合計とカウントを初期化
+        int sumGU = 0;
+        int countGU = 0;
+        int sumGTB = 0;
+        int countGTB = 0;
+        for (int i = 0; i < days_of_week; i++) {
             int hourGU = cursor1.getInt(1);
             int minuteGU = cursor1.getInt(2);
 
             int hourGTB;
             int minuteGTB;
-            // データがcurrent_weekちょうどかそれ以下の場合は最後の就寝記録を空(-1)にする
-            if (idCount <= current_week  && i == (current_week - 1)) {
+            // データが今週の曜日のナンバーとちょうど同じかそれ以下の場合は最後の就寝記録を空(-1)にする
+            if (data <= days_of_week  && i == (days_of_week - 1)) {
                 hourGTB = -1;
                 minuteGTB = -1;
             } else {
@@ -146,19 +226,19 @@ public class AverageGraphTab extends Fragment {
 
             // (起床) 記録がある場合
             if (hourGU != -1) {
-                countGU[0]++;
-                sumGU[0] = sumGU[0] + (hourGU * 60) + minuteGU;
+                countGU++;
+                sumGU = sumGU + (hourGU * 60) + minuteGU;
             }
             // (就寝) 記録がある場合
             if (hourGTB != -1) {
-                countGTB[0]++;
+                countGTB++;
 
                 // 結果が0時を過ぎている場合、24を加算
                 if (hourGTB < hour_line) {
                     hourGTB = hourGTB + 24;
                 }
 
-                sumGTB[0] =sumGTB[0] + (hourGTB * 60) + minuteGTB;
+                sumGTB = sumGTB + (hourGTB * 60) + minuteGTB;
             }
 
             cursor1.moveToPrevious();
@@ -166,20 +246,22 @@ public class AverageGraphTab extends Fragment {
         }
 
         // (起床)分母が0でないとき
-        if (countGU[0] > 0) {
-            ave_timeGU[0] = sumGU[0] / countGU[0];
+        if (countGU > 0) {
+            ave_time[0][weeks] = sumGU / countGU;
         } else { // 分母が0のときは2000(ありえない値)
-            ave_timeGU[0] = 2000;
+            ave_time[0][weeks] = 2000;
         }
         // (就寝)分母が0でないとき
-        if (countGTB[0] > 0) {
-            ave_timeGTB[0] = sumGTB[0] / countGTB[0];
+        if (countGTB > 0) {
+            ave_time[1][weeks] = sumGTB / countGTB;
             // 就寝時刻が0時より前の場合-24時間する
-            if (ave_timeGTB[0] >= (hour_line * 60)) {
-                ave_timeGTB[0] = ave_timeGTB[0] - 1440;
+            if (ave_time[1][weeks] >= (hour_line * 60)) {
+                ave_time[1][weeks] = ave_time[1][weeks] - 1440;
             }
         } else { // 分母が0のときは2000(ありえない値)
-            ave_timeGTB[0] = 2000;
+            ave_time[1][weeks] = 2000;
         }
+
+        return ave_time;
     }
 }
