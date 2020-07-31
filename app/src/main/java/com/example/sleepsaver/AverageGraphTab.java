@@ -114,9 +114,22 @@ public class AverageGraphTab extends Fragment {
         } else { // 割り切れる(つまり最も古い週のデータがちょうど7つの)場合
             num_of_weeks = (((int)idCount - current_week) / 7) + 1; // 今週の分を足す(データの個数がcurrent_weekに満たない場合もこれに含まれる)
         }
+
+        // 最古の週の日数
+        int days_of_oldestWeek;
+        // 最後の就寝記録を空にするかどうか判断するための、最古の週のデータ数
+        int data_of_oldestWeek;
         // 配列の長さが12(グラフへの最大表示個数)より多い場合は12にする
         if (num_of_weeks > 12) {
             num_of_weeks = 12;
+            days_of_oldestWeek = 7; // そして最古の週の日数を7にする
+            data_of_oldestWeek = 8; // 8以上ある
+        } else if ((((int)idCount - current_week) % 7) == 0){ // それ以外で最古の週の日数が7の時
+            days_of_oldestWeek = 7;
+            data_of_oldestWeek = days_of_oldestWeek; // データ数は週の日数と同じ
+        } else { // それ以外の(7で割り切れない)時
+            days_of_oldestWeek = ((int)idCount - current_week) % 7;
+            data_of_oldestWeek = days_of_oldestWeek; // データ数は週の日数と同じ
         }
         // 週ごとの平均
         int ave_timeGU[] = new int[num_of_weeks];
@@ -193,10 +206,18 @@ public class AverageGraphTab extends Fragment {
 
         // 今週と最古の週を除いた週(すべて7日ずつある)
         for (int i = 1; i < num_of_weeks - 1; i++) {
-            int[][] ave_time2 = calculateAve(cursor1, cursor2, i, 8, 7, hour_line);
+            int[][] ave_time2 = calculateAve(cursor1, cursor2, i, 8, 7, hour_line); // データは8以上ある
             ave_timeGU[i] = ave_time2[0][i];
             ave_timeGTB[i] = ave_time2[1][i];
         }
+
+        // 最古の週
+        int [][] ave_time3 = calculateAve(cursor1, cursor2, num_of_weeks - 1, data_of_oldestWeek, days_of_oldestWeek, hour_line);
+        ave_timeGU[num_of_weeks - 1] = ave_time3[0][num_of_weeks - 1];
+        ave_timeGTB[num_of_weeks - 1] = ave_time3[1][num_of_weeks - 1];
+
+        cursor1.close();
+        cursor2.close();
     }
 
     // 週ごとの平均を計算するメソッド
@@ -215,7 +236,7 @@ public class AverageGraphTab extends Fragment {
 
             int hourGTB;
             int minuteGTB;
-            // データが今週の曜日のナンバーとちょうど同じかそれ以下の場合は最後の就寝記録を空(-1)にする
+            // データが該当の週の日数とちょうど同じかそれ以下の場合は最後の就寝記録を空(-1)にする
             if (data <= days_of_week  && i == (days_of_week - 1)) {
                 hourGTB = -1;
                 minuteGTB = -1;
