@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -26,6 +27,8 @@ import java.util.Calendar;
 public class AverageGraphTab extends Fragment {
 
     TimeHandler timeHandler = new TimeHandler();
+
+    EverydayGraphTab everydayGraphTab = new EverydayGraphTab();
 
     @Nullable
     @Override
@@ -40,7 +43,7 @@ public class AverageGraphTab extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        BarChart averageChart = view.findViewById(R.id.average_chart);
+        LineChart averageChart = view.findViewById(R.id.average_chart);
 
         TextView periodText = view.findViewById(R.id.ave_period);
         periodText.setText("準備中...");
@@ -134,13 +137,14 @@ public class AverageGraphTab extends Fragment {
         // 週ごとの平均
         int ave_timeGU[] = new int[num_of_weeks];
         int ave_timeGTB[] = new int[num_of_weeks];
-        // 平均を算出するための合計と個数
-        // 起床
-        int sumGU[] = new int[num_of_weeks];
-        int countGU[] = new int[num_of_weeks];
-        // 就寝
-        int sumGTB[] = new int[num_of_weeks];
-        int countGTB[] = new int[num_of_weeks];
+
+//        // 平均を算出するための合計と個数
+//        // 起床
+//        int sumGU[] = new int[num_of_weeks];
+//        int countGU[] = new int[num_of_weeks];
+//        // 就寝
+//        int sumGTB[] = new int[num_of_weeks];
+//        int countGTB[] = new int[num_of_weeks];
 
         // 今週
         int[][] ave_time = calculateAve(cursor1, cursor2, 0, (int)idCount, current_week, hour_line);
@@ -218,12 +222,15 @@ public class AverageGraphTab extends Fragment {
 
         cursor1.close();
         cursor2.close();
+
+        // グラフに表示
+        everydayGraphTab.displayGraph(getContext(), 2, averageChart, num_of_weeks, ave_timeGU, ave_timeGTB, xAxis, ylAxis, gu_target_hour, gu_target_minute, gtb_target_hour2, gtb_target_minute);
     }
 
     // 週ごとの平均を計算するメソッド
     public int[][] calculateAve(Cursor cursor1, Cursor cursor2, int weeks, int data, int days_of_week, int hour_line) {
         // 戻り値として返すための二次元配列(GU:0,GTB:1)
-        int[][] ave_time = new int[2][];
+        int[][] ave_time = new int[2][weeks + 1];
 
         // 合計とカウントを初期化
         int sumGU = 0;

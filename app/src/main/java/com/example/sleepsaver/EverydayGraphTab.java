@@ -168,11 +168,158 @@ public class EverydayGraphTab extends Fragment {
         cursor1.close();
         cursor2.close();
 
+        // グラフに表示
+        displayGraph(getContext(), 1, everydayChart, (int)idCount, timeGU, timeGTB, xAxis, ylAxis, gu_target_hour, gu_target_minute, gtb_target_hour2, gtb_target_minute);
+
+//        // テーブルから取得したデータを古い方からセット
+//        for (int i = 0; i < idCount; i++) {
+//            if (timeGU[(int) idCount - i - 1] != 2000) { // 空(2000)でないとき
+//                valuesGU.add(new Entry(i, timeGU[(int) idCount - i - 1], null, null));
+//                if (timeGU[(int) idCount - i - 1] <= ((gu_target_hour * 60) + gu_target_minute)) {
+//                    // 目標達成
+//                    circleColorGU.add(Color.BLUE);
+//                    textColorGU.add(Color.BLUE);
+//                } else {
+//                    // それ以外
+//                    circleColorGU.add(Color.CYAN);
+//                    textColorGU.add(Color.BLACK);
+//                }
+//            }
+//            if (timeGTB[(int) idCount - i - 1] != 2000) { // 空(2000)でないとき
+//                valuesGTB.add(new Entry(i, timeGTB[(int) idCount - i - 1], null, null));
+//                if (timeGTB[(int) idCount - i - 1] <= ((gtb_target_hour2 * 60) + gtb_target_minute)) {
+//                    // 目標達成
+//                    circleColorGTB.add(Color.RED);
+//                    textColorGTB.add(Color.RED);
+//                } else {
+//                    // それ以外
+//                    circleColorGTB.add(Color.MAGENTA);
+//                    textColorGTB.add(Color.BLACK);
+//                }
+//            }
+//        }
+//
+//        LineDataSet setGU;
+//        LineDataSet setGTB;
+//
+//        setGU = new LineDataSet(valuesGU, "起床時刻");
+//        setGTB = new LineDataSet(valuesGTB, "就寝時刻");
+
+        // 凡例
+        LegendEntry legendGU = new LegendEntry("起床時刻", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.CYAN);
+        LegendEntry legendGTB = new LegendEntry("就寝時刻", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.MAGENTA);
+        LegendEntry legendST = new LegendEntry("睡眠時間", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.argb(130, 0, 0, 255));
+        LegendEntry legendTL = new LegendEntry("目標起床時刻：" + timeHandler.timeString(gu_target_hour, gu_target_minute) + ",目標就寝時刻：" + timeHandler.timeString(gtb_target_hour, gtb_target_minute), Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.GREEN);
+        Legend legend = everydayChart.getLegend();
+        legend.setCustom(new LegendEntry[]{legendGU, legendGTB, legendST, legendTL});
+        legend.setWordWrapEnabled(true);
+
+//        // 就寝時刻ラインの色
+//        setGTB.setColor(Color.MAGENTA);
+//
+//        // 点の色
+//        setGU.setCircleColors(circleColorGU);
+//        setGTB.setCircleColors(circleColorGTB);
+//        // 点の塗りつぶし
+//        setGU.setDrawCircleHole(false);
+//        setGTB.setDrawCircleHole(false);
+//
+//        // 値テキストの色
+//        setGU.setValueTextColors(textColorGU);
+//        setGTB.setValueTextColors(textColorGTB);
+//        // 値のテキストサイズ
+//        setGU.setValueTextSize(9);
+//        setGTB.setValueTextSize(9);
+//
+//        // 塗りつぶし
+//        setGU.setDrawFilled(true);
+//        setGTB.setDrawFilled(true);
+//        setGU.setFillColor(Color.BLUE);
+//        setGTB.setFillColor(Color.WHITE);
+//        setGTB.setFillAlpha(130);
+
+//        // (起床)プロットされる値を時刻に
+//        setGU.setValueFormatter(new IValueFormatter() {
+//            @Override
+//            public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+//                return timeHandler.minutes_to_timeString((int)value);
+//            }
+//        });
+//        // (就寝)プロットされる値を時刻に
+//        setGTB.setValueFormatter(new IValueFormatter() {
+//            @Override
+//            public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+//                // 値がマイナスの時24時間足す
+//                if (value < 0) {
+//                    value = value + 1440;
+//                }
+//                return timeHandler.minutes_to_timeString((int)value);
+//            }
+//        });
+
+//        ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
+//        dataSets.add(setGU);
+//        dataSets.add(setGTB);
+//
+//        LineData lineData = new LineData(dataSets);
+
+//        // データが空でないときのみ
+//        if (!valuesGU.isEmpty() && !valuesGTB.isEmpty()) {
+//            // グラフにデータをセット
+//            everydayChart.setData(lineData);
+//            // x軸のラベルを日付に
+//            xAxis.setValueFormatter(new IAxisValueFormatter() {
+//                @Override
+//                public String getFormattedValue(float value, AxisBase axis) {
+//                    String dateLabel = "";
+//                    if ((value % 1) == 0) {
+//                        Calendar calendar = Calendar.getInstance();
+//                        calendar.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(getContext()));
+//                        calendar.add(Calendar.DAY_OF_MONTH, (int) value - ((int) idCount - 1));
+//                        int month = calendar.get(Calendar.MONTH) + 1;
+//                        int date = calendar.get(Calendar.DAY_OF_MONTH);
+//                        dateLabel = month + "/" + date;
+//                    }
+//                    return dateLabel;
+//                }
+//            });
+//
+//            // y軸のラベルを時刻に
+//            ylAxis.setValueFormatter(new IAxisValueFormatter() {
+//                @Override
+//                public String getFormattedValue(float value, AxisBase axis) {
+//                    // 値がマイナスの時24時間足す
+//                    if (value < 0) {
+//                        value = value + 1440;
+//                    }
+//                    return timeHandler.minutes_to_timeString((int) value);
+//                }
+//            });
+//        }
+
+//        TextView textView5 = (TextView)view.findViewById(R.id.textView5);
+//        textView5.setText("");
+    }
+
+    // データをグラフに表示するメソッド
+    public void displayGraph(final Context context, int graphType, LineChart lineChart, int num_of_data, int[] timeGU, int[] timeGTB, XAxis xAxis, YAxis ylAxis, int gu_target_hour, int gu_target_minute, int gtb_target_hour2, int gtb_target_minute) {
+        // データの値を格納するArrayList
+        ArrayList<Entry> valuesGU = new ArrayList<>();
+        ArrayList<Entry> valuesGTB = new ArrayList<>();
+
+        // 点の色を格納するList
+        List<Integer> circleColorGU = new ArrayList<>();
+        List<Integer> circleColorGTB = new ArrayList<>();
+
+        // 値テキストの色を格納するList
+        List<Integer> textColorGU = new ArrayList<>();
+        List<Integer> textColorGTB = new ArrayList<>();
+
         // テーブルから取得したデータを古い方からセット
-        for (int i = 0; i < idCount; i++) {
-            if (timeGU[(int) idCount - i - 1] != 2000) { // 空(2000)でないとき
-                valuesGU.add(new Entry(i, timeGU[(int) idCount - i - 1], null, null));
-                if (timeGU[(int) idCount - i - 1] <= ((gu_target_hour * 60) + gu_target_minute)) {
+        for (int i = 0; i < num_of_data; i++) {
+            if (timeGU[num_of_data - i - 1] != 2000) { // 空(2000)でないとき
+                valuesGU.add(new Entry(i, timeGU[num_of_data - i - 1], null, null));
+                if (timeGU[num_of_data - i - 1] <= ((gu_target_hour * 60) + gu_target_minute)) {
                     // 目標達成
                     circleColorGU.add(Color.BLUE);
                     textColorGU.add(Color.BLUE);
@@ -182,9 +329,9 @@ public class EverydayGraphTab extends Fragment {
                     textColorGU.add(Color.BLACK);
                 }
             }
-            if (timeGTB[(int) idCount - i - 1] != 2000) { // 空(2000)でないとき
-                valuesGTB.add(new Entry(i, timeGTB[(int) idCount - i - 1], null, null));
-                if (timeGTB[(int) idCount - i - 1] <= ((gtb_target_hour2 * 60) + gtb_target_minute)) {
+            if (timeGTB[num_of_data - i - 1] != 2000) { // 空(2000)でないとき
+                valuesGTB.add(new Entry(i, timeGTB[num_of_data - i - 1], null, null));
+                if (timeGTB[num_of_data - i - 1] <= ((gtb_target_hour2 * 60) + gtb_target_minute)) {
                     // 目標達成
                     circleColorGTB.add(Color.RED);
                     textColorGTB.add(Color.RED);
@@ -201,15 +348,6 @@ public class EverydayGraphTab extends Fragment {
 
         setGU = new LineDataSet(valuesGU, "起床時刻");
         setGTB = new LineDataSet(valuesGTB, "就寝時刻");
-
-        // 凡例
-        LegendEntry legendGU = new LegendEntry("起床時刻", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.CYAN);
-        LegendEntry legendGTB = new LegendEntry("就寝時刻", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.MAGENTA);
-        LegendEntry legendST = new LegendEntry("睡眠時間", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.argb(130, 0, 0, 255));
-        LegendEntry legendTL = new LegendEntry("目標起床時刻：" + timeHandler.timeString(gu_target_hour, gu_target_minute) + ",目標就寝時刻：" + timeHandler.timeString(gtb_target_hour, gtb_target_minute), Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.GREEN);
-        Legend legend = everydayChart.getLegend();
-        legend.setCustom(new LegendEntry[]{legendGU, legendGTB, legendST, legendTL});
-        legend.setWordWrapEnabled(true);
 
         // 就寝時刻ラインの色
         setGTB.setColor(Color.MAGENTA);
@@ -228,12 +366,17 @@ public class EverydayGraphTab extends Fragment {
         setGU.setValueTextSize(9);
         setGTB.setValueTextSize(9);
 
-        // 塗りつぶし
-        setGU.setDrawFilled(true);
-        setGTB.setDrawFilled(true);
-        setGU.setFillColor(Color.BLUE);
-        setGTB.setFillColor(Color.WHITE);
-        setGTB.setFillAlpha(130);
+        // 直近2週間のグラフのみ塗りつぶし
+        if (graphType == 1) {
+            setGU.setDrawFilled(true);
+            setGTB.setDrawFilled(true);
+            setGU.setFillColor(Color.BLUE);
+            setGTB.setFillColor(Color.WHITE);
+            setGTB.setFillAlpha(130);
+        } else {
+            setGU.setDrawFilled(false);
+            setGTB.setDrawFilled(false);
+        }
 
         // (起床)プロットされる値を時刻に
         setGU.setValueFormatter(new IValueFormatter() {
@@ -263,7 +406,7 @@ public class EverydayGraphTab extends Fragment {
         // データが空でないときのみ
         if (!valuesGU.isEmpty() && !valuesGTB.isEmpty()) {
             // グラフにデータをセット
-            everydayChart.setData(lineData);
+            lineChart.setData(lineData);
             // x軸のラベルを日付に
             xAxis.setValueFormatter(new IAxisValueFormatter() {
                 @Override
@@ -271,7 +414,7 @@ public class EverydayGraphTab extends Fragment {
                     String dateLabel = "";
                     if ((value % 1) == 0) {
                         Calendar calendar = Calendar.getInstance();
-                        calendar.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(getContext()));
+                        calendar.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(context));
                         calendar.add(Calendar.DAY_OF_MONTH, (int) value - ((int) idCount - 1));
                         int month = calendar.get(Calendar.MONTH) + 1;
                         int date = calendar.get(Calendar.DAY_OF_MONTH);
@@ -293,8 +436,5 @@ public class EverydayGraphTab extends Fragment {
                 }
             });
         }
-
-//        TextView textView5 = (TextView)view.findViewById(R.id.textView5);
-//        textView5.setText("");
     }
 }
