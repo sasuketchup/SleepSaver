@@ -18,5 +18,6 @@
     <string name="shushin">就寝</string>
     <string name="title_activity_graph">GraphActivity</string>
     <string name="tab_text_1">直近2週間</string>
-    <string name="tab_text_2">平均</string>
+    <string name="tab_text_2">週毎の平均\n(直近12週間)</string>
+    <string name="tab_text_3">月毎の平均\n(一年間)</string>
 </resources>

@@ -3,12 +3,12 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/ave_period"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="期間:0/0/0～0/0/0"
-        android:textSize="18sp" />
+<!--    <TextView-->
+<!--        android:id="@+id/ave_period"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="期間:0/0/0～0/0/0"-->
+<!--        android:textSize="18sp" />-->
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/average_chart"

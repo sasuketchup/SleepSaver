@@ -302,7 +302,7 @@ public class EverydayGraphTab extends Fragment {
     }
 
     // データをグラフに表示するメソッド
-    public void displayGraph(final Context context, int graphType, LineChart lineChart, int num_of_data, int[] timeGU, int[] timeGTB, XAxis xAxis, YAxis ylAxis, int gu_target_hour, int gu_target_minute, int gtb_target_hour2, int gtb_target_minute) {
+    public void displayGraph(final Context context, final int graphType, LineChart lineChart, final int num_of_data, int[] timeGU, int[] timeGTB, XAxis xAxis, YAxis ylAxis, int gu_target_hour, int gu_target_minute, int gtb_target_hour2, int gtb_target_minute) {
         // データの値を格納するArrayList
         ArrayList<Entry> valuesGU = new ArrayList<>();
         ArrayList<Entry> valuesGTB = new ArrayList<>();
@@ -407,20 +407,27 @@ public class EverydayGraphTab extends Fragment {
         if (!valuesGU.isEmpty() && !valuesGTB.isEmpty()) {
             // グラフにデータをセット
             lineChart.setData(lineData);
-            // x軸のラベルを日付に
+            // x軸のラベル
             xAxis.setValueFormatter(new IAxisValueFormatter() {
                 @Override
                 public String getFormattedValue(float value, AxisBase axis) {
-                    String dateLabel = "";
+                    String xLabel = "";
                     if ((value % 1) == 0) {
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(context));
-                        calendar.add(Calendar.DAY_OF_MONTH, (int) value - ((int) idCount - 1));
-                        int month = calendar.get(Calendar.MONTH) + 1;
-                        int date = calendar.get(Calendar.DAY_OF_MONTH);
-                        dateLabel = month + "/" + date;
+                        if (graphType == 1) { // 直近2週間のグラフは日付に
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(context));
+                            calendar.add(Calendar.DAY_OF_MONTH, (int) value - (num_of_data - 1));
+                            int month = calendar.get(Calendar.MONTH) + 1;
+                            int date = calendar.get(Calendar.DAY_OF_MONTH);
+                            xLabel = month + "/" + date;
+                        } else if (graphType == 2) { // 週毎の平均グラフは何週前かに
+                            xLabel = (num_of_data - 1) - (int)value + "週前";
+                            if ((num_of_data - 1) - (int)value == 0) {
+                                xLabel = "今週";
+                            }
+                        }
                     }
-                    return dateLabel;
+                    return xLabel;
                 }
             });
 

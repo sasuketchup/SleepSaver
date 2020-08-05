@@ -18,6 +18,8 @@ import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LegendEntry;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -45,8 +47,8 @@ public class AverageGraphTab extends Fragment {
 
         LineChart averageChart = view.findViewById(R.id.average_chart);
 
-        TextView periodText = view.findViewById(R.id.ave_period);
-        periodText.setText("準備中...");
+//        TextView periodText = view.findViewById(R.id.ave_period);
+//        periodText.setText("準備中...");
 
         MyOpenHelper helper = new MyOpenHelper(getContext());
         SQLiteDatabase db = helper.getWritableDatabase();
@@ -225,6 +227,14 @@ public class AverageGraphTab extends Fragment {
 
         // グラフに表示
         everydayGraphTab.displayGraph(getContext(), 2, averageChart, num_of_weeks, ave_timeGU, ave_timeGTB, xAxis, ylAxis, gu_target_hour, gu_target_minute, gtb_target_hour2, gtb_target_minute);
+
+        // 凡例
+        LegendEntry legendGU = new LegendEntry("起床時刻", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.CYAN);
+        LegendEntry legendGTB = new LegendEntry("就寝時刻", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.MAGENTA);
+        LegendEntry legendTL = new LegendEntry("目標起床時刻：" + timeHandler.timeString(gu_target_hour, gu_target_minute) + ",目標就寝時刻：" + timeHandler.timeString(gtb_target_hour, gtb_target_minute), Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.GREEN);
+        Legend legend = averageChart.getLegend();
+        legend.setCustom(new LegendEntry[]{legendGU, legendGTB, legendTL});
+        legend.setWordWrapEnabled(true);
     }
 
     // 週ごとの平均を計算するメソッド

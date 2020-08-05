@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.example.sleepsaver.AverageGraphTab;
 import com.example.sleepsaver.EverydayGraphTab;
+import com.example.sleepsaver.MonthAverageGraphTab;
 import com.example.sleepsaver.R;
 
 /**
@@ -19,7 +20,7 @@ import com.example.sleepsaver.R;
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @StringRes
-    private static final int[] TAB_TITLES = new int[]{R.string.tab_text_1, R.string.tab_text_2};
+    private static final int[] TAB_TITLES = new int[]{R.string.tab_text_1, R.string.tab_text_2, R.string.tab_text_3};
     private final Context mContext;
 
     public SectionsPagerAdapter(Context context, FragmentManager fm) {
@@ -41,6 +42,9 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             case 1:
                 fragment = new AverageGraphTab();
                 break;
+            case 2:
+                fragment = new MonthAverageGraphTab();
+                break;
         }
         return fragment;
     }
@@ -54,6 +58,6 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     @Override
     public int getCount() {
         // Show 2 total pages.
-        return 2;
+        return 3;
     }
 }
