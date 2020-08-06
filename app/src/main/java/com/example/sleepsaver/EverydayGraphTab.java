@@ -109,17 +109,17 @@ public class EverydayGraphTab extends Fragment {
         cursor2.moveToLast();
         cursor2.moveToPrevious();
 
-        // データの値を格納するArrayList
-        ArrayList<Entry> valuesGU = new ArrayList<>();
-        ArrayList<Entry> valuesGTB = new ArrayList<>();
-
-        // 点の色を格納するList
-        List<Integer> circleColorGU = new ArrayList<>();
-        List<Integer> circleColorGTB = new ArrayList<>();
-
-        // 値テキストの色を格納するList
-        List<Integer> textColorGU = new ArrayList<>();
-        List<Integer> textColorGTB = new ArrayList<>();
+//        // データの値を格納するArrayList
+//        ArrayList<Entry> valuesGU = new ArrayList<>();
+//        ArrayList<Entry> valuesGTB = new ArrayList<>();
+//
+//        // 点の色を格納するList
+//        List<Integer> circleColorGU = new ArrayList<>();
+//        List<Integer> circleColorGTB = new ArrayList<>();
+//
+//        // 値テキストの色を格納するList
+//        List<Integer> textColorGU = new ArrayList<>();
+//        List<Integer> textColorGTB = new ArrayList<>();
 
         // データの行数を取得し表示する期間と比較
         long idCount2 = DatabaseUtils.queryNumEntries(db, "DateTable");
