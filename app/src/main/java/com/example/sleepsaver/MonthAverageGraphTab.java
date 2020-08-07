@@ -90,6 +90,11 @@ public class MonthAverageGraphTab extends Fragment {
         cursor2.moveToLast();
         cursor2.moveToPrevious();
 
+        // 月数を計算するために今日の年月日を取得
+        int current_year = cursor.getInt(1);
+        int current_month = cursor.getInt(2);
+        int current_date = cursor.getInt(3);
+
         // まずすべてのデータを配列に格納
         int month[] = new int[(int)idCount]; // 月
         int timeGU[] = new int[(int)idCount]; // 起床時刻
@@ -126,9 +131,19 @@ public class MonthAverageGraphTab extends Fragment {
             cursor2.moveToPrevious();
         }
 
+        // 月数を計算するために最古の年月日を取得
+        cursor.moveToFirst();
+        int oldest_year = cursor.getInt(1);
+        int oldest_month = cursor.getInt(2);
+        int oldest_date = cursor.getInt(3);
+
         cursor.close();
         cursor1.close();
         cursor2.close();
+
+        // 月数を計算
+        int countMonth = ((current_year - oldest_year) * 12) + (current_month - oldest_month) + 1;
+        // 一年(12ヶ月)より多い場合は12に
 
         // 合計とカウントを初期化
         int sumGU = 0;
