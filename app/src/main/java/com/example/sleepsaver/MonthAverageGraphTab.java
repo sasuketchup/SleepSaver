@@ -20,6 +20,8 @@ import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 
+import java.util.Calendar;
+
 public class MonthAverageGraphTab extends Fragment {
 
     TimeHandler timeHandler = new TimeHandler();
@@ -96,9 +98,9 @@ public class MonthAverageGraphTab extends Fragment {
         int current_date = cursor.getInt(3);
 
         // まずすべてのデータを配列に格納
-        int month[] = new int[(int)idCount]; // 月
+        int month[] = new int[(int)idCount + 1]; // 月
         int timeGU[] = new int[(int)idCount]; // 起床時刻
-        int timeGTB[] = new int[(int)idCount - 1]; // 就寝時刻
+        int timeGTB[] = new int[(int)idCount]; // 就寝時刻
         for (int i = 0; i <idCount; i++) {
             month[i] = cursor.getInt(2);
             int hourGU = cursor1.getInt(1);
@@ -113,23 +115,36 @@ public class MonthAverageGraphTab extends Fragment {
             cursor.moveToPrevious();
             cursor1.moveToPrevious();
         }
-        for (int i = 0; i < idCount - 1; i++) {
-            int hourGTB = cursor2.getInt(1);
-            int minuteGTB = cursor2.getInt(2);
+        for (int i = 0; i < idCount; i++) {
+            int hourGTB;
+            int minuteGTB;
 
-            // 結果が0時を過ぎている場合、24を加算
-            if (hourGTB < hour_line) {
-                hourGTB = hourGTB + 24;
+            // 最後の就寝記録を空に
+            if (i == (int)idCount - 1) {
+                hourGTB = -1;
+                minuteGTB = -1;
+            } else {
+                hourGTB = cursor2.getInt(1);
+                minuteGTB = cursor2.getInt(2);
             }
 
             if (minuteGTB == -1) { // データが空の時
                 timeGTB[i] = 2000; // ありえない値
             } else { // データがあるとき
+
+                // 結果が0時を過ぎている場合、24を加算
+                if (hourGTB < hour_line) {
+                    hourGTB = hourGTB + 24;
+                }
+
                 timeGTB[i] = (hourGTB * 60) + minuteGTB;
             }
 
             cursor2.moveToPrevious();
         }
+
+        // 比較の時最後に参照できるように-1を代入
+        month[(int)idCount] = -1;
 
         // 月数を計算するために最古の年月日を取得
         cursor.moveToFirst();
@@ -144,17 +159,50 @@ public class MonthAverageGraphTab extends Fragment {
         // 月数を計算
         int countMonth = ((current_year - oldest_year) * 12) + (current_month - oldest_month) + 1;
         // 一年(12ヶ月)より多い場合は12に
+        if (countMonth > 12) {
+            countMonth = 12;
+        }
 
-        // 合計とカウントを初期化
-        int sumGU = 0;
-        int countGU = 0;
-        int sumGTB = 0;
-        int countGTB = 0;
+        int j = 0;
+        int ave_timeGU[] = new int[countMonth];
+        int ave_timeGTB[] = new int[countMonth];
+        for (int i = 0; i < countMonth; i++) {
+            // 合計とカウントを初期化
+            int sumGU = 0;
+            int countGU = 0;
+            int sumGTB = 0;
+            int countGTB = 0;
 
-        int i = 0;
-        while (month[i] == month[i - 1]) {
+            // 月が変わらない間くり返す
+            while (month[j] == month[j + 1]) {
+                if (timeGU[j] != 2000) {
+                    countGU++;
+                    sumGU = sumGU + timeGU[j];
+                }
+                if (timeGTB[j] != 2000) {
+                    countGTB++;
+                    sumGTB = sumGTB + timeGTB[j];
+                }
+                j++;
+            }
+            j++;
 
-            i++;
+            // (起床)分母が0でないとき
+            if (countGU > 0) {
+                ave_timeGU[i] = sumGU / countGU;
+            } else { // 分母が0のときは2000(ありえない値)
+                ave_timeGU[i] = 2000;
+            }
+            // (就寝)分母が0でないとき
+            if (countGTB > 0) {
+                ave_timeGTB[i] = sumGTB / countGTB;
+                // 就寝時刻が0時より前の場合-24時間する
+                if (ave_timeGTB[i] >= (hour_line * 60)) {
+                    ave_timeGTB[i] = ave_timeGTB[i] - 1440;
+                }
+            } else { // 分母が0のときは2000(ありえない値)
+                ave_timeGTB[i] = 2000;
+            }
         }
     }
 }
