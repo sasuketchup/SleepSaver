@@ -26,6 +26,8 @@ public class MonthAverageGraphTab extends Fragment {
 
     TimeHandler timeHandler = new TimeHandler();
 
+    EverydayGraphTab everydayGraphTab = new EverydayGraphTab();
+
     @Nullable
     @Override
     public View onCreateView(
@@ -101,7 +103,7 @@ public class MonthAverageGraphTab extends Fragment {
         int month[] = new int[(int)idCount + 1]; // 月
         int timeGU[] = new int[(int)idCount]; // 起床時刻
         int timeGTB[] = new int[(int)idCount]; // 就寝時刻
-        for (int i = 0; i <idCount; i++) {
+        for (int i = 0; i < idCount; i++) {
             month[i] = cursor.getInt(2);
             int hourGU = cursor1.getInt(1);
             int minuteGU = cursor1.getInt(2);
@@ -173,8 +175,7 @@ public class MonthAverageGraphTab extends Fragment {
             int sumGTB = 0;
             int countGTB = 0;
 
-            // 月が変わらない間くり返す
-            while (month[j] == month[j + 1]) {
+            do {
                 if (timeGU[j] != 2000) {
                     countGU++;
                     sumGU = sumGU + timeGU[j];
@@ -184,8 +185,7 @@ public class MonthAverageGraphTab extends Fragment {
                     sumGTB = sumGTB + timeGTB[j];
                 }
                 j++;
-            }
-            j++;
+            } while (month[j] == month[j - 1]); // 月が変わらない間くり返す
 
             // (起床)分母が0でないとき
             if (countGU > 0) {
@@ -204,5 +204,8 @@ public class MonthAverageGraphTab extends Fragment {
                 ave_timeGTB[i] = 2000;
             }
         }
+
+        // グラフに表示
+        everydayGraphTab.displayGraph(getContext(), 3, monthAveChart, countMonth, ave_timeGU, ave_timeGTB, xAxis, ylAxis, gu_target_hour, gu_target_minute, gtb_target_hour2, gtb_target_minute);
     }
 }

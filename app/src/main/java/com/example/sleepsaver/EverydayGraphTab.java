@@ -413,9 +413,9 @@ public class EverydayGraphTab extends Fragment {
                 public String getFormattedValue(float value, AxisBase axis) {
                     String xLabel = "";
                     if ((value % 1) == 0) {
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(context));
                         if (graphType == 1) { // 直近2週間のグラフは日付に
-                            Calendar calendar = Calendar.getInstance();
-                            calendar.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(context));
                             calendar.add(Calendar.DAY_OF_MONTH, (int) value - (num_of_data - 1));
                             int month = calendar.get(Calendar.MONTH) + 1;
                             int date = calendar.get(Calendar.DAY_OF_MONTH);
@@ -425,6 +425,10 @@ public class EverydayGraphTab extends Fragment {
                             if ((num_of_data - 1) - (int)value == 0) {
                                 xLabel = "今週";
                             }
+                        } else if (graphType == 3) { // 月毎の平均のグラフは月に
+                            calendar.add(Calendar.MONTH, (int) value - (num_of_data - 1));
+                            int month = calendar.get(Calendar.MONTH) + 1;
+                            xLabel = month + "月";
                         }
                     }
                     return xLabel;
