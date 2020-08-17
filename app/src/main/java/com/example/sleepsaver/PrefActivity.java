@@ -103,6 +103,12 @@ public class PrefActivity extends PreferenceActivity {
     // 目標睡眠時間のアラートダイアログの選択されている項目を保持する変数
     int slp_which;
 
+    // 押し忘れ入力時のデフォルト時刻の状態(と時刻)を格納する変数
+    int default_gtb;
+    int default_gu;
+    // デフォルト時刻の戻り値として返す変数
+    int default_time;
+
     // ポップアップ画面の表示or非表示の変数
     boolean display_popup;
     // 就寝・起床反転の変数
@@ -713,6 +719,24 @@ public class PrefActivity extends PreferenceActivity {
         }
     }
 
+    // それぞれのデフォルト時刻ボタンを押したときに呼ばれるメソッド
+    public int defaultButton(PreferenceScreen button, boolean state) {
+        // ダイアログに表示する選択肢
+        String[] defaultSt = {"現在時刻", "前日の記録", "過去1週間の平均", "自分で指定(" + 0 + ")"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
+        DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                        default_time = 0;
+                }
+            }
+        };
+        return default_time;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -1042,6 +1066,21 @@ public class PrefActivity extends PreferenceActivity {
                         };
                         builder.setTitle("目標睡眠時間").setSingleChoiceItems(slp_option_St, slp_which, onClickListener);
                         alertDialog2 = builder.show();
+
+                        return true;
+                    }
+                }
+        );
+
+        // 押し忘れ入力時のデフォルト時刻
+        // 就寝
+        default_gtb = sp.getInt("default_gtb", 0);
+        PreferenceScreen default_gtb_btn = (PreferenceScreen) findPreference("default_gtb");
+        default_gtb_btn.setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+
 
                         return true;
                     }

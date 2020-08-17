@@ -38,7 +38,20 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="充電切り替え時のポップアップ画面表示">
+    <PreferenceCategory android:title="押し忘れ入力時の初期表示時刻"
+        android:summary="てすと">
+
+        <PreferenceScreen
+            android:key="default_gtb"
+            android:title="就寝" />
+
+        <PreferenceScreen
+            android:key="default_gu"
+            android:title="起床" />
+
+    </PreferenceCategory>
+
+   <PreferenceCategory android:title="充電切り替え時のポップアップ画面表示">
 
         <CheckBoxPreference
             android:key="display_popup"
