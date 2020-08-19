@@ -108,6 +108,8 @@ public class PrefActivity extends PreferenceActivity {
     int default_gu;
     // デフォルト時刻の戻り値として返す変数
     int default_time;
+    // デフォルト時刻のアラートダイアログ
+    AlertDialog alertDialog3;
 
     // ポップアップ画面の表示or非表示の変数
     boolean display_popup;
@@ -720,20 +722,47 @@ public class PrefActivity extends PreferenceActivity {
     }
 
     // それぞれのデフォルト時刻ボタンを押したときに呼ばれるメソッド
-    public int defaultButton(PreferenceScreen button, boolean state) {
+    public int defaultButton(PreferenceScreen button, boolean state, final int time_default) {
+        // 引数time_defaultから時刻を抽出
+        String time_defaultSt = timeHandler.timeString(timeHandler.number_to_time(time_default % 10000)[0], timeHandler.number_to_time(time_default % 10000)[1]);
+
+        // ダイアログのタイトル
+        String dialogTitle = "起床";
+        if (!state) {
+            dialogTitle = "就寝";
+        }
+
+        // 引数time_defaultから選択されている項目を抽出
+        final int defaultWhich = (time_default - (time_default % 10000)) / 10000;
+
         // ダイアログに表示する選択肢
-        String[] defaultSt = {"現在時刻", "前日の記録", "過去1週間の平均", "自分で指定(" + 0 + ")"};
+        String[] defaultSt = {"現在時刻", "前日の記録", "過去1週間の平均", "自分で指定(" + time_defaultSt + ")"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
         DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                defaultWhich = which;
                 switch (which) {
                     case 0:
-                        default_time = 0;
+                        default_time = time_default % 10000;
+                        break;
+                    case 1:
+                        default_time = (time_default % 10000) + 10000;
+                        break;
+                    case 2:
+                        default_time = (time_default % 10000) + 20000;
+                        break;
+                    case 3:
+                        // タイムピッカー
+
+                        default_time = (time_default % 10000) + 30000;
+                        break;
                 }
             }
         };
+        builder.setTitle("押し忘れ入力時の初期表示時刻(" + dialogTitle + ")").setSingleChoiceItems(defaultSt, defaultWhich, onClickListener);
+        alertDialog3 = builder.show();
         return default_time;
     }
 
