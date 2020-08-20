@@ -98,6 +98,7 @@ public class PrefActivity extends PreferenceActivity {
     // 目標就寝時刻と目標起床時刻から目標睡眠時間を計算するためのCalender
     Calendar cal_diff_target;
 
+    // 表示範囲の選択項目を保持する変数
     int resultsWhich;
 
     // 目標睡眠時間のアラートダイアログの選択されている項目を保持する変数
@@ -108,6 +109,8 @@ public class PrefActivity extends PreferenceActivity {
     int default_gu;
     // デフォルト時刻の戻り値として返す変数
     int default_time;
+    // デフォルト時刻の選択項目を保持する変数
+    int defaultWhich;
     // デフォルト時刻のアラートダイアログ
     AlertDialog alertDialog3;
 
@@ -722,9 +725,11 @@ public class PrefActivity extends PreferenceActivity {
     }
 
     // それぞれのデフォルト時刻ボタンを押したときに呼ばれるメソッド
-    public int defaultButton(PreferenceScreen button, boolean state, final int time_default) {
+    public int defaultButton(final PreferenceScreen button, boolean state, final int time_default) {
         // 引数time_defaultから時刻を抽出
-        String time_defaultSt = timeHandler.timeString(timeHandler.number_to_time(time_default % 10000)[0], timeHandler.number_to_time(time_default % 10000)[1]);
+        final int hour_default = timeHandler.number_to_time(time_default % 10000)[0];
+        final int minute_default = timeHandler.number_to_time(time_default % 10000)[1];
+        final String time_defaultSt = timeHandler.timeString(hour_default, minute_default);
 
         // ダイアログのタイトル
         String dialogTitle = "起床";
@@ -733,17 +738,18 @@ public class PrefActivity extends PreferenceActivity {
         }
 
         // 引数time_defaultから選択されている項目を抽出
-        final int defaultWhich = (time_default - (time_default % 10000)) / 10000;
+        defaultWhich = (time_default - (time_default % 10000)) / 10000;
 
         // ダイアログに表示する選択肢
-        String[] defaultSt = {"現在時刻", "前日の記録", "過去1週間の平均", "自分で指定(" + time_defaultSt + ")"};
+        final String[] defaultSt = {"現在時刻", "前日の記録", "過去1週間の平均", "自分で指定(" + time_defaultSt + ")"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
+        final String finalDialogTitle = dialogTitle;
         DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 defaultWhich = which;
-                switch (which) {
+                switch (defaultWhich) {
                     case 0:
                         default_time = time_default % 10000;
                         break;
@@ -754,11 +760,48 @@ public class PrefActivity extends PreferenceActivity {
                         default_time = (time_default % 10000) + 20000;
                         break;
                     case 3:
-                        // タイムピッカー
+                        // APIレベルによってタイムピッカーの表示方法を分ける
+                        if (Build.VERSION.SDK_INT >= 23) {
+                            // 自作のタイムピッカーを表示
+                            LayoutInflater inflater = getLayoutInflater();
+                            View originalDialog = inflater.inflate(R.layout.dialog_original_time_picker, (ViewGroup) findViewById(R.id.dialog_root));
 
-                        default_time = (time_default % 10000) + 30000;
+                            originalTimePicker = originalDialog.findViewById(R.id.originalTimePicker);
+                            originalTimePicker.setIs24HourView(true);
+                            originalTimePicker.setHour(hour_default);
+                            originalTimePicker.setMinute(minute_default);
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
+                            builder.setView(originalDialog);
+                            builder.setTitle("押し忘れ入力時の初期表示時刻(" + finalDialogTitle + ")");
+                            builder.setPositiveButton(
+                                    "OK",
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // ピッカーの時刻を取得
+                                            int default_hour = originalTimePicker.getHour();
+                                            int default_minute = originalTimePicker.getMinute();
+
+                                            // 保存する形式に変換
+                                            default_time = timeHandler.time_to_number(default_hour, default_minute) + 30000;
+
+                                            // 表示する形式に変換
+                                            time_defaultSt = timeHandler.timeString(default_hour, default_minute);
+
+                                            dialog.dismiss();
+                                        }
+                                    }
+                            );
+                        }
+
+                        // default_time = (time_default % 10000) + 30000;
                         break;
                 }
+                alertDialog3.dismiss();
+
+                // サマリーに表示
+                button.setSummary(defaultSt[defaultWhich]);
             }
         };
         builder.setTitle("押し忘れ入力時の初期表示時刻(" + dialogTitle + ")").setSingleChoiceItems(defaultSt, defaultWhich, onClickListener);
