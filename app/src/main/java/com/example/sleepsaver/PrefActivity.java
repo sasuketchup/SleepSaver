@@ -113,6 +113,10 @@ public class PrefActivity extends PreferenceActivity {
     int defaultWhich;
     // デフォルト時刻のアラートダイアログ
     AlertDialog alertDialog3;
+    // デフォルト時刻の表示形式
+    String time_defaultSt;
+    // デフォルト時刻のダイアログに表示する選択肢&サマリーに表示
+    String[] defaultSt = {"現在時刻", "前日の記録", "過去1週間の平均", "自分で指定(" + time_defaultSt + ")"};
 
     // ポップアップ画面の表示or非表示の変数
     boolean display_popup;
@@ -729,7 +733,7 @@ public class PrefActivity extends PreferenceActivity {
         // 引数time_defaultから時刻を抽出
         final int hour_default = timeHandler.number_to_time(time_default % 10000)[0];
         final int minute_default = timeHandler.number_to_time(time_default % 10000)[1];
-        final String time_defaultSt = timeHandler.timeString(hour_default, minute_default);
+        time_defaultSt = timeHandler.timeString(hour_default, minute_default);
 
         // ダイアログのタイトル
         String dialogTitle = "起床";
@@ -739,9 +743,6 @@ public class PrefActivity extends PreferenceActivity {
 
         // 引数time_defaultから選択されている項目を抽出
         defaultWhich = (time_default - (time_default % 10000)) / 10000;
-
-        // ダイアログに表示する選択肢
-        final String[] defaultSt = {"現在時刻", "前日の記録", "過去1週間の平均", "自分で指定(" + time_defaultSt + ")"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
         final String finalDialogTitle = dialogTitle;
@@ -761,15 +762,15 @@ public class PrefActivity extends PreferenceActivity {
                         break;
                     case 3:
                         // APIレベルによってタイムピッカーの表示方法を分ける
-                        if (Build.VERSION.SDK_INT >= 23) {
+                        // if (Build.VERSION.SDK_INT >= 23) {
                             // 自作のタイムピッカーを表示
                             LayoutInflater inflater = getLayoutInflater();
                             View originalDialog = inflater.inflate(R.layout.dialog_original_time_picker, (ViewGroup) findViewById(R.id.dialog_root));
 
                             originalTimePicker = originalDialog.findViewById(R.id.originalTimePicker);
                             originalTimePicker.setIs24HourView(true);
-                            originalTimePicker.setHour(hour_default);
-                            originalTimePicker.setMinute(minute_default);
+                            originalTimePicker.setCurrentHour(hour_default);
+                            originalTimePicker.setCurrentMinute(minute_default);
 
                             AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
                             builder.setView(originalDialog);
@@ -780,8 +781,8 @@ public class PrefActivity extends PreferenceActivity {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                             // ピッカーの時刻を取得
-                                            int default_hour = originalTimePicker.getHour();
-                                            int default_minute = originalTimePicker.getMinute();
+                                            int default_hour = originalTimePicker.getCurrentHour();
+                                            int default_minute = originalTimePicker.getCurrentMinute();
 
                                             // 保存する形式に変換
                                             default_time = timeHandler.time_to_number(default_hour, default_minute) + 30000;
@@ -793,7 +794,17 @@ public class PrefActivity extends PreferenceActivity {
                                         }
                                     }
                             );
-                        }
+                            builder.setNegativeButton(
+                                    "キャンセル",
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    }
+                            );
+                            builder.show();
+                        // }
 
                         // default_time = (time_default % 10000) + 30000;
                         break;
@@ -1147,12 +1158,21 @@ public class PrefActivity extends PreferenceActivity {
         // 押し忘れ入力時のデフォルト時刻
         // 就寝
         default_gtb = sp.getInt("default_gtb", 0);
-        PreferenceScreen default_gtb_btn = (PreferenceScreen) findPreference("default_gtb");
+        // 時刻を抽出
+        int hour_default_gtb = timeHandler.number_to_time(default_gtb % 10000)[0];
+        int minute_default_gtb = timeHandler.number_to_time(default_gtb % 10000)[1];
+        time_defaultSt = timeHandler.timeString(hour_default_gtb, minute_default_gtb);
+        // 選択されている項目を抽出
+        defaultWhich = (default_gtb - (default_gtb % 10000)) / 10000;
+        final PreferenceScreen default_gtb_btn = (PreferenceScreen) findPreference("default_gtb");
+        // サマリーに表示
+        default_gtb_btn.setSummary(defaultSt[defaultWhich]);
         default_gtb_btn.setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
 
+                        default_gtb = defaultButton(default_gtb_btn, false, default_gtb);
 
                         return true;
                     }
