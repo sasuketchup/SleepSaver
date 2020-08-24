@@ -116,7 +116,7 @@ public class PrefActivity extends PreferenceActivity {
     // デフォルト時刻の表示形式
     String time_defaultSt;
     // デフォルト時刻のダイアログに表示する選択肢&サマリーに表示
-    String[] defaultSt = {"現在時刻", "前日の記録", "過去1週間の平均", "自分で指定(" + time_defaultSt + ")"};
+    String[] defaultSt = {"現在時刻", "前日の記録", "過去1週間の平均", time_defaultSt + "(自分で指定)"};
 
     // ポップアップ画面の表示or非表示の変数
     boolean display_popup;
@@ -729,11 +729,13 @@ public class PrefActivity extends PreferenceActivity {
     }
 
     // それぞれのデフォルト時刻ボタンを押したときに呼ばれるメソッド
-    public int defaultButton(final PreferenceScreen button, boolean state, final int time_default) {
+    public int defaultButton(final PreferenceScreen button, final boolean state, final int time_default) {
         // 引数time_defaultから時刻を抽出
         final int hour_default = timeHandler.number_to_time(time_default % 10000)[0];
         final int minute_default = timeHandler.number_to_time(time_default % 10000)[1];
         time_defaultSt = timeHandler.timeString(hour_default, minute_default);
+        // 選択肢に表示
+        defaultSt[3] = time_defaultSt + "(自分で指定)";
 
         // ダイアログのタイトル
         String dialogTitle = "起床";
@@ -790,6 +792,15 @@ public class PrefActivity extends PreferenceActivity {
                                             // 表示する形式に変換
                                             time_defaultSt = timeHandler.timeString(default_hour, default_minute);
 
+                                            // サマリーに表示
+                                            button.setSummary(defaultSt[defaultWhich]);
+                                            // 結果を代入
+                                            if (state) {
+                                                default_gu = default_time;
+                                            } else {
+                                                default_gtb = default_time;
+                                            }
+
                                             dialog.dismiss();
                                         }
                                     }
@@ -811,8 +822,17 @@ public class PrefActivity extends PreferenceActivity {
                 }
                 alertDialog3.dismiss();
 
-                // サマリーに表示
-                button.setSummary(defaultSt[defaultWhich]);
+                // 自分で指定以外
+                if (defaultWhich < 3) {
+                    // サマリーに表示
+                    button.setSummary(defaultSt[defaultWhich]);
+                    // 結果を代入
+                    if (state) {
+                        default_gu = default_time;
+                    } else {
+                        default_gtb = default_time;
+                    }
+                }
             }
         };
         builder.setTitle("押し忘れ入力時の初期表示時刻(" + dialogTitle + ")").setSingleChoiceItems(defaultSt, defaultWhich, onClickListener);
@@ -1172,7 +1192,7 @@ public class PrefActivity extends PreferenceActivity {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
 
-                        default_gtb = defaultButton(default_gtb_btn, false, default_gtb);
+                        defaultButton(default_gtb_btn, false, default_gtb);
 
                         return true;
                     }
