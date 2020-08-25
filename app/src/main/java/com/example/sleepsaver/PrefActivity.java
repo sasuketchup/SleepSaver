@@ -793,6 +793,7 @@ public class PrefActivity extends PreferenceActivity {
                                             time_defaultSt = timeHandler.timeString(default_hour, default_minute);
 
                                             // サマリーに表示
+                                            defaultSt[3] = time_defaultSt + "(自分で指定)";
                                             button.setSummary(defaultSt[defaultWhich]);
                                             // 結果を代入
                                             if (state) {
@@ -1186,6 +1187,7 @@ public class PrefActivity extends PreferenceActivity {
         defaultWhich = (default_gtb - (default_gtb % 10000)) / 10000;
         final PreferenceScreen default_gtb_btn = (PreferenceScreen) findPreference("default_gtb");
         // サマリーに表示
+        defaultSt[3] = time_defaultSt + "(自分で指定)";
         default_gtb_btn.setSummary(defaultSt[defaultWhich]);
         default_gtb_btn.setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
@@ -1193,6 +1195,31 @@ public class PrefActivity extends PreferenceActivity {
                     public boolean onPreferenceClick(Preference preference) {
 
                         defaultButton(default_gtb_btn, false, default_gtb);
+
+                        return true;
+                    }
+                }
+        );
+
+        // 押し忘れ入力時のデフォルト時刻
+        // 起床
+        default_gu = sp.getInt("default_gu", 0);
+        // 時刻を抽出
+        int hour_default_gu = timeHandler.number_to_time(default_gu % 10000)[0];
+        int minute_default_gu = timeHandler.number_to_time(default_gu % 10000)[1];
+        time_defaultSt = timeHandler.timeString(hour_default_gu, minute_default_gu);
+        // 選択されている項目を抽出
+        defaultWhich = (default_gu - (default_gu % 10000)) / 10000;
+        final PreferenceScreen default_gu_btn = (PreferenceScreen) findPreference("default_gu");
+        // サマリーに表示
+        defaultSt[3] = time_defaultSt + "(自分で指定)";
+        default_gu_btn.setSummary(defaultSt[defaultWhich]);
+        default_gu_btn.setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+
+                        defaultButton(default_gu_btn, true, default_gu);
 
                         return true;
                     }
@@ -1305,6 +1332,12 @@ public class PrefActivity extends PreferenceActivity {
                                         // 目標睡眠時間
                                         editor.putInt("sleeping_target", slp_target);
 
+                                        // 押し忘れ入力時のデフォルト時刻
+                                        // 就寝
+                                        editor.putInt("default_gtb", default_gtb);
+                                        // 起床
+                                        editor.putInt("default_gu", default_gu);
+
                                         // 充電切り替え時のポップアップ画面表示有無
                                         editor.putBoolean("display_popup", display_popup);
                                         // ポップアップ画面の就寝・起床反転
@@ -1347,6 +1380,8 @@ public class PrefActivity extends PreferenceActivity {
         int gtb_target_back = sp.getInt("go_to_bed_target", 0);
         int gu_target_back = sp.getInt("get_up_target", 800);
         int slp_target_back = sp.getInt("sleeping_target", 800);
+        int default_gtb_back = sp.getInt("default_gtb", 0);
+        int default_gu_back = sp.getInt("default_gu", 0);
         boolean display_popup_back = sp.getBoolean("display_popup", false);
         boolean inversion_back = sp.getBoolean("inversion", false);
         // 表示範囲の指定日をDBから取得
@@ -1373,6 +1408,7 @@ public class PrefActivity extends PreferenceActivity {
                 && year_back1 == spec_year1 && month_back1 == spec_month1 && date_back1 == spec_date1
                 && year_back2 == spec_year2 && month_back2 == spec_month2 && date_back2 == spec_date2
                 && gtb_target_back == gtb_target && gu_target_back == gu_target && slp_target_back == slp_target
+                && default_gtb_back == default_gtb && default_gu_back == default_gu
                 && display_popup_back == display_popup && inversion_back == inversion) {
             finish();
         } else {

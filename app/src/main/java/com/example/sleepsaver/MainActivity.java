@@ -374,11 +374,17 @@ public class MainActivity extends AppCompatActivity {
     // 起床or就寝時刻ボタンまたは記録のテキストビューを押したときに呼ばれるメソッド
     public void recordTime(final boolean sleep, final SQLiteDatabase db, final int i) {
 
+        // 押し忘れ入力時のデフォルト時刻を取得するために設定から取得
+        SharedPreferences sp = getSharedPreferences("pref", MODE_PRIVATE);
+        int default_time;
+
         String sleepText;
         if (sleep == false) {
             sleepText = "起床";
+            default_time = sp.getInt("default_gu", 0);
         }else {
             sleepText = "就寝";
+            default_time = sp.getInt("default_gtb", 0);
         }
 
         String updateORadd = "記録";
@@ -415,13 +421,39 @@ public class MainActivity extends AppCompatActivity {
             cursor.moveToFirst();
             hour = cursor.getInt(1);
             minute = cursor.getInt(2);
+            cursor.moveToPrevious();
+            int weekOrLength = i - 1;
+            if (weekOrLength > 7) {
+                weekOrLength = 7;
+            }
+            int[] past_hour = new int[weekOrLength];
+            int[] past_minute = new int[weekOrLength];
+            for (int j = 0; j < weekOrLength; j++) {
+                past_hour[j] = cursor.getInt(1);
+                past_minute[j] = cursor.getInt(2);
+                cursor.moveToPrevious();
+            }
             cursor.close();
 
-            if (hour == -1) {
-                hour = calendar.get(Calendar.HOUR_OF_DAY);
-            }
+            // 空の時
             if (minute == -1) {
-                minute = calendar.get(Calendar.MINUTE);
+                int defaultWhich = (default_time - (default_time % 10000)) / 10000;
+                switch (defaultWhich) {
+                    case 0:
+                        hour = calendar.get(Calendar.HOUR_OF_DAY);
+                        minute = calendar.get(Calendar.MINUTE);
+                        break;
+                    case 1:
+
+                        break;
+                    case 2:
+
+                        break;
+                    case 3:
+                        hour = timeHandler.number_to_time(default_time % 10000)[0];
+                        minute = timeHandler.number_to_time(default_time % 10000)[1];
+                        break;
+                }
             }
         }
 
