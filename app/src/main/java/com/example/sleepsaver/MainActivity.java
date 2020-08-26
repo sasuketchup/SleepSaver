@@ -377,6 +377,9 @@ public class MainActivity extends AppCompatActivity {
         // 押し忘れ入力時のデフォルト時刻を取得するために設定から取得
         SharedPreferences sp = getSharedPreferences("pref", MODE_PRIVATE);
         int default_time;
+        // 起床→就寝切り替え時刻を取得
+        int stay_up_line = sp.getInt("stay_up_line", 1200);
+        int hour_line = timeHandler.number_to_time(stay_up_line)[0];
 
         String sleepText;
         if (sleep == false) {
@@ -439,17 +442,53 @@ public class MainActivity extends AppCompatActivity {
             if (minute == -1) {
                 int defaultWhich = (default_time - (default_time % 10000)) / 10000;
                 switch (defaultWhich) {
-                    case 0:
+                    case 0: // 現在時刻
                         hour = calendar.get(Calendar.HOUR_OF_DAY);
                         minute = calendar.get(Calendar.MINUTE);
                         break;
-                    case 1:
-
+                    case 1: // 前日
+                        for (int j = 0; j < weekOrLength; j++) { // 空でない日が見つかるまで繰り返す
+                            if (past_minute[j] != -1) { // 空でないとき
+                                hour = past_hour[j];
+                                minute = past_minute[j];
+                                break;
+                            }
+                        }
+                        if (minute == -1) { // 空でない日がなかった場合は自分で指定した時刻に
+                            hour = timeHandler.number_to_time(default_time % 10000)[0];
+                            minute = timeHandler.number_to_time(default_time % 10000)[1];
+                        }
                         break;
-                    case 2:
+                    case 2: // 過去1週間の平均
+                        int sum = 0;
+                        int count = 0;
+                        for (int j = 0; j < weekOrLength; j++) {
+                            if (past_minute[j] != -1) {
+                                count++;
 
+                                if (sleep && past_hour[j] < hour_line) { // 就寝の場合かつ0時を過ぎている場合24を加算
+                                    past_hour[j] += 24;
+                                }
+
+                                // 時を分に換算し合計に加算
+                                sum += (past_hour[j] * 60) + past_minute[j];
+                            }
+                        }
+                        // 分母が0でないとき
+                        if (count > 0) {
+                            int average = sum / count;
+                            minute = average % 60;
+                            hour = (average - minute) / 60;
+
+                            if (hour >= 24) { // 24時以上の場合24を引いて戻す
+                                hour -= 24;
+                            }
+                        } else { // すべて空で平均が計算できなかった場合は自分で指定した時刻に
+                            hour = timeHandler.number_to_time(default_time % 10000)[0];
+                            minute = timeHandler.number_to_time(default_time % 10000)[1];
+                        }
                         break;
-                    case 3:
+                    case 3: // 自分で指定
                         hour = timeHandler.number_to_time(default_time % 10000)[0];
                         minute = timeHandler.number_to_time(default_time % 10000)[1];
                         break;
