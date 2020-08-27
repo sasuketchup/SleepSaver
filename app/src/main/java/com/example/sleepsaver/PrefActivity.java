@@ -763,62 +763,70 @@ public class PrefActivity extends PreferenceActivity {
                         default_time = (time_default % 10000) + 20000;
                         break;
                     case 3:
-                        // APIレベルによってタイムピッカーの表示方法を分ける
-                        // if (Build.VERSION.SDK_INT >= 23) {
-                            // 自作のタイムピッカーを表示
-                            LayoutInflater inflater = getLayoutInflater();
-                            View originalDialog = inflater.inflate(R.layout.dialog_original_time_picker, (ViewGroup) findViewById(R.id.dialog_root));
+                        // 自作のタイムピッカーを表示
+                        LayoutInflater inflater = getLayoutInflater();
+                        View originalDialog = inflater.inflate(R.layout.dialog_original_time_picker, (ViewGroup) findViewById(R.id.dialog_root));
 
-                            originalTimePicker = originalDialog.findViewById(R.id.originalTimePicker);
-                            originalTimePicker.setIs24HourView(true);
+                        originalTimePicker = originalDialog.findViewById(R.id.originalTimePicker);
+                        originalTimePicker.setIs24HourView(true);
+                        // APIレベルによって分ける
+                        if (Build.VERSION.SDK_INT >= 23) {
+                            originalTimePicker.setHour(hour_default);
+                            originalTimePicker.setMinute(minute_default);
+                        } else {
                             originalTimePicker.setCurrentHour(hour_default);
                             originalTimePicker.setCurrentMinute(minute_default);
+                        }
 
-                            AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
-                            builder.setView(originalDialog);
-                            builder.setTitle("押し忘れ入力時の初期表示時刻(" + finalDialogTitle + ")");
-                            builder.setPositiveButton(
-                                    "OK",
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            // ピッカーの時刻を取得
-                                            int default_hour = originalTimePicker.getCurrentHour();
-                                            int default_minute = originalTimePicker.getCurrentMinute();
-
-                                            // 保存する形式に変換
-                                            default_time = timeHandler.time_to_number(default_hour, default_minute) + 30000;
-
-                                            // 表示する形式に変換
-                                            time_defaultSt = timeHandler.timeString(default_hour, default_minute);
-
-                                            // サマリーに表示
-                                            defaultSt[3] = time_defaultSt + "(自分で指定)";
-                                            button.setSummary(defaultSt[defaultWhich]);
-                                            // 結果を代入
-                                            if (state) {
-                                                default_gu = default_time;
-                                            } else {
-                                                default_gtb = default_time;
-                                            }
-
-                                            dialog.dismiss();
+                        AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
+                        builder.setView(originalDialog);
+                        builder.setTitle("押し忘れ入力時の初期表示時刻(" + finalDialogTitle + ")");
+                        builder.setPositiveButton(
+                                "OK",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // ピッカーの時刻を取得
+                                        int default_hour;
+                                        int default_minute;
+                                        if (Build.VERSION.SDK_INT >= 23) { // APIレベルによって分ける
+                                            default_hour = originalTimePicker.getHour();
+                                            default_minute = originalTimePicker.getMinute();
+                                        } else {
+                                            default_hour = originalTimePicker.getCurrentHour();
+                                            default_minute = originalTimePicker.getCurrentMinute();
                                         }
-                                    }
-                            );
-                            builder.setNegativeButton(
-                                    "キャンセル",
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                        }
-                                    }
-                            );
-                            builder.show();
-                        // }
 
-                        // default_time = (time_default % 10000) + 30000;
+                                        // 保存する形式に変換
+                                        default_time = timeHandler.time_to_number(default_hour, default_minute) + 30000;
+
+                                        // 表示する形式に変換
+                                        time_defaultSt = timeHandler.timeString(default_hour, default_minute);
+
+                                        // サマリーに表示
+                                        defaultSt[3] = time_defaultSt + "(自分で指定)";
+                                        button.setSummary(defaultSt[defaultWhich]);
+                                        // 結果を代入
+                                        if (state) {
+                                            default_gu = default_time;
+                                        } else {
+                                            default_gtb = default_time;
+                                        }
+
+                                        dialog.dismiss();
+                                    }
+                                }
+                        );
+                        builder.setNegativeButton(
+                                "キャンセル",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                }
+                        );
+                        builder.show();
                         break;
                 }
                 alertDialog3.dismiss();

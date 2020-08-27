@@ -420,8 +420,8 @@ public class MainActivity extends AppCompatActivity {
             date = cursor0.getInt(3);
             cursor0.close();
 
-            Cursor cursor = db.query(tableName, new String[] {"id", "hour", "minute"}, "id=" + i, null, null, null, null);
-            cursor.moveToFirst();
+            Cursor cursor = db.query(tableName, new String[] {"id", "hour", "minute"}, null, null, null, null, null);
+            cursor.moveToPosition(i);
             hour = cursor.getInt(1);
             minute = cursor.getInt(2);
             cursor.moveToPrevious();
