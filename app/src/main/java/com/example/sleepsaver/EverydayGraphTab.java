@@ -372,11 +372,15 @@ public class EverydayGraphTab extends Fragment {
 
         // 直近2週間のグラフのみ塗りつぶし
         if (graphType == 1) {
+            setGU.setFillFormatter(new MyFillFormatter(setGTB));
+
+            lineChart.setRenderer(new MyChartRenderer(lineChart, lineChart.getAnimator(), lineChart.getViewPortHandler()));
+
             setGU.setDrawFilled(true);
-            setGTB.setDrawFilled(true);
-            setGU.setFillColor(Color.BLUE);
-            setGTB.setFillColor(Color.WHITE);
-            setGTB.setFillAlpha(130);
+//            setGTB.setDrawFilled(true);
+//            setGU.setFillColor(Color.BLUE);
+//            setGTB.setFillColor(Color.WHITE);
+//            setGTB.setFillAlpha(130);
         } else {
             setGU.setDrawFilled(false);
             setGTB.setDrawFilled(false);
