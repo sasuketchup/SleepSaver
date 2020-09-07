@@ -213,9 +213,11 @@ public class MonthAverageGraphTab extends Fragment {
         // 凡例
         LegendEntry legendGU = new LegendEntry("起床時刻", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.CYAN);
         LegendEntry legendGTB = new LegendEntry("就寝時刻", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.MAGENTA);
+        LegendEntry legendCGU = new LegendEntry("目標達成(起床)", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.BLUE);
+        LegendEntry legendCGTB = new LegendEntry("目標達成(就寝)", Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.RED);
         LegendEntry legendTL = new LegendEntry("目標起床時刻：" + timeHandler.timeString(gu_target_hour, gu_target_minute) + ",目標就寝時刻：" + timeHandler.timeString(gtb_target_hour, gtb_target_minute), Legend.LegendForm.DEFAULT, 10f, 2f, null, Color.GREEN);
         Legend legend = monthAveChart.getLegend();
-        legend.setCustom(new LegendEntry[]{legendGU, legendGTB, legendTL});
+        legend.setCustom(new LegendEntry[]{legendGU, legendGTB, legendCGU, legendCGTB, legendTL});
         legend.setWordWrapEnabled(true);
     }
 }
