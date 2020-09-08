@@ -45,7 +45,7 @@
         app:layout_constraintStart_toEndOf="@+id/textView3"
         app:layout_constraintTop_toTopOf="@+id/textView3" />
 
-    <ScrollView
+    <com.example.sleepsaver.ObservableScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -87,7 +87,7 @@
                 android:orientation="vertical"></LinearLayout>
 
         </LinearLayout>
-    </ScrollView>
+    </com.example.sleepsaver.ObservableScrollView>
 
     <Button
         android:id="@+id/GUbtn"

@@ -2,6 +2,7 @@ package com.example.sleepsaver;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -10,9 +11,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout varGULay;
     LinearLayout varGTBLay;
     LinearLayout varSTLay;
+
+    int sum_diffY = 0;
 
     TimeHandler timeHandler = new TimeHandler();
 
@@ -148,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
 //        LinearLayout[] timeLayout = new LinearLayout[(int) idCount];
 
         TextView[] textDate = new TextView[(int) idCount];
-        TextView[] textGU = new TextView[(int) idCount];
+        final TextView[] textGU = new TextView[(int) idCount];
         TextView[] textGTB = new TextView[(int) idCount];
         TextView[] textST = new TextView[(int) idCount - 1];
         // 月の変わるタイミングを調べるためにmonthのみ配列
@@ -281,6 +286,23 @@ public class MainActivity extends AppCompatActivity {
         TextView emptyST = new TextView(this);
         emptyST.setHeight(75);
         varSTLay.addView(emptyST, 0);
+
+        // スクロールしたときの処理
+        final ObservableScrollView obScrollView = (ObservableScrollView) findViewById(R.id.scrollView);
+        obScrollView.setOnScrollViewListener(
+                new ObservableScrollView.ScrollViewListener() {
+                    @Override
+                    public void onScrollChanged(int x, int y, int oldX, int oldY) {
+                        int diffY = y - oldY;
+                        sum_diffY += diffY;
+                        Log.d("a", String.valueOf(diffY));
+                        Log.d("b", String.valueOf(sum_diffY));
+                        if (sum_diffY > 150) {
+                            textGU[1].setTextSize(35);
+                        }
+                    }
+                }
+        );
 
         // 睡眠データボタンの処理
         findViewById(R.id.data_page).setOnClickListener(
