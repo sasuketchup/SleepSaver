@@ -66,7 +66,10 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout varGTBLay;
     LinearLayout varSTLay;
 
+    // スクロールの移動距離の合計
     int sum_diffY = 0;
+    // 強調するデータの位置
+    int data_position = 0;
 
     TimeHandler timeHandler = new TimeHandler();
 
@@ -297,8 +300,16 @@ public class MainActivity extends AppCompatActivity {
                         sum_diffY += diffY;
                         Log.d("a", String.valueOf(diffY));
                         Log.d("b", String.valueOf(sum_diffY));
-                        if (sum_diffY > 150) {
-                            textGU[1].setTextSize(35);
+                        if (Math.abs(sum_diffY) >= 150) {
+                            if (sum_diffY > 0) {
+                                data_position++;
+                                textGU[data_position - 1].setTextSize(30);
+                            } else {
+                                data_position--;
+                                textGU[data_position + 1].setTextSize(30);
+                            }
+                            textGU[data_position].setTextSize(35);
+                            sum_diffY = 0;
                         }
                     }
                 }
