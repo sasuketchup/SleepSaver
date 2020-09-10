@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
 
         TextView[] textDate = new TextView[(int) idCount];
         final TextView[] textGU = new TextView[(int) idCount];
-        TextView[] textGTB = new TextView[(int) idCount];
+        final TextView[] textGTB = new TextView[(int) idCount];
         TextView[] textST = new TextView[(int) idCount - 1];
         // 月の変わるタイミングを調べるためにmonthのみ配列
         int[] month = new int[(int) idCount];
@@ -300,15 +300,18 @@ public class MainActivity extends AppCompatActivity {
                         sum_diffY += diffY;
                         Log.d("a", String.valueOf(diffY));
                         Log.d("b", String.valueOf(sum_diffY));
-                        if (Math.abs(sum_diffY) >= 150) {
+                        if (Math.abs(sum_diffY) > 150) {
                             if (sum_diffY > 0) {
                                 data_position++;
                                 textGU[data_position - 1].setTextSize(30);
+                                textGTB[data_position - 1].setTextSize(30);
                             } else {
                                 data_position--;
                                 textGU[data_position + 1].setTextSize(30);
+                                textGTB[data_position + 1].setTextSize(30);
                             }
                             textGU[data_position].setTextSize(35);
+                            textGTB[data_position].setTextSize(35);
                             sum_diffY = 0;
                         }
                     }
