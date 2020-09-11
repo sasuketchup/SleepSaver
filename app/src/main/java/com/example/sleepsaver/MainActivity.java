@@ -290,6 +290,9 @@ public class MainActivity extends AppCompatActivity {
         emptyST.setHeight(75);
         varSTLay.addView(emptyST, 0);
 
+        data_position += diff_now_spec2;
+        textGU[data_position].setTextSize(34);
+        textGTB[data_position].setTextSize(34);
         // スクロールしたときの処理
         final ObservableScrollView obScrollView = (ObservableScrollView) findViewById(R.id.scrollView);
         obScrollView.setOnScrollViewListener(
@@ -300,19 +303,20 @@ public class MainActivity extends AppCompatActivity {
                         sum_diffY += diffY;
                         Log.d("a", String.valueOf(diffY));
                         Log.d("b", String.valueOf(sum_diffY));
-                        if (Math.abs(sum_diffY) > 150) {
+                        if (Math.abs(sum_diffY) >= 150) {
                             if (sum_diffY > 0) {
                                 data_position++;
                                 textGU[data_position - 1].setTextSize(30);
                                 textGTB[data_position - 1].setTextSize(30);
+                                sum_diffY -= 150;
                             } else {
                                 data_position--;
                                 textGU[data_position + 1].setTextSize(30);
                                 textGTB[data_position + 1].setTextSize(30);
+                                sum_diffY += 150;
                             }
-                            textGU[data_position].setTextSize(35);
-                            textGTB[data_position].setTextSize(35);
-                            sum_diffY = 0;
+                            textGU[data_position].setTextSize(34);
+                            textGTB[data_position].setTextSize(34);
                         }
                     }
                 }
