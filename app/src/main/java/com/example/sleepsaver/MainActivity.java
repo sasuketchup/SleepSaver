@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Paint;
 import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
@@ -317,6 +318,8 @@ public class MainActivity extends AppCompatActivity {
                             }
                             textGU[data_position].setTextSize(34);
                             textGTB[data_position].setTextSize(34);
+                            textGU[data_position].setPaintFlags(textGU[data_position].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                            textGTB[data_position].setPaintFlags(textGTB[data_position].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
                         }
                     }
                 }
