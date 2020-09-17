@@ -294,6 +294,8 @@ public class MainActivity extends AppCompatActivity {
         data_position += diff_now_spec2;
         textGU[data_position].setTextSize(34);
         textGTB[data_position].setTextSize(34);
+        textGU[data_position].setPaintFlags(textGU[data_position].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        textGTB[data_position].setPaintFlags(textGTB[data_position].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         // スクロールしたときの処理
         final ObservableScrollView obScrollView = (ObservableScrollView) findViewById(R.id.scrollView);
         obScrollView.setOnScrollViewListener(
@@ -309,11 +311,15 @@ public class MainActivity extends AppCompatActivity {
                                 data_position++;
                                 textGU[data_position - 1].setTextSize(30);
                                 textGTB[data_position - 1].setTextSize(30);
+                                textGU[data_position - 1].setPaintFlags(textGU[data_position - 1].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
+                                textGTB[data_position - 1].setPaintFlags(textGTB[data_position - 1].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
                                 sum_diffY -= 150;
                             } else {
                                 data_position--;
                                 textGU[data_position + 1].setTextSize(30);
                                 textGTB[data_position + 1].setTextSize(30);
+                                textGU[data_position + 1].setPaintFlags(textGU[data_position + 1].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
+                                textGTB[data_position + 1].setPaintFlags(textGTB[data_position + 1].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
                                 sum_diffY += 150;
                             }
                             textGU[data_position].setTextSize(34);
