@@ -304,24 +304,30 @@ public class MainActivity extends AppCompatActivity {
                     public void onScrollChanged(int x, int y, int oldX, int oldY) {
                         int diffY = y - oldY;
                         sum_diffY += diffY;
-                        Log.d("a", String.valueOf(diffY));
-                        Log.d("b", String.valueOf(sum_diffY));
+                        Log.d("diff", String.valueOf(diffY));
+                        Log.d("sum", String.valueOf(sum_diffY));
                         if (Math.abs(sum_diffY) >= 150) {
-                            if (sum_diffY > 0) {
-                                data_position++;
-                                textGU[data_position - 1].setTextSize(30);
-                                textGTB[data_position - 1].setTextSize(30);
-                                textGU[data_position - 1].setPaintFlags(textGU[data_position - 1].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
-                                textGTB[data_position - 1].setPaintFlags(textGTB[data_position - 1].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
-                                sum_diffY -= 150;
-                            } else {
-                                data_position--;
-                                textGU[data_position + 1].setTextSize(30);
-                                textGTB[data_position + 1].setTextSize(30);
-                                textGU[data_position + 1].setPaintFlags(textGU[data_position + 1].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
-                                textGTB[data_position + 1].setPaintFlags(textGTB[data_position + 1].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
-                                sum_diffY += 150;
-                            }
+
+                            // 強調する記録箇所の移動個数
+                            int move_position = sum_diffY / 150;
+                            Log.d("move_position", String.valueOf(move_position));
+
+                            // if (sum_diffY > 0) {
+                                data_position += move_position;
+                                textGU[data_position - move_position].setTextSize(30);
+                                textGTB[data_position - move_position].setTextSize(30);
+                                textGU[data_position - move_position].setPaintFlags(textGU[data_position - move_position].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
+                                textGTB[data_position - move_position].setPaintFlags(textGTB[data_position - move_position].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
+                                sum_diffY = 0;
+                                // sum_diffY -= (150 * move_position);
+                            // } else {
+//                                data_position--;
+//                                textGU[data_position + 1].setTextSize(30);
+//                                textGTB[data_position + 1].setTextSize(30);
+//                                textGU[data_position + 1].setPaintFlags(textGU[data_position + 1].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
+//                                textGTB[data_position + 1].setPaintFlags(textGTB[data_position + 1].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
+//                                sum_diffY += 150;
+                            // }
                             textGU[data_position].setTextSize(34);
                             textGTB[data_position].setTextSize(34);
                             textGU[data_position].setPaintFlags(textGU[data_position].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
