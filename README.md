@@ -24,6 +24,8 @@ Android (API Level 15 以上)
 
 #### 睡眠時間を確認する
 * 就寝時刻とその翌日の起床時刻が揃っていれば、睡眠時間を自動で計算し表示します。
+<img src="https://user-images.githubusercontent.com/33775868/105794953-5f7f9d80-5fcf-11eb-9e01-4fb63fa88acb.png" width="240px">
+
 #### 各画面へ遷移する
 * 「睡眠データ」、「グラフ」、「設定」ボタンでそれぞれの画面へ遷移します。
 
