@@ -58,7 +58,7 @@ Android (API Level 15 以上)
 
 #### 「月毎の平均」
 * 過去1年間の1ヶ月毎の平均のグラフです。
-<img src="" width="240px">
+<img src="https://user-images.githubusercontent.com/33775868/105953819-2d496b00-60b7-11eb-85d7-a7510ffbcb98.jpg" width="240px">
 
 ### 設定画面
 * 各種設定を変更し保存できます。
