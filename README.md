@@ -40,6 +40,8 @@ Android (API Level 15 以上)
 <img src="https://user-images.githubusercontent.com/33775868/105953067-e8710480-60b5-11eb-80df-f4d6c622747d.jpg" width="240px">
 
 2. 表示したい範囲を選択します。「指定日〜今日」と「指定日1〜指定日2」を選択するとカレンダーのダイアログが表示され、日付を選択できます。
+<img src="https://user-images.githubusercontent.com/33775868/105953212-240bce80-60b6-11eb-9975-dd1835b3f385.jpg" width="240px">
+
 3. 対象期間を変更した状態でメイン画面に戻ろうとするとダイアログが表示され、期間を設定として保存するか、保存せずに戻るか選べます。保存するとメイン画面の表示件数にも反映されます。
 
 ### 「グラフ」画面
