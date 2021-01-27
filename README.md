@@ -54,7 +54,7 @@ Android (API Level 15 以上)
 
 #### 「週毎の平均」
 * 1週間の平均を直近の12週間表示します。
-<img src="" width="240px">
+<img src="https://user-images.githubusercontent.com/33775868/105953713-f96e4580-60b6-11eb-8e44-63001916296a.jpg" width="240px">
 
 #### 「月毎の平均」
 * 過去1年間の1ヶ月毎の平均のグラフです。
