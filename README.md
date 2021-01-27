@@ -43,6 +43,7 @@ Android (API Level 15 以上)
 <img src="https://user-images.githubusercontent.com/33775868/105953212-240bce80-60b6-11eb-9975-dd1835b3f385.jpg" width="240px">
 
 3. 対象期間を変更した状態でメイン画面に戻ろうとするとダイアログが表示され、期間を設定として保存するか、保存せずに戻るか選べます。保存するとメイン画面の表示件数にも反映されます。
+<img src="https://user-images.githubusercontent.com/33775868/105953409-7c42d080-60b6-11eb-8915-d78a434d34e3.jpg" width="240px">
 
 ### 「グラフ」画面
 * 「グラフ」画面では、タブ操作で3種類のグラフを確認できます。
