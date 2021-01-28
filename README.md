@@ -6,7 +6,7 @@ Android (API Level 15 以上)
 ※Androidバージョン7で一部の機能に不具合を確認しています。
 
 ## インストール方法
-* Releasesのページからパッケージファイル(SleepSaver.apk)をダウンロードし、Android端末にインストールしてください。
+* [Releases](https://github.com/sasuketchup/SleepSaver/releases)のページからパッケージファイル(SleepSaver.apk)をダウンロードし、Android端末にインストールしてください。
 
 ## 使い方
 ### メイン画面
