@@ -2,7 +2,8 @@
 睡眠を管理するために就寝時刻と起床時刻を記録するアプリです。
 
 ## 動作環境
-Android (API Level 15 以上)
+Android (API Level 15 以上)  
+※Androidバージョン7で一部の機能に不具合があることを確認しています。
 
 ## インストール方法
 * Releasesのページからパッケージファイル(SleepSaver.apk)をダウンロードし、Android端末にインストールしてください。
