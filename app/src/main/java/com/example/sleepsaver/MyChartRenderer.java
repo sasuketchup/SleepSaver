@@ -93,7 +93,9 @@ public class MyChartRenderer extends LineChartRenderer {
 
         //Draw the path towards the other line
         for (int x = endIndex ; x > startIndex; x--) {
-            previousEntry = boundaryEntry.get(x);
+//            if (boundaryEntry.get(x) != null) {
+                previousEntry = boundaryEntry.get(x);
+//            }
             filled.lineTo(previousEntry.getX(), previousEntry.getY() * phaseY);
         }
 

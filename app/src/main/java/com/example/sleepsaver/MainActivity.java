@@ -163,10 +163,16 @@ public class MainActivity extends AppCompatActivity {
         // 月の変わるタイミングを調べるためにmonthのみ配列
         int[] month = new int[(int) idCount];
 
-        // 記録を表示
+        // カーソルを最新の記録へ
         cursor.moveToLast();
         cursor1.moveToLast();
         cursor2.moveToLast();
+
+        // ボタン無効化のために最新の記録取得
+        int latestGU = cursor1.getInt(1);
+        int latestGTB = cursor2.getInt(1);
+
+        // 記録を表示
         for(int i=0;i<idCount;i++){
 //            timeLayout[i] = new LinearLayout(this);
             textDate[i] = new TextView(this);
@@ -290,6 +296,14 @@ public class MainActivity extends AppCompatActivity {
         TextView emptyST = new TextView(this);
         emptyST.setHeight(75);
         varSTLay.addView(emptyST, 0);
+
+        // 既に最新の記録がある場合記録ボタンを無効化
+        if (latestGU != -1) {
+            findViewById(R.id.GUbtn).setEnabled(false);
+        }
+        if (latestGTB != -1) {
+            findViewById(R.id.GTBbtn).setEnabled(false);
+        }
 
         data_position += diff_now_spec2;
         textGU[data_position].setTextSize(34);
