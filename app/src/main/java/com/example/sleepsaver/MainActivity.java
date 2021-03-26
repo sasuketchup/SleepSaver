@@ -15,6 +15,7 @@ import android.graphics.Paint;
 import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
@@ -26,7 +27,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -73,6 +76,9 @@ public class MainActivity extends AppCompatActivity {
     int data_position = 0;
 
     TimeHandler timeHandler = new TimeHandler();
+
+    // 音声認識のリクエストコード
+    private static final int REQUEST_CODE = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -374,6 +380,25 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
+        // 音声入力ボタンの処理
+        findViewById(R.id.voice_input).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // 音声認識のIntentインスタンス
+                        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                        // 認識する言語を指定(日本語)
+                        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.JAPAN.toString());
+                        // 候補数
+                        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
+                        // 案内を表示
+                        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "「おはよう」または「おやすみ」\nと話しかけてください");
+                        // インテント発行
+                        startActivityForResult(intent, REQUEST_CODE);
+                    }
+                }
+        );
+
         // デバッグ用
 //        findViewById(R.id.debug).setOnClickListener(
 //                new View.OnClickListener() {
@@ -438,6 +463,91 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    // 音声認識の結果を受け取る
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        MyOpenHelper helper = new MyOpenHelper(this);
+        SQLiteDatabase db = helper.getWritableDatabase();
+
+        Cursor cursor1 = db.query("GetUpTable", new String[] {"id", "hour", "minute"}, null, null, null, null, null);
+        Cursor cursor2 = db.query("GoToBedTable", new String[] {"id", "hour", "minute"}, null, null, null, null, null);
+
+        cursor1.moveToLast();
+        cursor2.moveToLast();
+
+        // 最新の記録を取得
+        int latestGU = cursor1.getInt(1);
+        int latestGTB = cursor2.getInt(1);
+
+        cursor1.close();
+        cursor2.close();
+
+        long id = DatabaseUtils.queryNumEntries(db, "DateTable") - 1;
+
+        calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(this));
+
+        year = calendar.get(Calendar.YEAR);
+        month = calendar.get(Calendar.MONTH) + 1;
+        date = calendar.get(Calendar.DATE);
+        hour = calendar.get(Calendar.HOUR_OF_DAY);
+        minute = calendar.get(Calendar.MINUTE);
+
+        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
+            // 認識結果をArrayListで取得
+            ArrayList<String> results_data = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            // 候補が一つ以上ある場合
+            if (results_data.size() > 0) {
+                // 「おはよう」の場合
+                if (results_data.get(0) == "おはよう") {
+                    if (latestGU == -1) { // 最新の記録が空の場合
+                        // 記録し更新
+                        timeHandler.updateTime(false, db, (int) id, year, month, date, hour, minute);
+                        finish();
+                        overridePendingTransition(0, 0);
+                        startActivity(getIntent());
+                        overridePendingTransition(0, 0);
+                    } else { // 最新の記録がある場合
+                        showDialog(MainActivity.this, "既に起きています！", "OK");
+                    }
+                } else if (results_data.get(0) == "おやすみ") { // 「おやすみ」の場合
+                    if (latestGTB == -1) { // 最新の記録が空の場合
+                        // 記録し更新
+                        timeHandler.updateTime(true, db, (int) id, year, month, date, hour, minute);
+                        finish();
+                        overridePendingTransition(0, 0);
+                        startActivity(getIntent());
+                        overridePendingTransition(0, 0);
+                    } else { // 最新の記録がある場合
+                        showDialog(MainActivity.this, "既に寝ています！", "OK");
+                    }
+                } else { // 「おはよう」でも「おやすみ」でもない場合
+                    showDialog(MainActivity.this, "「" + results_data.get(0) + "」\nもう一度ボタンを押し\n「おはよう」または「おやすみ」\nと発音してください！", "OK");
+                }
+            } else { // 候補がない場合
+                showDialog(MainActivity.this, "認識に失敗しました", "OK");
+            }
+        }
+    }
+
+    // ダイアログを表示するメソッド
+    public void showDialog(Context context, String title, String button) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(title);
+        builder.setPositiveButton(
+                button,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }
+        );
+        builder.show();
     }
 
     // 起床or就寝時刻ボタンまたは記録のテキストビューを押したときに呼ばれるメソッド
