@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -138,9 +139,9 @@ public class DataActivity extends AppCompatActivity {
         int oldest_month = cal_now.get(Calendar.MONTH) + 1;
         int oldest_date = cal_now.get(Calendar.DATE);
 
-        TextView period_text = findViewById(R.id.period);
+        Button period_text = findViewById(R.id.period);
         period_text.setText("期間:" + timeHandler.dateString(oldest_year, oldest_month, oldest_date) + "～" + timeHandler.dateString(latest_year, latest_month, latest_date));
-        period_text.setPaintFlags(period_text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        // period_text.setPaintFlags(period_text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
         calculateData(db, idCount, diff_now_spec1, diff_now_spec2, gu_target_hour, gu_target_minute, gtb_target_hour, gtb_target_minute, slp_target_hour, slp_target_minute, hour_line);
 

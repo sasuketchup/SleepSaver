@@ -101,7 +101,10 @@ public class MainActivity extends AppCompatActivity {
         // データが1行以上あるとき実行
         if(idCount > 0) {
             // 記録し忘れがある場合、差分を埋める
-            timeHandler.fillForget(db, MainActivity.this);
+            // 更新されない現象があるため3回繰り返す
+            for (int i=0; i<3; i++) {
+                timeHandler.fillForget(db, MainActivity.this);
+            }
         }else{
             // データが空のとき実行
             calendar = Calendar.getInstance();
@@ -503,7 +506,7 @@ public class MainActivity extends AppCompatActivity {
             // 候補が一つ以上ある場合
             if (results_data.size() > 0) {
                 // 「おはよう」の場合
-                if (results_data.get(0) == "おはよう") {
+                if (results_data.get(0).equals("おはよう")) {
                     if (latestGU == -1) { // 最新の記録が空の場合
                         // 記録し更新
                         timeHandler.updateTime(false, db, (int) id, year, month, date, hour, minute);
@@ -512,9 +515,9 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(getIntent());
                         overridePendingTransition(0, 0);
                     } else { // 最新の記録がある場合
-                        showDialog(MainActivity.this, "既に起きています！", "OK");
+                        showDialog(MainActivity.this, "既に起きています！", "", "OK");
                     }
-                } else if (results_data.get(0) == "おやすみ") { // 「おやすみ」の場合
+                } else if (results_data.get(0).equals("おやすみ")) { // 「おやすみ」の場合
                     if (latestGTB == -1) { // 最新の記録が空の場合
                         // 記録し更新
                         timeHandler.updateTime(true, db, (int) id, year, month, date, hour, minute);
@@ -523,21 +526,22 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(getIntent());
                         overridePendingTransition(0, 0);
                     } else { // 最新の記録がある場合
-                        showDialog(MainActivity.this, "既に寝ています！", "OK");
+                        showDialog(MainActivity.this, "既に寝ています！", "", "OK");
                     }
                 } else { // 「おはよう」でも「おやすみ」でもない場合
-                    showDialog(MainActivity.this, "「" + results_data.get(0) + "」\nもう一度ボタンを押し\n「おはよう」または「おやすみ」\nと発音してください！", "OK");
+                    showDialog(MainActivity.this, "「" + results_data.get(0) + "」", "もう一度ボタンを押し\n「おはよう」または「おやすみ」\nと発音してください！", "OK");
                 }
             } else { // 候補がない場合
-                showDialog(MainActivity.this, "認識に失敗しました", "OK");
+                showDialog(MainActivity.this, "認識に失敗しました", "", "OK");
             }
         }
     }
 
     // ダイアログを表示するメソッド
-    public void showDialog(Context context, String title, String button) {
+    public void showDialog(Context context, String title, String message, String button) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(title);
+        builder.setMessage(message);
         builder.setPositiveButton(
                 button,
                 new DialogInterface.OnClickListener() {
