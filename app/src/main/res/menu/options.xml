@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/data_page"
+        android:title="睡眠データ" />
+    <item
+        android:id="@+id/graph_page"
+        android:title="グラフ" />
+    <item
+        android:id="@+id/voice_input"
+        android:title="音声入力" />
+    <item
+        android:id="@+id/settings"
+        android:title="設定" />
+</menu>

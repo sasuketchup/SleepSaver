@@ -1,5 +1,6 @@
 package com.example.sleepsaver;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -20,12 +21,14 @@ import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.database.DatabaseUtils;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toolbar;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -80,10 +83,14 @@ public class MainActivity extends AppCompatActivity {
     // 音声認識のリクエストコード
     private static final int REQUEST_CODE = 1000;
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setActionBar(toolbar);
 
         SharedPreferences sp = getSharedPreferences("pref", MODE_PRIVATE);
         // 表示範囲を取得
@@ -466,6 +473,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.options, menu);
+        return true;
     }
 
     // 音声認識の結果を受け取る
