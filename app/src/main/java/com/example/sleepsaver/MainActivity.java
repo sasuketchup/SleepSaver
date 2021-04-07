@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.annotation.SuppressLint;
@@ -40,7 +41,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     // 年月日時刻を扱う変数
     int year = 0;
@@ -104,12 +105,13 @@ public class MainActivity extends AppCompatActivity {
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigationView);
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                return false;
-            }
-        });
+        navigationView.setNavigationItemSelectedListener(this);
+//        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+//                return true;
+//            }
+//        });
 
         SharedPreferences sp = getSharedPreferences("pref", MODE_PRIVATE);
         // 表示範囲を取得
@@ -492,6 +494,59 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    // 睡眠データ
+    public void startDataPage() {
+        Intent intent = new Intent(MainActivity.this, DataActivity.class);
+        intent.putExtra("Update", false);
+        startActivity(intent);
+    }
+    // グラフ
+    public void startGraphPage() {
+        Intent intent = new Intent(MainActivity.this, GraphActivity.class);
+        startActivity(intent);
+    }
+    // 音声入力
+    public void startVoiceInput() {
+        // 音声認識のIntentインスタンス
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        // 認識する言語を指定(日本語)
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.JAPAN.toString());
+        // 候補数
+        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
+        // 案内を表示
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "「おはよう」または「おやすみ」\nと話しかけてください");
+        // インテント発行
+        startActivityForResult(intent, REQUEST_CODE);
+    }
+    // 設定
+    public void startSetting() {
+        Intent intent = new Intent(MainActivity.this, PrefActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.data_page:
+                startDataPage();
+                break;
+            case R.id.graph_page:
+                startGraphPage();
+                break;
+            case R.id.voice_input:
+                startVoiceInput();
+                break;
+            case R.id.settings:
+                startSetting();
+                break;
+        }
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     @Override
