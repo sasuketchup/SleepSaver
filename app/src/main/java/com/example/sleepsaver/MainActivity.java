@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     int data_position = 0;
 
     TimeHandler timeHandler = new TimeHandler();
+    PrefActivity prefActivity = new PrefActivity();
 
     // 音声認識のリクエストコード
     private static final int REQUEST_CODE = 1000;
@@ -525,23 +526,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent intent = new Intent(MainActivity.this, PrefActivity.class);
         startActivity(intent);
     }
+    // CSV入出力
+    public void startCSV() {
+        String[] inoutCSVStr = {"期間を指定してCSVファイルを出力", "CSVファイルを指定して読み込み(上書き)"};
+        new AlertDialog.Builder(MainActivity.this).setTitle(null).setItems(inoutCSVStr, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                        prefActivity.resultsWhich = prefActivity.setChoices(0);
+                        prefActivity.setRange(MainActivity.this, 1);
+                        break;
+                    case 1:
+                        break;
+                }
+            }
+        }).show();
+    }
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.data_page:
+            case R.id.data_page: // 睡眠データ
                 startDataPage();
                 break;
-            case R.id.graph_page:
+            case R.id.graph_page: // グラフ
                 startGraphPage();
                 break;
-            case R.id.voice_input:
+            case R.id.voice_input: // 音声入力
                 startVoiceInput();
                 break;
-            case R.id.settings:
+            case R.id.settings: // 設定
                 startSetting();
+                break;
+            case R.id.io_csv: // CSV入出力
+                startCSV();
                 break;
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
@@ -602,7 +623,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         startActivity(getIntent());
                         overridePendingTransition(0, 0);
                     } else { // 最新の記録がある場合
-                        showDialog(MainActivity.this, "既に起きています！", "", "OK");
+                        timeHandler.showDialog(MainActivity.this, "既に起きています！", "", "OK");
                     }
                 } else if (results_data.get(0).equals("おやすみ")) { // 「おやすみ」の場合
                     if (latestGTB == -1) { // 最新の記録が空の場合
@@ -613,32 +634,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         startActivity(getIntent());
                         overridePendingTransition(0, 0);
                     } else { // 最新の記録がある場合
-                        showDialog(MainActivity.this, "既に寝ています！", "", "OK");
+                        timeHandler.showDialog(MainActivity.this, "既に寝ています！", "", "OK");
                     }
                 } else { // 「おはよう」でも「おやすみ」でもない場合
-                    showDialog(MainActivity.this, "「" + results_data.get(0) + "」", "もう一度ボタンを押し\n「おはよう」または「おやすみ」\nと発音してください！", "OK");
+                    timeHandler.showDialog(MainActivity.this, "「" + results_data.get(0) + "」", "もう一度ボタンを押し\n「おはよう」または「おやすみ」\nと発音してください！", "OK");
                 }
             } else { // 候補がない場合
-                showDialog(MainActivity.this, "認識に失敗しました", "", "OK");
+                timeHandler.showDialog(MainActivity.this, "認識に失敗しました", "", "OK");
             }
         }
-    }
-
-    // ダイアログを表示するメソッド
-    public void showDialog(Context context, String title, String message, String button) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(title);
-        builder.setMessage(message);
-        builder.setPositiveButton(
-                button,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                }
-        );
-        builder.show();
     }
 
     // 起床or就寝時刻ボタンまたは記録のテキストビューを押したときに呼ばれるメソッド

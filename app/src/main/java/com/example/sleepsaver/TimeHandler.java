@@ -1,7 +1,9 @@
 package com.example.sleepsaver;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -9,6 +11,23 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.Calendar;
 
 public class TimeHandler {
+
+    // ダイアログを表示するメソッド
+    public void showDialog(Context context, String title, String message, String button) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setPositiveButton(
+                button,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }
+        );
+        builder.show();
+    }
 
     // 時分を表示する形式に整理するメソッド
     protected String timeString(int hour, int minute) {

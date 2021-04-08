@@ -168,7 +168,7 @@ public class DataActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        prefActivity.setRange(DataActivity.this);
+                        prefActivity.setRange(DataActivity.this, 2);
                     }
                 }
         );

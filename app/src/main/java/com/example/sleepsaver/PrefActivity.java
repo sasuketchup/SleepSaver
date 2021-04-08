@@ -256,7 +256,7 @@ public class PrefActivity extends PreferenceActivity {
     }
 
     // 表示範囲及び対象期間を設定しString型で返すメソッド
-    public String setRange(final Context context) {
+    public String setRange(final Context context, final int activityNum) {
 
         // 表示範囲の選択肢
         final String[] resultsSt = {"すべて表示", "過去1週間", "過去2週間", "過去3週間", "過去4週間", "指定日～今日", "指定日1～指定日2"};
@@ -306,7 +306,7 @@ public class PrefActivity extends PreferenceActivity {
                         }
                         datePickerDialog = new CustomDatePickerDialog(context, listener, spec_year, spec_month, spec_date);
 
-                        spec_St = designateDate(0, datePickerDialog, context);
+                        spec_St = designateDate(0, datePickerDialog, context, activityNum);
                         // resultsBtn.setSummary("記録の表示範囲: " + designateDate(resultsBtn, 0, datePickerDialog));
                         break;
                     case 6:
@@ -327,7 +327,7 @@ public class PrefActivity extends PreferenceActivity {
                         }
                         datePickerDialog1 = new CustomDatePickerDialog1(context, listener1, spec_year1, spec_month1, spec_date1);
 
-                        spec_St = designateDate(1, datePickerDialog1, context);
+                        spec_St = designateDate(1, datePickerDialog1, context, activityNum);
                         // resultsBtn.setSummary("記録の表示範囲: " + designateDate(resultsBtn, 1, datePickerDialog1));
                         break;
                 }
@@ -338,7 +338,7 @@ public class PrefActivity extends PreferenceActivity {
                     spec_St = resultsSt[resultsWhich];
                     // resultsBtn.setSummary("記録の表示範囲: " + resultsSt[resultsWhich]);
 
-                    setOrUpdateRange(context);
+                    setOrUpdateRange(context, activityNum);
                 }
             }
         };
@@ -349,7 +349,7 @@ public class PrefActivity extends PreferenceActivity {
     }
 
     // 表示範囲の日付を指定しString型で返すメソッド
-    public String designateDate(final int spec_point, final DatePickerDialog datePickerDialog, final Context context) {
+    public String designateDate(final int spec_point, final DatePickerDialog datePickerDialog, final Context context, final int activityNum) {
         // 最大値を今日に
         Calendar cal_max = Calendar.getInstance();
         cal_max.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(context) + 1);
@@ -392,7 +392,7 @@ public class PrefActivity extends PreferenceActivity {
                                 spec_date2 = cal_now.get(Calendar.DAY_OF_MONTH);
                             }
                             datePickerDialog2 = new CustomDatePickerDialog2(context, listener, spec_year2, spec_month2, spec_date2);
-                            spec_St = designateDate(2, datePickerDialog2, context);
+                            spec_St = designateDate(2, datePickerDialog2, context, activityNum);
                         } else if (spec_point == 2) {
                             resultsNum = -2;
                             spec_St = timeHandler.dateString(spec_year1, spec_month1 + 1, spec_date1) + "～" + timeHandler.dateString(spec_year2, spec_month2 + 1, spec_date2);
@@ -402,7 +402,7 @@ public class PrefActivity extends PreferenceActivity {
 
                         // 指定日～今日の指定日か指定日2の時
                         if (spec_point != 1) {
-                            setOrUpdateRange(context);
+                            setOrUpdateRange(context, activityNum);
                         }
                     }
                 }
@@ -423,15 +423,17 @@ public class PrefActivity extends PreferenceActivity {
     }
 
     // 範囲をサマリーに表示または更新するメソッド
-    public void setOrUpdateRange(Context context) {
+    public void setOrUpdateRange(Context context, int activityNum) {
         // 設定画面から呼んだ場合サマリーに表示
         if (context == PrefActivity.this) {
             resultsBtn.setSummary("記録の表示範囲: " + spec_St);
-        } else { // 睡眠データ画面から呼んだ場合アクティビティを再スタート
+        } else if (activityNum == 2) { // 睡眠データ画面から呼んだ場合アクティビティを再スタート
             Intent intent = new Intent(context, DataActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.putExtra("Update", true);
             context.startActivity(intent);
+        } else if (activityNum == 1) {
+            timeHandler.showDialog(context, "CSV出力", spec_St + "の記録を出力します。", "OK");
         }
     }
 
@@ -900,7 +902,7 @@ public class PrefActivity extends PreferenceActivity {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
 
-                        setRange(PrefActivity.this);
+                        setRange(PrefActivity.this, 0);
 
 //                        AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
 //                        DialogInterface.OnClickListener onDialogClickListener = new DialogInterface.OnClickListener() {

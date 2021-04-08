@@ -7,6 +7,9 @@
         android:id="@+id/graph_page"
         android:title="グラフ" />
     <item
+        android:id="@+id/io_csv"
+        android:title="CSV入出力" />
+    <item
         android:id="@+id/voice_input"
         android:title="音声入力" />
     <item
