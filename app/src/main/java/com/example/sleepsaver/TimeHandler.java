@@ -13,19 +13,46 @@ import java.util.Calendar;
 public class TimeHandler {
 
     // ダイアログを表示するメソッド
-    public void showDialog(Context context, String title, String message, String button) {
+    public void showDialog(Context context, String title, String message, String... button) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(title);
         builder.setMessage(message);
-        builder.setPositiveButton(
-                button,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
+        // ポジティブボタン
+        if (button.length > 0) {
+            builder.setPositiveButton(
+                    button[0],
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
                     }
-                }
-        );
+            );
+        }
+        // ネガティブボタン
+        if (button.length > 1) {
+            builder.setNegativeButton(
+                    button[1],
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }
+            );
+        }
+        // ニュートラルボタン
+        if (button.length > 2) {
+            builder.setNeutralButton(
+                    button[2],
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }
+            );
+        }
         builder.show();
     }
 

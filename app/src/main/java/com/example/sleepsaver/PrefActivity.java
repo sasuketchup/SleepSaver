@@ -14,6 +14,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -26,9 +27,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -433,7 +439,33 @@ public class PrefActivity extends PreferenceActivity {
             intent.putExtra("Update", true);
             context.startActivity(intent);
         } else if (activityNum == 1) {
-            timeHandler.showDialog(context, "CSV出力", spec_St + "の記録を出力します。", "OK");
+            timeHandler.showDialog(context, "CSV出力", spec_St + "の記録を出力します。", "OK", "キャンセル");
+            String state = Environment.getExternalStorageState();
+            if (Environment.MEDIA_MOUNTED.equals(state)) {
+                File exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                if (!exportDir.exists()) {
+                    exportDir.mkdirs();
+                }
+
+                File file;
+                PrintWriter printWriter = null;
+                try {
+                    file = new File(exportDir, "testFile.csv");
+                    file.createNewFile();
+                    printWriter = new PrintWriter(new FileWriter(file));
+                    printWriter.print("test");
+                    printWriter.println();
+                } catch (FileNotFoundException exc) {
+                    Toast.makeText(context, "アクセス権限がありません", Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Toast.makeText(context, "CSV出力に失敗しました", Toast.LENGTH_LONG).show();
+                } finally {
+                    if (printWriter != null) {
+                        printWriter.close();
+                        Toast.makeText(context, "クローズしました", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
         }
     }
 
