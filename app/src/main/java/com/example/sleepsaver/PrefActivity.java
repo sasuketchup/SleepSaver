@@ -441,7 +441,7 @@ public class PrefActivity extends PreferenceActivity {
             intent.putExtra("Update", true);
             context.startActivity(intent);
         } else if (activityNum == 1) {
-            timeHandler.showDialog(context, "CSV出力", spec_St + "の記録を出力します。", "OK", "キャンセル");
+            timeHandler.showDialog(context, 1, "CSV出力", spec_St + "の記録を出力します。", "OK", "キャンセル");
             String state = Environment.getExternalStorageState();
             if (Environment.MEDIA_MOUNTED.equals(state)) {
                 // File exportDir = new File("/storage/sdcard/Android/data/com.example.sleepsaver/Download");

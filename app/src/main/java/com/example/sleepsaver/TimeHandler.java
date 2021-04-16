@@ -1,19 +1,126 @@
 package com.example.sleepsaver;
 
 import android.app.AlertDialog;
+import android.app.Application;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
+import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.Calendar;
 
-public class TimeHandler {
+public class TimeHandler extends Application {
+
+    // 範囲を格納する変数
+    private int resultsNum;
+    // 指定日～今日の指定日
+    private int spec_year;
+    private int spec_month;
+    private int spec_date;
+    // 指定日1～指定日2の指定日1
+    private int spec_year1;
+    private int spec_month1;
+    private int spec_date1;
+    // 指定日1～指定日2の指定日2
+    private int spec_year2;
+    private int spec_month2;
+    private int spec_date2;
+
+    // 範囲のgetter
+    public int getResultsNum() {
+        return resultsNum;
+    }
+    // 範囲のsetter
+    public void setResultsNum(int results) {
+        resultsNum = results;
+    }
+
+    // getter(指定日)
+    public int getSpec_year() {
+        return spec_year;
+    }
+
+    public int getSpec_month() {
+        return spec_month;
+    }
+
+    public int getSpec_date() {
+        return spec_date;
+    }
+
+    public int getSpec_year1() {
+        return spec_year1;
+    }
+
+    public int getSpec_month1() {
+        return spec_month1;
+    }
+
+    public int getSpec_date1() {
+        return spec_date1;
+    }
+
+    public int getSpec_year2() {
+        return spec_year2;
+    }
+
+    public int getSpec_month2() {
+        return spec_month2;
+    }
+
+    public int getSpec_date2() {
+        return spec_date2;
+    }
+
+    // setter(指定日)
+    public void setSpec_year(int year) {
+        spec_year = year;
+    }
+
+    public void setSpec_month(int month) {
+        spec_month = month;
+    }
+
+    public void setSpec_date(int date) {
+        spec_date = date;
+    }
+
+    public void setSpec_year1(int year) {
+        spec_year1 = year;
+    }
+
+    public void setSpec_month1(int month) {
+        spec_month1 = month;
+    }
+
+    public void setSpec_date1(int date) {
+        spec_date1 = date;
+    }
+
+    public void setSpec_year2(int year) {
+        spec_year2 = year;
+    }
+
+    public void setSpec_month2(int month) {
+        spec_month2 = month;
+    }
+
+    public void setSpec_date2(int date) {
+        spec_date2 = date;
+    }
 
     // ダイアログを表示するメソッド
-    public void showDialog(Context context, String title, String message, String... button) {
+    public void showDialog(final Context context, final int positiveNum, String title, String message, String... button) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(title);
         builder.setMessage(message);
@@ -24,6 +131,7 @@ public class TimeHandler {
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            pushPositiveButton(context, positiveNum);
                             dialog.dismiss();
                         }
                     }
@@ -54,6 +162,101 @@ public class TimeHandler {
             );
         }
         builder.show();
+    }
+
+    // ダイアログのポジティブボタンの処理
+    public void pushPositiveButton(Context context, int number) {
+
+        MyOpenHelper helper = new MyOpenHelper(context);
+        final SQLiteDatabase db = helper.getWritableDatabase();
+
+        switch (number) {
+            case 0: // ダイアログを閉じるのみ
+                break;
+            case 1: // 指定された期間のデータをCSV出力
+
+                // データの行数を取得
+                long idCount = DatabaseUtils.queryNumEntries(db, getString(R.string.date_table));
+
+                // データと件数の差分
+                int diff_id = 0;
+
+                // 指定日1～2の時、表示範囲を決めるための変数
+                int diff_now_spec1 = (int) (idCount - 1);
+                int diff_now_spec2 = 0;
+
+                // 指定日1～指定日2(resultsが-2)の場合
+                if (resultsNum == -2) {
+                    // 今日と指定日1、2の差日数を計算
+                    diff_now_spec1 = spec12_today(db, context, false)[0];
+                    diff_now_spec2 = spec12_today(db, context, false)[1];
+                }
+                // 指定日～今日(resultsが-1)の場合に指定日と今日の差分を計算
+                if (resultsNum == -1) {
+                    // 指定日と今日の差を計算し、件数に代入
+                    resultsNum = spec_today(db, context, false);
+                }
+                // 件数を計算
+                if (resultsNum > 0) {
+                    if (idCount > resultsNum) {
+                        diff_id = (int) (idCount - resultsNum);
+                        idCount = resultsNum;
+                    }
+                }
+
+                String state = Environment.getExternalStorageState();
+                if (Environment.MEDIA_MOUNTED.equals(state)) {
+                    File exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    if (!exportDir.exists()) { // ディレクトリがなければ作る
+                        exportDir.mkdirs();
+                    }
+                    File file;
+                    PrintWriter printWriter = null;
+
+                    Cursor cursor = db.query("DateTable", new String[]{"id", "year", "month", "date"}, null, null, null, null, null);
+                    Cursor cursor1 = db.query("GetUpTable", new String[]{"id", "hour", "minute"}, null, null, null, null, null);
+                    Cursor cursor2 = db.query("GoToBedTable", new String[]{"id", "hour", "minute"}, null, null, null, null, null);
+                    // カーソルを最新の記録へ
+                    cursor.moveToLast();
+                    cursor1.moveToLast();
+                    cursor2.moveToLast();
+
+                    try {
+                        file = new File(exportDir, "data_SleepSaver.csv");
+                        file.createNewFile();
+                        FileOutputStream fos = new FileOutputStream(file, true);
+                        OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+                        printWriter = new PrintWriter(osw);
+
+                        // データを書き込む
+                        for (int i=0; i<idCount; i++) {
+                            int id = cursor.getInt(0);
+
+                            int year = cursor.getInt(1);
+                            int month = cursor.getInt(2);
+                            int date = cursor.getInt(3);
+
+                            int hourGU = cursor1.getInt(1);
+                            int minuteGU = cursor1.getInt(2);
+
+                            int hourGTB = cursor2.getInt(1);
+                            int minuteGTB = cursor2.getInt(2);
+
+                        }
+
+                    } catch (FileNotFoundException exc) {
+                        Toast.makeText(context, "アクセス権限がありません", Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Toast.makeText(context, "CSV出力に失敗しました", Toast.LENGTH_LONG).show();
+                    } finally {
+                        if (printWriter != null) {
+                            printWriter.close();
+                        }
+                    }
+                }
+
+                break;
+        }
     }
 
     // 時分を表示する形式に整理するメソッド
@@ -248,5 +451,75 @@ public class TimeHandler {
         }else{
             db.update("GoToBedTable", contentValues1, "id=" + id, null);
         }
+    }
+
+    // 指定日と今日の差分を計算するメソッド
+    public int spec_today(SQLiteDatabase db, Context context, boolean restart) {
+        int spec_year;
+        int spec_month;
+        int spec_date;
+        // アクティビティ初回起動時
+        if (!restart) {
+            // 指定日をDBから取得
+            Cursor cursor = db.query("RangeTable", new String[]{"id", "year", "month", "date"}, null, null, null, null, null);
+            cursor.moveToFirst();
+            spec_year = cursor.getInt(1);
+            spec_month = cursor.getInt(2);
+            spec_date = cursor.getInt(3);
+            cursor.close();
+        } else { // アクティビティ更新時
+            spec_year = getSpec_year();
+            spec_month = PrefActivity.spec_month;
+            spec_date = PrefActivity.spec_date;
+        }
+        // 取得した日付をセット
+        Calendar cal_spec = Calendar.getInstance();
+        cal_spec.set(spec_year, spec_month, spec_date);
+        // 今日の日付を取得
+        Calendar cal_now = Calendar.getInstance();
+        cal_now.add(Calendar.DAY_OF_MONTH, compareTime(context));
+        // 指定日と今日の差を計算し、返す
+        return cal_diff_Days(cal_now, cal_spec) + 1;
+    }
+
+    // 指定日1と今日、指定日2と今日の差分を計算するメソッド
+    public int[] spec12_today(SQLiteDatabase db, Context context, boolean restart) {
+        int spec_year1;
+        int spec_month1;
+        int spec_date1;
+        int spec_year2;
+        int spec_month2;
+        int spec_date2;
+        // アクティビティ初回起動時
+        if (!restart) {
+            // 指定日1、2をDBから取得
+            Cursor cursor = db.query("RangeTable", new String[]{"id", "year", "month", "date"}, null, null, null, null, null);
+            cursor.moveToPosition(1);
+            spec_year1 = cursor.getInt(1);
+            spec_month1 = cursor.getInt(2);
+            spec_date1 = cursor.getInt(3);
+            cursor.moveToNext();
+            spec_year2 = cursor.getInt(1);
+            spec_month2 = cursor.getInt(2);
+            spec_date2 = cursor.getInt(3);
+            cursor.close();
+        } else {
+            spec_year1 = PrefActivity.spec_year1;
+            spec_month1 = PrefActivity.spec_month1;
+            spec_date1 = PrefActivity.spec_date1;
+            spec_year2 = PrefActivity.spec_year2;
+            spec_month2 = PrefActivity.spec_month2;
+            spec_date2 = PrefActivity.spec_date2;
+        }
+        // 取得した日付をセット
+        Calendar cal_spec1 = Calendar.getInstance();
+        cal_spec1.set(spec_year1, spec_month1, spec_date1);
+        Calendar cal_spec2 = Calendar.getInstance();
+        cal_spec2.set(spec_year2, spec_month2, spec_date2);
+        // 今日の日付を取得
+        Calendar cal_now = Calendar.getInstance();
+        cal_now.add(Calendar.DAY_OF_MONTH, compareTime(context));
+        // 今日と指定日1、2の差日数を計算し配列として返す
+        return new int[]{cal_diff_Days(cal_now, cal_spec1), cal_diff_Days(cal_now, cal_spec2)};
     }
 }

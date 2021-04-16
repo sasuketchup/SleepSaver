@@ -533,11 +533,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
-                    case 0:
+                    case 0: // 出力
                         prefActivity.resultsWhich = prefActivity.setChoices(0);
                         prefActivity.setRange(MainActivity.this, 1);
                         break;
-                    case 1:
+                    case 1: // 入力
                         break;
                 }
             }
@@ -623,7 +623,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         startActivity(getIntent());
                         overridePendingTransition(0, 0);
                     } else { // 最新の記録がある場合
-                        timeHandler.showDialog(MainActivity.this, "既に起きています！", "", "OK");
+                        timeHandler.showDialog(MainActivity.this, 0, "既に起きています！", "", "OK");
                     }
                 } else if (results_data.get(0).equals("おやすみ")) { // 「おやすみ」の場合
                     if (latestGTB == -1) { // 最新の記録が空の場合
@@ -634,13 +634,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         startActivity(getIntent());
                         overridePendingTransition(0, 0);
                     } else { // 最新の記録がある場合
-                        timeHandler.showDialog(MainActivity.this, "既に寝ています！", "", "OK");
+                        timeHandler.showDialog(MainActivity.this, 0, "既に寝ています！", "", "OK");
                     }
                 } else { // 「おはよう」でも「おやすみ」でもない場合
-                    timeHandler.showDialog(MainActivity.this, "「" + results_data.get(0) + "」", "もう一度ボタンを押し\n「おはよう」または「おやすみ」\nと発音してください！", "OK");
+                    timeHandler.showDialog(MainActivity.this, 0, "「" + results_data.get(0) + "」", "もう一度ボタンを押し\n「おはよう」または「おやすみ」\nと発音してください！", "OK");
                 }
             } else { // 候補がない場合
-                timeHandler.showDialog(MainActivity.this, "認識に失敗しました", "", "OK");
+                timeHandler.showDialog(MainActivity.this, 0, "認識に失敗しました", "", "OK");
             }
         }
     }
