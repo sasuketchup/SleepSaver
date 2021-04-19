@@ -242,6 +242,24 @@ public class TimeHandler extends Application {
                             int hourGTB = cursor2.getInt(1);
                             int minuteGTB = cursor2.getInt(2);
 
+                            if (diff_now_spec2 <= i && i <= diff_now_spec1) {
+                                printWriter.print(id);
+                                printWriter.print(",");
+                                printWriter.print(year);
+                                printWriter.print(",");
+                                printWriter.print(month);
+                                printWriter.print(",");
+                                printWriter.print(date);
+                                printWriter.print(",");
+                                printWriter.print(hourGU);
+                                printWriter.print(",");
+                                printWriter.print(minuteGU);
+                                printWriter.print(",");
+                                printWriter.print(hourGTB);
+                                printWriter.print(",");
+                                printWriter.print(minuteGTB);
+                                printWriter.println();
+                            }
                         }
 
                     } catch (FileNotFoundException exc) {
@@ -254,7 +272,6 @@ public class TimeHandler extends Application {
                         }
                     }
                 }
-
                 break;
         }
     }
