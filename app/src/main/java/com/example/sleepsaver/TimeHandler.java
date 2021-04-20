@@ -260,7 +260,13 @@ public class TimeHandler extends Application {
                                 printWriter.print(minuteGTB);
                                 printWriter.println();
                             }
+                            cursor.moveToPrevious();
+                            cursor1.moveToPrevious();
+                            cursor2.moveToPrevious();
                         }
+                        cursor.close();
+                        cursor1.close();
+                        cursor2.close();
 
                     } catch (FileNotFoundException exc) {
                         Toast.makeText(context, "アクセス権限がありません", Toast.LENGTH_LONG).show();

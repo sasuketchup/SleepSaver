@@ -282,19 +282,19 @@ public class PrefActivity extends PreferenceActivity {
                 resultsWhich = i;
                 switch (resultsWhich) {
                     case 0:
-                        resultsNum = 0;
+                        timeHandler.setResultsNum(0);
                         break;
                     case 1:
-                        resultsNum = 7;
+                        timeHandler.setResultsNum(7);
                         break;
                     case 2:
-                        resultsNum = 14;
+                        timeHandler.setResultsNum(14);
                         break;
                     case 3:
-                        resultsNum = 21;
+                        timeHandler.setResultsNum(21);
                         break;
                     case 4:
-                        resultsNum = 28;
+                        timeHandler.setResultsNum(28);
                         break;
                     case 5:
                         // 指定日～今日のカスタムデイトピッカーダイアログ
