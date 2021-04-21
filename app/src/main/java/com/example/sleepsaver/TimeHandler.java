@@ -492,8 +492,8 @@ public class TimeHandler extends Application {
             cursor.close();
         } else { // アクティビティ更新時
             spec_year = getSpec_year();
-            spec_month = PrefActivity.spec_month;
-            spec_date = PrefActivity.spec_date;
+            spec_month = getSpec_month();
+            spec_date = getSpec_date();
         }
         // 取得した日付をセット
         Calendar cal_spec = Calendar.getInstance();
@@ -527,12 +527,12 @@ public class TimeHandler extends Application {
             spec_date2 = cursor.getInt(3);
             cursor.close();
         } else {
-            spec_year1 = PrefActivity.spec_year1;
-            spec_month1 = PrefActivity.spec_month1;
-            spec_date1 = PrefActivity.spec_date1;
-            spec_year2 = PrefActivity.spec_year2;
-            spec_month2 = PrefActivity.spec_month2;
-            spec_date2 = PrefActivity.spec_date2;
+            spec_year1 = getSpec_year1();
+            spec_month1 = getSpec_month1();
+            spec_date1 = getSpec_date1();
+            spec_year2 = getSpec_year2();
+            spec_month2 = getSpec_month2();
+            spec_date2 = getSpec_date2();
         }
         // 取得した日付をセット
         Calendar cal_spec1 = Calendar.getInstance();

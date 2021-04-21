@@ -42,9 +42,9 @@ public class DataActivity extends AppCompatActivity {
         int results;
         if (!reStart) {
             // 初回の場合期間を取得
-            PrefActivity.resultsNum = sp.getInt("results", 0);
+            timeHandler.setResultsNum(sp.getInt("results", 0));
         }
-        results = PrefActivity.resultsNum;
+        results = timeHandler.getResultsNum();
 
         // 期間を押したときの選択肢をセット
         prefActivity.resultsWhich = prefActivity.setChoices(results);
@@ -98,14 +98,14 @@ public class DataActivity extends AppCompatActivity {
         // 指定日1～指定日2(resultsが-2)の場合
         if (results == -2) {
             // 今日と指定日1、2の差日数を計算
-            diff_now_spec1 = mainActivity.spec12_today(db, DataActivity.this, reStart)[0];
-            diff_now_spec2 = mainActivity.spec12_today(db, DataActivity.this, reStart)[1];
+            diff_now_spec1 = timeHandler.spec12_today(db, DataActivity.this, reStart)[0];
+            diff_now_spec2 = timeHandler.spec12_today(db, DataActivity.this, reStart)[1];
         }
 
         // 指定日～今日(resultsが-1)の場合に指定日と今日の差分を計算
         if (results == -1) {
             // 指定日と今日の差を計算し、表示件数に代入
-            results = mainActivity.spec_today(db, DataActivity.this, reStart);
+            results = timeHandler.spec_today(db, DataActivity.this, reStart);
         }
 
         // 対象の期間を計算
@@ -149,17 +149,17 @@ public class DataActivity extends AppCompatActivity {
         if (!reStart) {
             Cursor cursor = db.query("RangeTable", new String[]{"id", "year", "month", "date"}, null, null, null, null, null);
             cursor.moveToFirst();
-            PrefActivity.spec_year = cursor.getInt(1);
-            PrefActivity.spec_month = cursor.getInt(2);
-            PrefActivity.spec_date = cursor.getInt(3);
+            timeHandler.setSpec_year(cursor.getInt(1));
+            timeHandler.setSpec_month(cursor.getInt(2));
+            timeHandler.setSpec_date(cursor.getInt(3));
             cursor.moveToNext();
-            PrefActivity.spec_year1 = cursor.getInt(1);
-            PrefActivity.spec_month1 = cursor.getInt(2);
-            PrefActivity.spec_date1 = cursor.getInt(3);
+            timeHandler.setSpec_year1(cursor.getInt(1));
+            timeHandler.setSpec_month1(cursor.getInt(2));
+            timeHandler.setSpec_date1(cursor.getInt(3));
             cursor.moveToNext();
-            PrefActivity.spec_year2 = cursor.getInt(1);
-            PrefActivity.spec_month2 = cursor.getInt(2);
-            PrefActivity.spec_date2 = cursor.getInt(3);
+            timeHandler.setSpec_year2(cursor.getInt(1));
+            timeHandler.setSpec_month2(cursor.getInt(2));
+            timeHandler.setSpec_date2(cursor.getInt(3));
             cursor.close();
         }
 
@@ -416,10 +416,10 @@ public class DataActivity extends AppCompatActivity {
         cursor.close();
 
         // 期間が変更されていなければ閉じる、そうでなければダイアログ表示
-        if (results_back == PrefActivity.resultsNum
-                && year_back == PrefActivity.spec_year && month_back == PrefActivity.spec_month && date_back == PrefActivity.spec_date
-                && year_back1 == PrefActivity.spec_year1 && month_back1 == PrefActivity.spec_month1 && date_back1 == PrefActivity.spec_date1
-                && year_back2 == PrefActivity.spec_year2 && month_back2 == PrefActivity.spec_month2 && date_back2 == PrefActivity.spec_date2) {
+        if (results_back == timeHandler.getResultsNum()
+                && year_back == timeHandler.getSpec_year() && month_back == timeHandler.getSpec_month() && date_back == timeHandler.getSpec_date()
+                && year_back1 == timeHandler.getSpec_year1() && month_back1 == timeHandler.getSpec_month1() && date_back1 == timeHandler.getSpec_date1()
+                && year_back2 == timeHandler.getSpec_year2() && month_back2 == timeHandler.getSpec_month2() && date_back2 == timeHandler.getSpec_date2()) {
             finish();
         } else {
             // アラートダイアログ表示
@@ -431,25 +431,25 @@ public class DataActivity extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             // 期間
-                            editor.putInt("results", PrefActivity.resultsNum);
+                            editor.putInt("results", timeHandler.getResultsNum());
                             editor.commit();
                             // 今日～指定日の指定日
                             ContentValues contentValues = new ContentValues();
-                            contentValues.put("year", PrefActivity.spec_year);
-                            contentValues.put("month", PrefActivity.spec_month);
-                            contentValues.put("date", PrefActivity.spec_date);
+                            contentValues.put("year", timeHandler.getSpec_year());
+                            contentValues.put("month", timeHandler.getSpec_month());
+                            contentValues.put("date", timeHandler.getSpec_date());
                             db.update("RangeTable", contentValues, "id=" + 0, null);
                             // 指定日1
                             ContentValues contentValues1 = new ContentValues();
-                            contentValues1.put("year", PrefActivity.spec_year1);
-                            contentValues1.put("month", PrefActivity.spec_month1);
-                            contentValues1.put("date", PrefActivity.spec_date1);
+                            contentValues1.put("year", timeHandler.getSpec_year1());
+                            contentValues1.put("month", timeHandler.getSpec_month1());
+                            contentValues1.put("date", timeHandler.getSpec_date1());
                             db.update("RangeTable", contentValues1, "id=" + 1, null);
                             // 指定日2
                             ContentValues contentValues2 = new ContentValues();
-                            contentValues2.put("year", PrefActivity.spec_year2);
-                            contentValues2.put("month", PrefActivity.spec_month2);
-                            contentValues2.put("date", PrefActivity.spec_date2);
+                            contentValues2.put("year", timeHandler.getSpec_year2());
+                            contentValues2.put("month", timeHandler.getSpec_month2());
+                            contentValues2.put("date", timeHandler.getSpec_date2());
                             db.update("RangeTable", contentValues2, "id=" + 2, null);
 
                             Intent intent = new Intent(DataActivity.this, MainActivity.class);
@@ -465,19 +465,19 @@ public class DataActivity extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int which) {
                             // 破棄して設定を戻す
-                            PrefActivity.resultsNum = results_back;
+                            timeHandler.setResultsNum(results_back);
 
-                            PrefActivity.spec_year = year_back;
-                            PrefActivity.spec_month = month_back;
-                            PrefActivity.spec_date = date_back;
+                            timeHandler.setSpec_year(year_back);
+                            timeHandler.setSpec_month(month_back);
+                            timeHandler.setSpec_date(date_back);
 
-                            PrefActivity.spec_year1 = year_back1;
-                            PrefActivity.spec_month1 = month_back1;
-                            PrefActivity.spec_date1 = date_back1;
+                            timeHandler.setSpec_year1(year_back1);
+                            timeHandler.setSpec_month1(month_back1);
+                            timeHandler.setSpec_date1(date_back1);
 
-                            PrefActivity.spec_year2 = year_back2;
-                            PrefActivity.spec_month2 = month_back2;
-                            PrefActivity.spec_date2 = date_back2;
+                            timeHandler.setSpec_year2(year_back2);
+                            timeHandler.setSpec_month2(month_back2);
+                            timeHandler.setSpec_date2(date_back2);
 
                             finish();
                         }
