@@ -176,7 +176,7 @@ public class TimeHandler extends Application {
             case 1: // 指定された期間のデータをCSV出力
 
                 // データの行数を取得
-                long idCount = DatabaseUtils.queryNumEntries(db, getString(R.string.date_table));
+                long idCount = DatabaseUtils.queryNumEntries(db, "DateTable");
 
                 // データと件数の差分
                 int diff_id = 0;
@@ -188,13 +188,13 @@ public class TimeHandler extends Application {
                 // 指定日1～指定日2(resultsが-2)の場合
                 if (resultsNum == -2) {
                     // 今日と指定日1、2の差日数を計算
-                    diff_now_spec1 = spec12_today(db, context, false)[0];
-                    diff_now_spec2 = spec12_today(db, context, false)[1];
+                    diff_now_spec1 = spec12_today(db, context, true)[0];
+                    diff_now_spec2 = spec12_today(db, context, true)[1];
                 }
                 // 指定日～今日(resultsが-1)の場合に指定日と今日の差分を計算
                 if (resultsNum == -1) {
                     // 指定日と今日の差を計算し、件数に代入
-                    resultsNum = spec_today(db, context, false);
+                    resultsNum = spec_today(db, context, true);
                 }
                 // 件数を計算
                 if (resultsNum > 0) {
@@ -224,7 +224,7 @@ public class TimeHandler extends Application {
                     try {
                         file = new File(exportDir, "data_SleepSaver.csv");
                         file.createNewFile();
-                        FileOutputStream fos = new FileOutputStream(file, true);
+                        FileOutputStream fos = new FileOutputStream(file);
                         OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
                         printWriter = new PrintWriter(osw);
 

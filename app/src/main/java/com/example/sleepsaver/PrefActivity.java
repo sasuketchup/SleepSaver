@@ -447,42 +447,42 @@ public class PrefActivity extends PreferenceActivity {
             context.startActivity(intent);
         } else if (activityNum == 1) {
             timeHandler.showDialog(context, 1, "CSV出力", spec_St + "の記録を出力します。", "OK", "キャンセル");
-            String state = Environment.getExternalStorageState();
-            if (Environment.MEDIA_MOUNTED.equals(state)) {
-                // File exportDir = new File("/storage/sdcard/Android/data/com.example.sleepsaver/Download");
-                // String exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
-                File exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                if (!exportDir.exists()) {
-                    exportDir.mkdirs();
-                    Toast.makeText(context, "mkdirs", Toast.LENGTH_LONG).show();
-                }
-
-                File file;
-                PrintWriter printWriter = null;
-                try {
-                    file = new File(exportDir, "test1File.csv");
-                    boolean test = file.createNewFile();
-                    if (!test) {
-                        Toast.makeText(context, "false", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(context, "true", Toast.LENGTH_LONG).show();
-                    }
-                    FileOutputStream fos = new FileOutputStream(file, true);
-                    OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
-                    printWriter = new PrintWriter(osw);
-                    printWriter.print("test");
-                    printWriter.println();
-                    Toast.makeText(context, "OK", Toast.LENGTH_LONG).show();
-                } catch (FileNotFoundException exc) {
-                    Toast.makeText(context, "アクセス権限がありません", Toast.LENGTH_LONG).show();
-                } catch (Exception e) {
-                    Toast.makeText(context, "CSV出力に失敗しました", Toast.LENGTH_LONG).show();
-                } finally {
-                    if (printWriter != null) {
-                        printWriter.close();
-                    }
-                }
-            }
+//            String state = Environment.getExternalStorageState();
+//            if (Environment.MEDIA_MOUNTED.equals(state)) {
+//                // File exportDir = new File("/storage/sdcard/Android/data/com.example.sleepsaver/Download");
+//                // String exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
+//                File exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+//                if (!exportDir.exists()) {
+//                    exportDir.mkdirs();
+//                    Toast.makeText(context, "mkdirs", Toast.LENGTH_LONG).show();
+//                }
+//
+//                File file;
+//                PrintWriter printWriter = null;
+//                try {
+//                    file = new File(exportDir, "test1File.csv");
+//                    boolean test = file.createNewFile();
+//                    if (!test) {
+//                        Toast.makeText(context, "false", Toast.LENGTH_LONG).show();
+//                    } else {
+//                        Toast.makeText(context, "true", Toast.LENGTH_LONG).show();
+//                    }
+//                    FileOutputStream fos = new FileOutputStream(file, true);
+//                    OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+//                    printWriter = new PrintWriter(osw);
+//                    printWriter.print("test");
+//                    printWriter.println();
+//                    Toast.makeText(context, "OK", Toast.LENGTH_LONG).show();
+//                } catch (FileNotFoundException exc) {
+//                    Toast.makeText(context, "アクセス権限がありません", Toast.LENGTH_LONG).show();
+//                } catch (Exception e) {
+//                    Toast.makeText(context, "CSV出力に失敗しました", Toast.LENGTH_LONG).show();
+//                } finally {
+//                    if (printWriter != null) {
+//                        printWriter.close();
+//                    }
+//                }
+//            }
         }
     }
 
