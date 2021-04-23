@@ -42,7 +42,7 @@ import java.util.GregorianCalendar;
 
 public class PrefActivity extends PreferenceActivity {
 
-    TimeHandler timeHandler = new TimeHandler();
+    TimeHandler timeHandler;
 
     // 表示範囲を格納する変数
     // static int resultsNum;
@@ -267,7 +267,7 @@ public class PrefActivity extends PreferenceActivity {
     }
 
     // 表示範囲及び対象期間を設定しString型で返すメソッド
-    public String setRange(final Context context, final int activityNum) {
+    public String setRange(final Context context, final int activityNum, final TimeHandler timeHandler) {
 
         // 表示範囲の選択肢
         final String[] resultsSt = {"すべて表示", "過去1週間", "過去2週間", "過去3週間", "過去4週間", "指定日～今日", "指定日1～指定日2"};
@@ -905,6 +905,8 @@ public class PrefActivity extends PreferenceActivity {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref);
 
+        timeHandler = (TimeHandler) this.getApplication();
+
         SharedPreferences sp = PrefActivity.this.getSharedPreferences("pref", Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = sp.edit();
 
@@ -912,8 +914,8 @@ public class PrefActivity extends PreferenceActivity {
         final SQLiteDatabase db = helper.getWritableDatabase();
 
         // 表示範囲を取得
-        timeHandler.setResultsNum(sp.getInt("results", 0));
-        // resultsNum = sp.getInt("results", 0);
+        int resultsNum = sp.getInt("results", 0);
+        timeHandler.setResultsNum(resultsNum);
 
         // 表示範囲の選択肢
         final String[] resultsSt = {"すべて表示", "過去1週間", "過去2週間", "過去3週間", "過去4週間", "指定日～今日", "指定日1～指定日2"};
@@ -953,7 +955,7 @@ public class PrefActivity extends PreferenceActivity {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
 
-                        setRange(PrefActivity.this, 0);
+                        setRange(PrefActivity.this, 0, timeHandler);
 
 //                        AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
 //                        DialogInterface.OnClickListener onDialogClickListener = new DialogInterface.OnClickListener() {

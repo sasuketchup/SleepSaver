@@ -22,7 +22,7 @@ import java.util.Calendar;
 public class DataActivity extends AppCompatActivity {
 
     MainActivity mainActivity = new MainActivity();
-    TimeHandler timeHandler = new TimeHandler();
+    TimeHandler timeHandler;
     PrefActivity prefActivity = new PrefActivity();
 
     Calendar cal_now;
@@ -31,6 +31,8 @@ public class DataActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_data);
+
+        timeHandler = (TimeHandler) this.getApplication();
 
         // インテントを受け取る
         Intent intent = getIntent();
@@ -168,7 +170,7 @@ public class DataActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        prefActivity.setRange(DataActivity.this, 2);
+                        prefActivity.setRange(DataActivity.this, 2, timeHandler);
                     }
                 }
         );
