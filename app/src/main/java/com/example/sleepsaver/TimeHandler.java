@@ -22,19 +22,19 @@ import java.util.Calendar;
 public class TimeHandler extends Application {
 
     // 範囲を格納する変数
-    private int resultsNum;
+    static int resultsNum;
     // 指定日～今日の指定日
-    private int spec_year;
-    private int spec_month;
-    private int spec_date;
+    static int spec_year;
+    static int spec_month;
+    static int spec_date;
     // 指定日1～指定日2の指定日1
-    private int spec_year1;
-    private int spec_month1;
-    private int spec_date1;
+    static int spec_year1;
+    static int spec_month1;
+    static int spec_date1;
     // 指定日1～指定日2の指定日2
-    private int spec_year2;
-    private int spec_month2;
-    private int spec_date2;
+    static int spec_year2;
+    static int spec_month2;
+    static int spec_date2;
 
     // 範囲のgetter
     public int getResultsNum() {

@@ -550,7 +550,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        timeHandler = (TimeHandler) this.getApplication();
+        // MainActivity.timeHandler = (TimeHandler) this.getApplicationContext();
 
         switch (id) {
             case R.id.data_page: // 睡眠データ

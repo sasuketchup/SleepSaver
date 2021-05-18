@@ -42,7 +42,7 @@ import java.util.GregorianCalendar;
 
 public class PrefActivity extends PreferenceActivity {
 
-    TimeHandler timeHandler;
+    TimeHandler timeHandler = new TimeHandler();
 
     // 表示範囲を格納する変数
     // static int resultsNum;
@@ -141,9 +141,9 @@ public class PrefActivity extends PreferenceActivity {
 //            spec_year = year;
 //            spec_month = month;
 //            spec_date = date;
-            timeHandler.setSpec_year(year);
-            timeHandler.setSpec_month(month);
-            timeHandler.setSpec_date(date);
+            TimeHandler.spec_year = year;
+            TimeHandler.spec_month = month;
+            TimeHandler.spec_date = date;
         }
     }
     // ピッカーの日付を変更したときに変数に代入するようにするために、DatePickerDialogを継承したクラス(指定日1～指定日2の指定日1用)
@@ -153,9 +153,9 @@ public class PrefActivity extends PreferenceActivity {
         }
         @Override
         public void onDateChanged(DatePicker view, int year, int month, int date) {
-            timeHandler.setSpec_year1(year);
-            timeHandler.setSpec_month1(month);
-            timeHandler.setSpec_date1(date);
+            TimeHandler.spec_year1 = year;
+            TimeHandler.spec_month1 = month;
+            TimeHandler.spec_date1 = date;
         }
     }
     // ピッカーの日付を変更したときに変数に代入するようにするために、DatePickerDialogを継承したクラス(指定日1～指定日2の指定日2用)
@@ -165,9 +165,9 @@ public class PrefActivity extends PreferenceActivity {
         }
         @Override
         public void onDateChanged(DatePicker view, int year, int month, int date) {
-            timeHandler.setSpec_year2(year);
-            timeHandler.setSpec_month2(month);
-            timeHandler.setSpec_date2(date);
+            TimeHandler.spec_year2 = year;
+            TimeHandler.spec_month2 = month;
+            TimeHandler.spec_date2 = date;
         }
     }
 
@@ -285,19 +285,19 @@ public class PrefActivity extends PreferenceActivity {
                 resultsWhich = i;
                 switch (resultsWhich) {
                     case 0:
-                        timeHandler.setResultsNum(0);
+                        TimeHandler.resultsNum = 0;
                         break;
                     case 1:
-                        timeHandler.setResultsNum(7);
+                        TimeHandler.resultsNum= 7;
                         break;
                     case 2:
-                        timeHandler.setResultsNum(14);
+                        TimeHandler.resultsNum = 14;
                         break;
                     case 3:
-                        timeHandler.setResultsNum(21);
+                        TimeHandler.resultsNum = 21;
                         break;
                     case 4:
-                        timeHandler.setResultsNum(28);
+                        TimeHandler.resultsNum = 28;
                         break;
                     case 5:
                         // 指定日～今日のカスタムデイトピッカーダイアログ
@@ -308,14 +308,14 @@ public class PrefActivity extends PreferenceActivity {
 
                             }
                         };
-                        if (timeHandler.getSpec_year() == 0 && timeHandler.getSpec_month() == 0 && timeHandler.getSpec_date() == 0) {
+                        if (TimeHandler.spec_year == 0 && TimeHandler.spec_month == 0 && TimeHandler.spec_date == 0) {
                             Calendar cal_now = Calendar.getInstance();
                             cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(context));
-                            timeHandler.setSpec_year(cal_now.get(Calendar.YEAR));
-                            timeHandler.setSpec_month(cal_now.get(Calendar.MONTH));
-                            timeHandler.setSpec_date(cal_now.get(Calendar.DAY_OF_MONTH));
+                            TimeHandler.spec_year = cal_now.get(Calendar.YEAR);
+                            TimeHandler.spec_month = cal_now.get(Calendar.MONTH);
+                            TimeHandler.spec_date = cal_now.get(Calendar.DAY_OF_MONTH);
                         }
-                        datePickerDialog = new CustomDatePickerDialog(context, listener, timeHandler.getSpec_year(), timeHandler.getSpec_month(), timeHandler.getSpec_date());
+                        datePickerDialog = new CustomDatePickerDialog(context, listener, TimeHandler.spec_year, TimeHandler.spec_month, TimeHandler.spec_date);
 
                         spec_St = designateDate(0, datePickerDialog, context, activityNum);
                         // resultsBtn.setSummary("記録の表示範囲: " + designateDate(resultsBtn, 0, datePickerDialog));
@@ -329,14 +329,14 @@ public class PrefActivity extends PreferenceActivity {
 
                             }
                         };
-                        if (timeHandler.getSpec_year1() == 0 && timeHandler.getSpec_month1() == 0 && timeHandler.getSpec_date1() == 0) {
+                        if (TimeHandler.spec_year1 == 0 && TimeHandler.spec_month1 == 0 && TimeHandler.spec_date1 == 0) {
                             Calendar cal_now = Calendar.getInstance();
                             cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(context));
-                            timeHandler.setSpec_year1(cal_now.get(Calendar.YEAR));
-                            timeHandler.setSpec_month1(cal_now.get(Calendar.MONTH));
-                            timeHandler.setSpec_date1(cal_now.get(Calendar.DAY_OF_MONTH));
+                            TimeHandler.spec_year1 = cal_now.get(Calendar.YEAR);
+                            TimeHandler.spec_month1 = cal_now.get(Calendar.MONTH);
+                            TimeHandler.spec_date1 = cal_now.get(Calendar.DAY_OF_MONTH);
                         }
-                        datePickerDialog1 = new CustomDatePickerDialog1(context, listener1, timeHandler.getSpec_year1(), timeHandler.getSpec_month1(), timeHandler.getSpec_date1());
+                        datePickerDialog1 = new CustomDatePickerDialog1(context, listener1, TimeHandler.spec_year1, TimeHandler.spec_month1, TimeHandler.spec_date1);
 
                         spec_St = designateDate(1, datePickerDialog1, context, activityNum);
                         // resultsBtn.setSummary("記録の表示範囲: " + designateDate(resultsBtn, 1, datePickerDialog1));
@@ -370,7 +370,7 @@ public class PrefActivity extends PreferenceActivity {
         // 指定日2の時、最小値を指定日1に
         if (spec_point == 2) {
             Calendar cal_min = Calendar.getInstance();
-            cal_min.set(timeHandler.getSpec_year1(), timeHandler.getSpec_month1(), timeHandler.getSpec_date1());
+            cal_min.set(TimeHandler.spec_year1, TimeHandler.spec_month1, TimeHandler.spec_date1);
             datePicker.setMinDate(cal_min.getTimeInMillis());
         }
 
@@ -384,9 +384,9 @@ public class PrefActivity extends PreferenceActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (spec_point == 0) {
-                            timeHandler.setResultsNum(-1);
+                            TimeHandler.resultsNum = -1;
                             // resultsNum = -1;
-                            spec_St = timeHandler.dateString(timeHandler.getSpec_year(), timeHandler.getSpec_month() + 1, timeHandler.getSpec_date()) + "～今日";
+                            spec_St = timeHandler.dateString(TimeHandler.spec_year, TimeHandler.spec_month + 1, TimeHandler.spec_date) + "～今日";
                         } else if (spec_point == 1) {
                             // 指定日2のカスタムデイトピッカーダイアログ
                             CustomDatePickerDialog2 datePickerDialog2;
@@ -396,19 +396,19 @@ public class PrefActivity extends PreferenceActivity {
 
                                 }
                             };
-                            if (timeHandler.getSpec_year2() == 0 && timeHandler.getSpec_month2() == 0 && timeHandler.getSpec_date2() == 0) {
+                            if (TimeHandler.spec_year2 == 0 && TimeHandler.spec_month2 == 0 && TimeHandler.spec_date2 == 0) {
                                 Calendar cal_now = Calendar.getInstance();
                                 cal_now.add(Calendar.DAY_OF_MONTH, timeHandler.compareTime(context));
-                                timeHandler.setSpec_year2(cal_now.get(Calendar.YEAR));
-                                timeHandler.setSpec_month2(cal_now.get(Calendar.MONTH));
-                                timeHandler.setSpec_date2(cal_now.get(Calendar.DAY_OF_MONTH));
+                                TimeHandler.spec_year2 = cal_now.get(Calendar.YEAR);
+                                TimeHandler.spec_month2 = cal_now.get(Calendar.MONTH);
+                                TimeHandler.spec_date2 = cal_now.get(Calendar.DAY_OF_MONTH);
                             }
-                            datePickerDialog2 = new CustomDatePickerDialog2(context, listener, timeHandler.getSpec_year2(), timeHandler.getSpec_month2(), timeHandler.getSpec_date2());
+                            datePickerDialog2 = new CustomDatePickerDialog2(context, listener, TimeHandler.spec_year2, TimeHandler.spec_month2, TimeHandler.spec_date2);
                             spec_St = designateDate(2, datePickerDialog2, context, activityNum);
                         } else if (spec_point == 2) {
-                            timeHandler.setResultsNum(-2);
+                            TimeHandler.resultsNum = -2;
                             // resultsNum = -2;
-                            spec_St = timeHandler.dateString(timeHandler.getSpec_year1(), timeHandler.getSpec_month1() + 1, timeHandler.getSpec_date1()) + "～" + timeHandler.dateString(timeHandler.getSpec_year2(), timeHandler.getSpec_month2() + 1, timeHandler.getSpec_date2());
+                            spec_St = timeHandler.dateString(TimeHandler.spec_year1, TimeHandler.spec_month1 + 1, TimeHandler.spec_date1) + "～" + timeHandler.dateString(TimeHandler.spec_year2, TimeHandler.spec_month2 + 1, TimeHandler.spec_date2);
                         }
                         // button.setSummary("記録の表示範囲: " + spec_St);
                         dialog.dismiss();
@@ -905,7 +905,7 @@ public class PrefActivity extends PreferenceActivity {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref);
 
-        timeHandler = (TimeHandler) this.getApplication();
+        // timeHandler = (TimeHandler) this.getApplication();
 
         SharedPreferences sp = PrefActivity.this.getSharedPreferences("pref", Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = sp.edit();
@@ -915,27 +915,27 @@ public class PrefActivity extends PreferenceActivity {
 
         // 表示範囲を取得
         int resultsNum = sp.getInt("results", 0);
-        timeHandler.setResultsNum(resultsNum);
+        TimeHandler.resultsNum = resultsNum;
 
         // 表示範囲の選択肢
         final String[] resultsSt = {"すべて表示", "過去1週間", "過去2週間", "過去3週間", "過去4週間", "指定日～今日", "指定日1～指定日2"};
-        setChoices(timeHandler.getResultsNum());
+        setChoices(TimeHandler.resultsNum);
         // setChoices(resultsNum);
 
         // 表示範囲の指定日をDBから取得
         Cursor cursor = db.query("RangeTable", new String[] {"id", "year", "month", "date"}, null, null, null, null, null);
         cursor.moveToFirst();
-        timeHandler.setSpec_year(cursor.getInt(1));
-        timeHandler.setSpec_month(cursor.getInt(2));
-        timeHandler.setSpec_date(cursor.getInt(3));
+        TimeHandler.spec_year = cursor.getInt(1);
+        TimeHandler.spec_month = cursor.getInt(2);
+        TimeHandler.spec_date = cursor.getInt(3);
         cursor.moveToNext();
-        timeHandler.setSpec_year1(cursor.getInt(1));
-        timeHandler.setSpec_month1(cursor.getInt(2));
-        timeHandler.setSpec_date1(cursor.getInt(3));
+        TimeHandler.spec_year1 = cursor.getInt(1);
+        TimeHandler.spec_month1 = cursor.getInt(2);
+        TimeHandler.spec_date1 = cursor.getInt(3);
         cursor.moveToNext();
-        timeHandler.setSpec_year2(cursor.getInt(1));
-        timeHandler.setSpec_month2(cursor.getInt(2));
-        timeHandler.setSpec_date2(cursor.getInt(3));
+        TimeHandler.spec_year2 = cursor.getInt(1);
+        TimeHandler.spec_month2 = cursor.getInt(2);
+        TimeHandler.spec_date2 = cursor.getInt(3);
         cursor.close();
 
         // 表示範囲ボタン
@@ -944,9 +944,9 @@ public class PrefActivity extends PreferenceActivity {
             resultsBtn.setSummary("記録の表示範囲: " + resultsSt[resultsWhich]);
         } else {
             if (resultsWhich == 5) {
-                spec_St = timeHandler.dateString(timeHandler.getSpec_year(), timeHandler.getSpec_month() + 1, timeHandler.getSpec_date()) + "～今日";
+                spec_St = timeHandler.dateString(TimeHandler.spec_year, TimeHandler.spec_month + 1, TimeHandler.spec_date) + "～今日";
             } else if (resultsWhich == 6) {
-                spec_St = timeHandler.dateString(timeHandler.getSpec_year1(), timeHandler.getSpec_month1() + 1, timeHandler.getSpec_date1()) + "～" + timeHandler.dateString(timeHandler.getSpec_year2(), timeHandler.getSpec_month2() + 1, timeHandler.getSpec_date2());
+                spec_St = timeHandler.dateString(TimeHandler.spec_year1, TimeHandler.spec_month1 + 1, TimeHandler.spec_date1) + "～" + timeHandler.dateString(TimeHandler.spec_year2, TimeHandler.spec_month2 + 1, TimeHandler.spec_date2);
             }
             resultsBtn.setSummary("記録の表示範囲: " + spec_St);
         }
@@ -1363,24 +1363,24 @@ public class PrefActivity extends PreferenceActivity {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         // 表示範囲
-                                        editor.putInt("results", timeHandler.getResultsNum());
+                                        editor.putInt("results", TimeHandler.resultsNum);
                                         // 今日～指定日の指定日
                                         ContentValues contentValues = new ContentValues();
-                                        contentValues.put("year", timeHandler.getSpec_year());
-                                        contentValues.put("month", timeHandler.getSpec_month());
-                                        contentValues.put("date", timeHandler.getSpec_date());
+                                        contentValues.put("year", TimeHandler.spec_year);
+                                        contentValues.put("month", TimeHandler.spec_month);
+                                        contentValues.put("date", TimeHandler.spec_date);
                                         db.update("RangeTable", contentValues, "id=" + 0, null);
                                         // 指定日1
                                         ContentValues contentValues1 = new ContentValues();
-                                        contentValues1.put("year", timeHandler.getSpec_year1());
-                                        contentValues1.put("month", timeHandler.getSpec_month1());
-                                        contentValues1.put("date", timeHandler.getSpec_date1());
+                                        contentValues1.put("year", TimeHandler.spec_year1);
+                                        contentValues1.put("month", TimeHandler.spec_month1);
+                                        contentValues1.put("date", TimeHandler.spec_date1);
                                         db.update("RangeTable", contentValues1, "id=" + 1, null);
                                         // 指定日2
                                         ContentValues contentValues2 = new ContentValues();
-                                        contentValues2.put("year", timeHandler.getSpec_year2());
-                                        contentValues2.put("month", timeHandler.getSpec_month2());
-                                        contentValues2.put("date", timeHandler.getSpec_date2());
+                                        contentValues2.put("year", TimeHandler.spec_year2);
+                                        contentValues2.put("month", TimeHandler.spec_month2);
+                                        contentValues2.put("date", TimeHandler.spec_date2);
                                         db.update("RangeTable", contentValues2, "id=" + 2, null);
 
                                         // 起床→就寝切り替え時刻
@@ -1466,10 +1466,10 @@ public class PrefActivity extends PreferenceActivity {
         cursor.close();
 
         // 設定が変更されていなければ閉じる、そうでなければダイアログ表示
-        if (results_back == timeHandler.getResultsNum() && stay_up_back == stay_up_line && sleeping_back == sleeping_line
-                && year_back == timeHandler.getSpec_year() && month_back == timeHandler.getSpec_month() && date_back == timeHandler.getSpec_date()
-                && year_back1 == timeHandler.getSpec_year1() && month_back1 == timeHandler.getSpec_month1() && date_back1 == timeHandler.getSpec_date1()
-                && year_back2 == timeHandler.getSpec_year2() && month_back2 == timeHandler.getSpec_month2() && date_back2 == timeHandler.getSpec_date2()
+        if (results_back == TimeHandler.resultsNum && stay_up_back == stay_up_line && sleeping_back == sleeping_line
+                && year_back == TimeHandler.spec_year && month_back == TimeHandler.spec_month && date_back == TimeHandler.spec_date
+                && year_back1 == TimeHandler.spec_year1 && month_back1 == TimeHandler.spec_month1 && date_back1 == TimeHandler.spec_date1
+                && year_back2 == TimeHandler.spec_year2 && month_back2 == TimeHandler.spec_month2 && date_back2 == TimeHandler.spec_date2
                 && gtb_target_back == gtb_target && gu_target_back == gu_target && slp_target_back == slp_target
                 && default_gtb_back == default_gtb && default_gu_back == default_gu
                 && display_popup_back == display_popup && inversion_back == inversion) {
