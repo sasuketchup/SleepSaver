@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // 強調するデータの位置
     int data_position = 0;
 
-    TimeHandler timeHandler;
+    TimeHandler timeHandler = new TimeHandler();
     PrefActivity prefActivity = new PrefActivity();
 
     // 音声認識のリクエストコード
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        timeHandler = (TimeHandler) this.getApplication();
+        // timeHandler = (TimeHandler) this.getApplication();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -529,7 +529,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         startActivity(intent);
     }
     // CSV入出力
-    public void startCSV(final TimeHandler timeHandler) {
+    public void startCSV() {
         String[] inoutCSVStr = {"期間を指定してCSVファイルを出力", "CSVファイルを指定して読み込み(上書き)"};
         new AlertDialog.Builder(MainActivity.this).setTitle(null).setItems(inoutCSVStr, new DialogInterface.OnClickListener() {
             @Override
@@ -537,7 +537,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 switch (which) {
                     case 0: // 出力
                         prefActivity.resultsWhich = prefActivity.setChoices(0);
-                        prefActivity.setRange(MainActivity.this, 1, timeHandler);
+                        prefActivity.setRange(MainActivity.this, 1);
                         break;
                     case 1: // 入力
                         break;
@@ -566,7 +566,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startSetting();
                 break;
             case R.id.io_csv: // CSV入出力
-                startCSV(timeHandler);
+                startCSV();
                 break;
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);

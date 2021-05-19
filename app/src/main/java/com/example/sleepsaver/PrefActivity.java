@@ -267,7 +267,7 @@ public class PrefActivity extends PreferenceActivity {
     }
 
     // 表示範囲及び対象期間を設定しString型で返すメソッド
-    public String setRange(final Context context, final int activityNum, final TimeHandler timeHandler) {
+    public String setRange(final Context context, final int activityNum) {
 
         // 表示範囲の選択肢
         final String[] resultsSt = {"すべて表示", "過去1週間", "過去2週間", "過去3週間", "過去4週間", "指定日～今日", "指定日1～指定日2"};
@@ -955,7 +955,7 @@ public class PrefActivity extends PreferenceActivity {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
 
-                        setRange(PrefActivity.this, 0, timeHandler);
+                        setRange(PrefActivity.this, 0);
 
 //                        AlertDialog.Builder builder = new AlertDialog.Builder(PrefActivity.this);
 //                        DialogInterface.OnClickListener onDialogClickListener = new DialogInterface.OnClickListener() {
