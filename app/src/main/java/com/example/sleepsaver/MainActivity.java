@@ -17,9 +17,11 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Paint;
+import android.net.sip.SipSession;
 import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.speech.RecognizerIntent;
 import android.text.Html;
 import android.util.Log;
@@ -33,15 +35,19 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.sleepsaver.FileSelectionDialog.OnFileSelectListener;
 import com.google.android.material.navigation.NavigationView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnFileSelectListener {
 
     // 年月日時刻を扱う変数
     int year = 0;
@@ -90,6 +96,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // 音声認識のリクエストコード
     private static final int REQUEST_CODE = 1000;
+
+    // ファイルメニューIDの定数(CSV入力用)
+    private static final int MENUID_FILE = 0;
+    // メンバー変数(初期フォルダ)
+    private String m_strInitialDir = Environment.getExternalStorageDirectory().getPath();
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -540,10 +551,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         prefActivity.setRange(MainActivity.this, 1);
                         break;
                     case 1: // 入力
+                        // ダイアログオブジェクト
+                        FileSelectionDialog selectionDialog = new FileSelectionDialog(MainActivity.this, );
+                        selectionDialog.show(new File(m_strInitialDir));
                         break;
                 }
             }
         }).show();
+    }
+
+    // ダイアログでファイルが選択されたときに呼び出されるメソッド
+    public void onFileSelect(File file) {
+        Toast.makeText(this, "File Selected : " + file.getPath(), Toast.LENGTH_LONG).show();
+        m_strInitialDir = file.getParent();
     }
 
     @Override
