@@ -552,7 +552,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         break;
                     case 1: // 入力
                         // ダイアログオブジェクト
-                        FileSelectionDialog selectionDialog = new FileSelectionDialog(MainActivity.this, );
+                        FileSelectionDialog selectionDialog = new FileSelectionDialog(MainActivity.this, new OnFileSelectListener() {
+                            @Override
+                            public void onFileSelect(File file) {
+                                int point = file.getPath().lastIndexOf(".");
+                                if (point != -1) {
+                                    String extension = file.getPath().substring(point + 1);
+                                    Toast.makeText(MainActivity.this, "File Type : " + extension, Toast.LENGTH_LONG).show();
+                                }
+                                m_strInitialDir = file.getParent();
+                            }
+                        });
                         selectionDialog.show(new File(m_strInitialDir));
                         break;
                 }
