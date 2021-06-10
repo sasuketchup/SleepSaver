@@ -279,6 +279,14 @@ public class TimeHandler extends Application {
                     }
                 }
                 break;
+            case 2:
+                FileSelectionDialog selectionDialog = new FileSelectionDialog(context, new FileSelectionDialog.OnFileSelectListener() {
+                    @Override
+                    public void onFileSelect(File file) {
+
+                    }
+                });
+                break;
         }
     }
 

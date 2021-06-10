@@ -101,6 +101,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int MENUID_FILE = 0;
     // メンバー変数(初期フォルダ)
     private String m_strInitialDir = Environment.getExternalStorageDirectory().getPath();
+    // ファイル選択ダイアログ
+    FileSelectionDialog selectionDialog;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -552,13 +554,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         break;
                     case 1: // 入力
                         // ダイアログオブジェクト
-                        FileSelectionDialog selectionDialog = new FileSelectionDialog(MainActivity.this, new OnFileSelectListener() {
+                        selectionDialog = new FileSelectionDialog(MainActivity.this, new OnFileSelectListener() {
                             @Override
                             public void onFileSelect(File file) {
+                                // 拡張子を取得
                                 int point = file.getPath().lastIndexOf(".");
-                                if (point != -1) {
+                                if (point != -1) { // 拡張子がある場合
                                     String extension = file.getPath().substring(point + 1);
-                                    Toast.makeText(MainActivity.this, "File Type : " + extension, Toast.LENGTH_LONG).show();
+                                    // 拡張子が"csv"かどうか判定
+                                    if (extension.equals("csv")) { // csvであれば確認ダイアログを表示
+
+                                    } else { // csvでなければ警告ダイアログを表示
+                                        // timeHandler.showDialog(MainActivity.this, 2, "", "CSVファイルではありません。\nCSVファイルを選択してください。", "戻る");
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                        builder.setMessage("CSVファイルではありません。\nCSVファイルを選択してください。");
+                                        builder.setPositiveButton(
+                                                "戻る",
+                                                new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        selectionDialog.show(new File(m_strInitialDir));
+                                                    }
+                                                }
+                                        );
+                                        builder.show();
+                                    }
+                                    // Toast.makeText(MainActivity.this, "File Type : " + extension, Toast.LENGTH_LONG).show();
                                 }
                                 m_strInitialDir = file.getParent();
                             }
