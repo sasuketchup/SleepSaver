@@ -268,6 +268,8 @@ public class TimeHandler extends Application {
                         cursor1.close();
                         cursor2.close();
 
+                        Toast.makeText(context, "data_SleepSaver.csv\nを出力しました", Toast.LENGTH_LONG).show();
+
                     } catch (FileNotFoundException exc) {
                         Toast.makeText(context, "アクセス権限がありません", Toast.LENGTH_LONG).show();
                     } catch (Exception e) {

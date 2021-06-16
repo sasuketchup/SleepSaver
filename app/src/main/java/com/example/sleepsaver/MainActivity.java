@@ -563,7 +563,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     String extension = file.getPath().substring(point + 1);
                                     // 拡張子が"csv"かどうか判定
                                     if (extension.equals("csv")) { // csvであれば確認ダイアログを表示
+                                        // ファイル名を取得
+                                        String fileName = file.getName();
 
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                        builder.setMessage(fileName + "を読み込んでデータを上書きします。\n現在のデータはすべて消去されます。よろしいですか？");
+                                        builder.setPositiveButton(
+                                                "OK",
+                                                new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+
+                                                    }
+                                                }
+                                        );
+                                        builder.setNegativeButton(
+                                                "戻る",
+                                                new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        selectionDialog.show(new File(m_strInitialDir));
+                                                    }
+                                                }
+                                        );
+                                        builder.show();
                                     } else { // csvでなければ警告ダイアログを表示
                                         // timeHandler.showDialog(MainActivity.this, 2, "", "CSVファイルではありません。\nCSVファイルを選択してください。", "戻る");
                                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
