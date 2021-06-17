@@ -42,9 +42,15 @@ import androidx.appcompat.widget.Toolbar;
 import com.example.sleepsaver.FileSelectionDialog.OnFileSelectListener;
 import com.google.android.material.navigation.NavigationView;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnFileSelectListener {
@@ -556,7 +562,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         // ダイアログオブジェクト
                         selectionDialog = new FileSelectionDialog(MainActivity.this, new OnFileSelectListener() {
                             @Override
-                            public void onFileSelect(File file) {
+                            public void onFileSelect(final File file) {
                                 // 拡張子を取得
                                 int point = file.getPath().lastIndexOf(".");
                                 if (point != -1) { // 拡張子がある場合
@@ -564,7 +570,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     // 拡張子が"csv"かどうか判定
                                     if (extension.equals("csv")) { // csvであれば確認ダイアログを表示
                                         // ファイル名を取得
-                                        String fileName = file.getName();
+                                        final String fileName = file.getName();
 
                                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                                         builder.setMessage(fileName + "を読み込んでデータを上書きします。\n現在のデータはすべて消去されます。よろしいですか？");
@@ -573,7 +579,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                 new DialogInterface.OnClickListener() {
                                                     @Override
                                                     public void onClick(DialogInterface dialog, int which) {
-
+                                                        try {
+                                                            // CSVファイルの読み込み
+                                                            FileInputStream inputStream = new FileInputStream(file.getPath());
+                                                            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                                                            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                                                            String line;
+                                                            while ((line = bufferedReader.readLine()) != null) {
+                                                                Toast.makeText(MainActivity.this, line, Toast.LENGTH_LONG).show();
+                                                            }
+                                                        } catch (FileNotFoundException e) {
+                                                            e.printStackTrace();
+                                                        } catch (IOException e) {
+                                                            e.printStackTrace();
+                                                        }
                                                     }
                                                 }
                                         );
