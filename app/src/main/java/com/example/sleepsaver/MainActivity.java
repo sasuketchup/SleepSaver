@@ -589,13 +589,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                             MyOpenHelper helper = new MyOpenHelper(MainActivity.this);
                                                             final SQLiteDatabase db = helper.getWritableDatabase();
 
-                                                            // ここでテーブルの内容をすべて削除
+                                                            // ここで既存のテーブルの内容をすべて削除
 
                                                             // 新しく保存するためのid
                                                             int id = 0;
-                                                            // 反対から挿入する必要あり！！(出力の時に反対にするのが楽かも)
+
+                                                            // 反対から挿入するために一旦idをカウント
                                                             while ((line = bufferedReader.readLine()) != null) {
-                                                                // Toast.makeText(MainActivity.this, line, Toast.LENGTH_LONG).show();
+                                                                id++;
+                                                            }
+
+                                                            // idをデクリメントしながらテーブルに挿入する
+                                                            while ((line = bufferedReader.readLine()) != null) {
+
+                                                                // idをデクリメント
+                                                                id--;
 
                                                                 // カンマで区切る
                                                                 String[] rowDataStr = line.split(",");
@@ -606,8 +614,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                                 }
                                                                 // テーブルに挿入
                                                                 timeHandler.insertTime(db, id, rowData[1], rowData[2], rowData[3], rowData[4], rowData[5], rowData[6], rowData[7]);
-                                                                // idをインクリメント
-                                                                id++;
                                                             }
                                                         } catch (FileNotFoundException e) {
                                                             e.printStackTrace();
