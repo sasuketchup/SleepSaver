@@ -590,6 +590,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                             final SQLiteDatabase db = helper.getWritableDatabase();
 
                                                             // ここで既存のテーブルの内容をすべて削除
+                                                            db.execSQL("delete from DateTable;");
+                                                            db.execSQL("delete from GetUpTable;");
+                                                            db.execSQL("delete from GoToBedTable;");
 
                                                             // 新しく保存するためのid
                                                             int id = 0;
@@ -620,6 +623,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                         } catch (IOException e) {
                                                             e.printStackTrace();
                                                         }
+
+                                                        // アクティビティをリスタート
+                                                        finish();
+                                                        overridePendingTransition(0, 0);
+                                                        startActivity(getIntent());
+                                                        overridePendingTransition(0, 0);
                                                     }
                                                 }
                                         );
