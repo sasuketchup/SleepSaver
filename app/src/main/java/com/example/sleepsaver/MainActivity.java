@@ -596,27 +596,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                                                             // 新しく保存するためのid
                                                             int id = 0;
+                                                            // 行ごとに一旦格納するためのArrayList
+                                                            ArrayList<String> lineDataArray = new ArrayList<>();
 
-                                                            // 反対から挿入するために一旦idをカウント
+                                                            // 反対から挿入するために一旦idをカウントしながらArrayListに行を格納
                                                             while ((line = bufferedReader.readLine()) != null) {
+                                                                // 格納
+                                                                lineDataArray.add(line);
+                                                                // idをインクリメント
                                                                 id++;
                                                             }
 
-                                                            // idをデクリメントしながらテーブルに挿入する
-                                                            while ((line = bufferedReader.readLine()) != null) {
+                                                            // デクリメントしながらテーブルに挿入する
+                                                            for (int i = id - 1; i >= 0; --i) {
 
-                                                                // idをデクリメント
-                                                                id--;
+                                                                // System.out.println(i);
 
                                                                 // カンマで区切る
-                                                                String[] rowDataStr = line.split(",");
+                                                                String[] rowDataStr = lineDataArray.get(i).split(",");
                                                                 int[] rowData = new int[rowDataStr.length];
                                                                 // キャスト
-                                                                for (int i = 0; i < rowDataStr.length; i++) {
-                                                                    rowData[i] = Integer.parseInt(rowDataStr[i]);
+                                                                for (int j = 0; j < rowDataStr.length; j++) {
+                                                                    rowData[j] = Integer.parseInt(rowDataStr[j]);
                                                                 }
                                                                 // テーブルに挿入
-                                                                timeHandler.insertTime(db, id, rowData[1], rowData[2], rowData[3], rowData[4], rowData[5], rowData[6], rowData[7]);
+                                                                timeHandler.insertTime(db, id - i - 1, rowData[1], rowData[2], rowData[3], rowData[4], rowData[5], rowData[6], rowData[7]);
                                                             }
                                                         } catch (FileNotFoundException e) {
                                                             e.printStackTrace();
