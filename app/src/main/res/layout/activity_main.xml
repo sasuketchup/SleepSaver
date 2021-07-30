@@ -77,8 +77,8 @@
                 android:id="@+id/scrollView"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginBottom="200dp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="16dp"
+                app:layout_constraintBottom_toTopOf="@+id/GUbtn"
                 app:layout_constraintTop_toBottomOf="@+id/textView"
                 tools:layout_editor_absoluteX="2dp">
 
@@ -125,13 +125,13 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
+                android:layout_marginBottom="16dp"
                 android:text="起床時刻"
                 android:textSize="30sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/GTBbtn"
                 app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/Settings" />
+                app:layout_constraintStart_toStartOf="parent" />
 
             <Button
                 android:id="@+id/GTBbtn"
@@ -151,44 +151,44 @@
                 app:layout_constraintTop_toTopOf="@+id/GUbtn"
                 app:layout_constraintVertical_bias="0.0" />
 
-            <Button
-                android:id="@+id/Settings"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="設定"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintTop_toBottomOf="@+id/scrollView" />
+<!--            <Button-->
+<!--                android:id="@+id/Settings"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="8dp"-->
+<!--                android:text="設定"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintHorizontal_weight="1"-->
+<!--                app:layout_constraintTop_toBottomOf="@+id/scrollView" />-->
 
-            <Button
-                android:id="@+id/data_page"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="睡眠データ"
-                app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/scrollView" />
+<!--            <Button-->
+<!--                android:id="@+id/data_page"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="8dp"-->
+<!--                android:text="睡眠データ"-->
+<!--                app:layout_constraintHorizontal_weight="1"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@+id/scrollView" />-->
 
-            <Button
-                android:id="@+id/graph_page"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="グラフ"
-                app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintStart_toEndOf="@+id/data_page"
-                app:layout_constraintTop_toTopOf="@+id/data_page" />
+<!--            <Button-->
+<!--                android:id="@+id/graph_page"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="グラフ"-->
+<!--                app:layout_constraintHorizontal_weight="1"-->
+<!--                app:layout_constraintStart_toEndOf="@+id/data_page"-->
+<!--                app:layout_constraintTop_toTopOf="@+id/data_page" />-->
 
-            <Button
-                android:id="@+id/voice_input"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="音声入力"
-                app:layout_constraintEnd_toStartOf="@+id/Settings"
-                app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintStart_toEndOf="@+id/graph_page"
-                app:layout_constraintTop_toTopOf="@+id/graph_page" />
+<!--            <Button-->
+<!--                android:id="@+id/voice_input"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="音声入力"-->
+<!--                app:layout_constraintEnd_toStartOf="@+id/Settings"-->
+<!--                app:layout_constraintHorizontal_weight="1"-->
+<!--                app:layout_constraintStart_toEndOf="@+id/graph_page"-->
+<!--                app:layout_constraintTop_toTopOf="@+id/graph_page" />-->
 
     <!--    <Button-->
 <!--        android:id="@+id/debug"-->

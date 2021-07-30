@@ -411,46 +411,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         );
 
         // 睡眠データボタンの処理
-        findViewById(R.id.data_page).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(MainActivity.this, DataActivity.class);
-                        intent.putExtra("Update", false);
-                        startActivity(intent);
-                    }
-                }
-        );
+//        findViewById(R.id.data_page).setOnClickListener(
+//                new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        Intent intent = new Intent(MainActivity.this, DataActivity.class);
+//                        intent.putExtra("Update", false);
+//                        startActivity(intent);
+//                    }
+//                }
+//        );
 
         // グラフボタンの処理
-        findViewById(R.id.graph_page).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(MainActivity.this, GraphActivity.class);
-                        startActivity(intent);
-                    }
-                }
-        );
+//        findViewById(R.id.graph_page).setOnClickListener(
+//                new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        Intent intent = new Intent(MainActivity.this, GraphActivity.class);
+//                        startActivity(intent);
+//                    }
+//                }
+//        );
 
         // 音声入力ボタンの処理
-        findViewById(R.id.voice_input).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // 音声認識のIntentインスタンス
-                        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                        // 認識する言語を指定(日本語)
-                        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.JAPAN.toString());
-                        // 候補数
-                        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
-                        // 案内を表示
-                        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "「おはよう」または「おやすみ」\nと話しかけてください");
-                        // インテント発行
-                        startActivityForResult(intent, REQUEST_CODE);
-                    }
-                }
-        );
+//        findViewById(R.id.voice_input).setOnClickListener(
+//                new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        // 音声認識のIntentインスタンス
+//                        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+//                        // 認識する言語を指定(日本語)
+//                        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.JAPAN.toString());
+//                        // 候補数
+//                        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
+//                        // 案内を表示
+//                        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "「おはよう」または「おやすみ」\nと話しかけてください");
+//                        // インテント発行
+//                        startActivityForResult(intent, REQUEST_CODE);
+//                    }
+//                }
+//        );
 
         // デバッグ用
 //        findViewById(R.id.debug).setOnClickListener(
@@ -464,15 +464,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //        );
 
         // 設定ボタンの処理
-        findViewById(R.id.Settings).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(MainActivity.this, PrefActivity.class);
-                        startActivity(intent);
-                    }
-                }
-        );
+//        findViewById(R.id.Settings).setOnClickListener(
+//                new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        Intent intent = new Intent(MainActivity.this, PrefActivity.class);
+//                        startActivity(intent);
+//                    }
+//                }
+//        );
 
         // 起床時刻ボタンの処理
         findViewById(R.id.GUbtn).setOnClickListener(
@@ -707,11 +707,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.options, menu);
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.options, menu);
+//        return true;
+//    }
 
     // 音声認識の結果を受け取る
     @Override
