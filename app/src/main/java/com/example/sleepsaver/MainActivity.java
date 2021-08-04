@@ -53,6 +53,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import static java.lang.Math.min;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnFileSelectListener {
 
     // 年月日時刻を扱う変数
@@ -218,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView[] textDate = new TextView[(int) idCount];
         final TextView[] textGU = new TextView[(int) idCount];
         final TextView[] textGTB = new TextView[(int) idCount];
-        TextView[] textST = new TextView[(int) idCount - 1];
+        final TextView[] textST = new TextView[(int) idCount - 1];
         // 月の変わるタイミングを調べるためにmonthのみ配列
         int[] month = new int[(int) idCount];
 
@@ -286,9 +288,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             textGTB[i].setText(timeGTBSt);
 //            textDate[i].setWidth(convertDp2Px(80));
 
-            textDate[i].setHeight(150);
-            textGU[i].setHeight(150);
-            textGTB[i].setHeight(150);
+            textDate[i].setHeight(convertDp2Px(50));
+            textGU[i].setHeight(convertDp2Px(50));
+            textGTB[i].setHeight(convertDp2Px(50));
 
 //            textGU[i].setWidth(convertDp2Px(100));
 //            textGTB[i].setWidth(convertDp2Px(100));
@@ -328,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 textST[i].setText(timeSTSt);
                 textST[i].setTextSize(30);
-                textST[i].setHeight(150);
+                textST[i].setHeight(convertDp2Px(50));
                 textST[i].setGravity(Gravity.RIGHT);
 
                 if (diff_now_spec2 <= i && i <= (diff_now_spec1 - 1)) {
@@ -353,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // 睡眠時間の表示位置調整のための空のテキストビュー
         TextView emptyST = new TextView(this);
-        emptyST.setHeight(75);
+        emptyST.setHeight(convertDp2Px(25));
         varSTLay.addView(emptyST, 0);
 
         // 既に最新の記録がある場合記録ボタンを無効化
@@ -366,11 +368,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         data_position += diff_now_spec2;
         textGU[data_position].setTextSize(34);
-        textGTB[data_position].setTextSize(34);
+        textGTB[data_position + 1].setTextSize(34);
+        textST[data_position].setTextSize(34);
         textGU[data_position].setPaintFlags(textGU[data_position].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        textGTB[data_position].setPaintFlags(textGTB[data_position].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        textGTB[data_position + 1].setPaintFlags(textGTB[data_position + 1].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        textST[data_position].setPaintFlags(textST[data_position].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         // スクロールしたときの処理
         final ObservableScrollView obScrollView = (ObservableScrollView) findViewById(R.id.scrollView);
+        final int finalDiff_now_spec2 = diff_now_spec2;
+        // 表示範囲の小さい方
+        final int finalMax_spec1 = Math.min(diff_now_spec1, (int) idCount - 1);
         obScrollView.setOnScrollViewListener(
                 new ObservableScrollView.ScrollViewListener() {
                     @Override
@@ -379,18 +386,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         sum_diffY += diffY;
                         Log.d("diff", String.valueOf(diffY));
                         Log.d("sum", String.valueOf(sum_diffY));
-                        if (Math.abs(sum_diffY) >= 150) {
+                        if (Math.abs(sum_diffY) >= convertDp2Px(50)) {
 
                             // 強調する記録箇所の移動個数
-                            int move_position = sum_diffY / 150;
+                            int move_position = sum_diffY / convertDp2Px(50);
                             Log.d("move_position", String.valueOf(move_position));
 
                             // if (sum_diffY > 0) {
+                                // 強調する箇所を計算
                                 data_position += move_position;
+                                // 行き過ぎた場合は端の記録に修正
+                                // 上
+                                if (data_position < finalDiff_now_spec2) {
+                                    data_position = finalDiff_now_spec2;
+                                }
+                                // 下
+                                if (data_position > finalMax_spec1 - 1) {
+                                    data_position = finalMax_spec1 - 1;
+                                }
+                                // 一つ前の記録を元に戻す
                                 textGU[data_position - move_position].setTextSize(30);
-                                textGTB[data_position - move_position].setTextSize(30);
+                                textGTB[data_position + 1 - move_position].setTextSize(30);
+                                textST[data_position - move_position].setTextSize(30);
                                 textGU[data_position - move_position].setPaintFlags(textGU[data_position - move_position].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
-                                textGTB[data_position - move_position].setPaintFlags(textGTB[data_position - move_position].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
+                                textGTB[data_position + 1 - move_position].setPaintFlags(textGTB[data_position + 1 - move_position].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
+                                textST[data_position - move_position].setPaintFlags(textST[data_position - move_position].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
                                 sum_diffY = 0;
                                 // sum_diffY -= (150 * move_position);
                             // } else {
@@ -401,10 +421,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //                                textGTB[data_position + 1].setPaintFlags(textGTB[data_position + 1].getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
 //                                sum_diffY += 150;
                             // }
+                            // 該当の記録を強調
                             textGU[data_position].setTextSize(34);
-                            textGTB[data_position].setTextSize(34);
+                            textGTB[data_position + 1].setTextSize(34);
+                            textST[data_position].setTextSize(34);
                             textGU[data_position].setPaintFlags(textGU[data_position].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-                            textGTB[data_position].setPaintFlags(textGTB[data_position].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                            textGTB[data_position + 1].setPaintFlags(textGTB[data_position + 1].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                            textST[data_position].setPaintFlags(textST[data_position].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
                         }
                     }
                 }
