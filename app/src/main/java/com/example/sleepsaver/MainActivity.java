@@ -366,18 +366,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             findViewById(R.id.GTBbtn).setEnabled(false);
         }
 
+        // 強調処理
         data_position += diff_now_spec2;
         textGU[data_position].setTextSize(34);
-        textGTB[data_position + 1].setTextSize(34);
-        textST[data_position].setTextSize(34);
         textGU[data_position].setPaintFlags(textGU[data_position].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        textGTB[data_position + 1].setPaintFlags(textGTB[data_position + 1].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        textST[data_position].setPaintFlags(textST[data_position].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        // スクロールしたときの処理
-        final ObservableScrollView obScrollView = (ObservableScrollView) findViewById(R.id.scrollView);
+
         final int finalDiff_now_spec2 = diff_now_spec2;
         // 表示範囲の小さい方
         final int finalMax_spec1 = Math.min(diff_now_spec1, (int) idCount - 1);
+        // データが2行以上あるときはGTBとSTも強調
+        if (finalMax_spec1 > finalDiff_now_spec2) {
+            textGTB[data_position + 1].setTextSize(34);
+            textST[data_position].setTextSize(34);
+            textGTB[data_position + 1].setPaintFlags(textGTB[data_position + 1].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+            textST[data_position].setPaintFlags(textST[data_position].getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        }
+        // スクロールしたときの処理
+        final ObservableScrollView obScrollView = (ObservableScrollView) findViewById(R.id.scrollView);
         obScrollView.setOnScrollViewListener(
                 new ObservableScrollView.ScrollViewListener() {
                     @Override

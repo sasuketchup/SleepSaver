@@ -6,9 +6,10 @@
     android:theme="@style/Theme.AppCompat.Light">
 
     <TextView
+        android:id="@+id/menuTitle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Menu"
-        android:id="@+id/menuTitle" />
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:text="Menu" />
 
 </LinearLayout>
